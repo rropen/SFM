@@ -1,7 +1,7 @@
 <p>
     <img alt="Rolls-Royce Logo" width="100" src="https://raw.githubusercontent.com/rropen/.github/main/img/logo.png">
     <br>
-    Public Web Dashboard for Rolls-Royce Software Factory Metrics
+    Dashboard for Rolls-Royce Software Factory Metrics
 </p>
 
 <!-- Place any useful shield.io shields here.  Use the style=flat styling option. -->
