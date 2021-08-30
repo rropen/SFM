@@ -2,7 +2,7 @@
 name: Feature
 about: Add a new Feature Issue
 title: 'Feat: '
-labels: ''
+labels: 'feature'
 assignees: ''
 
 ---
