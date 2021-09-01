@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  nocodb:
+    image: nocodb/nocodb
+    container_name: nocodb
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: fastapi
+    restart: always
+    env_file:
+      - ./backend/.env
+
+  # frontend:
+  #     build:
+  #         context: ./frontend
+  #     restart: always
+  #     depends_on:
+  #         - backend
+  #     env_file:
+  #         - ./frontend/.env

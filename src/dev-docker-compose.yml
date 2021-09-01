@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+    backend:
+        command: uvicorn main:app --workers 4 --host 0.0.0.0 --port 8181 --reload
+        ports:
+            - 8181:8181
+        environment:
+            ENV: "Local"
+        volumes:
+            - ./backend:/usr/mec/static
+    
+    frontend:
+        build:
+            target: 'deploy'
+        depends_on: 
+            - backend
+        environment:
+            ENV: "development"
+            NODE_ENV: development
+        ports:
+            - 81:80
