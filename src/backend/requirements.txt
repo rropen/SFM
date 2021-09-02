@@ -355,7 +355,7 @@ requests==2.26.0 \
 six==1.16.0 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926
-sqlalchemy==1.4.22 \
+SQLAlchemy==1.4.22 \
     --hash=sha256:488608953385d6c127d2dcbc4b11f8d7f2f30b89f6bd27c01b042253d985cc2f \
     --hash=sha256:5d856cc50fd26fc8dd04892ed5a5a3d7eeb914fea2c2e484183e2d84c14926e0 \
     --hash=sha256:a00d9c6d3a8afe1d1681cd8a5266d2f0ed684b0b44bada2ca82403b9e8b25d39 \
@@ -386,6 +386,12 @@ sqlalchemy==1.4.22 \
     --hash=sha256:b48148ceedfb55f764562e04c00539bb9ea72bf07820ca15a594a9a049ff6b0e \
     --hash=sha256:1fdae7d980a2fa617d119d0dc13ecb5c23cc63a8b04ffcb5298f2c59d86851e9 \
     --hash=sha256:ec1be26cdccd60d180359a527d5980d959a26269a2c7b1b327a1eea0cab37ed8
+sqlalchemy2-stubs==0.0.2a15 \
+    --hash=sha256:3da19252c87c1ae6bf0e49c2873e72a6e5684a1ede2490c8b75b78834239258b \
+    --hash=sha256:9336e0724c985623e055e2db28e8d78a62b40a2628b862c6cd50d7942fd5a238
+sqlmodel==0.0.4 \
+    --hash=sha256:441224eea75ea3799661dad0f9599bbd70322ce7d083f30f6741ebc807bc3ee6 \
+    --hash=sha256:9503befd4374a8e84e9432b344dc9488e9ca2cc4bd1c944ab6837c1bae0b9837
 starlette==0.14.2 \
     --hash=sha256:3c8e48e52736b3161e34c9f0e8153b4f32ec5d8995a3ee1d59410d92f75162ed \
     --hash=sha256:7d49f4a27f8742262ef1470608c59ddbc66baf37c148e938c7038e6bc7a998aa
@@ -404,9 +410,3 @@ uvicorn==0.14.0 \
     --hash=sha256:45ad7dfaaa7d55cab4cd1e85e03f27e9d60bc067ddc59db52a2b0aeca8870292
 --index-url https://pypi.org/simple
 --index-url https://pypi.org/simple
-sqlmodel==0.0.4 \
-    --hash=sha256:441224eea75ea3799661dad0f9599bbd70322ce7d083f30f6741ebc807bc3ee6 \
-    --hash=sha256:9503befd4374a8e84e9432b344dc9488e9ca2cc4bd1c944ab6837c1bae0b9837
-sqlalchemy2-stubs==0.0.2a15 \
-    --hash=sha256:3da19252c87c1ae6bf0e49c2873e72a6e5684a1ede2490c8b75b78834239258b \
-    --hash=sha256:9336e0724c985623e055e2db28e8d78a62b40a2628b862c6cd50d7942fd5a238

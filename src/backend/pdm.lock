@@ -309,6 +309,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sqlalchemy2-stubs"
+version = "0.0.2a15"
+requires_python = ">=3.6"
+summary = "Typing Stubs for SQLAlchemy 1.4"
+dependencies = [
+    "typing-extensions>=3.7.4",
+]
+
+[[package]]
+name = "sqlmodel"
+version = "0.0.4"
+requires_python = ">=3.6.1,<4.0"
+summary = "SQLModel, SQL databases in Python, designed for simplicity, compatibility, and robustness."
+dependencies = [
+    "SQLAlchemy<1.5.0,>=1.4.17",
+    "pydantic<2.0.0,>=1.8.2",
+    "sqlalchemy2-stubs",
+]
+
+[[package]]
 name = "starlette"
 version = "0.14.2"
 requires_python = ">=3.6"
@@ -342,8 +362,8 @@ dependencies = [
 ]
 
 [metadata]
-lock_version = "3"
-content_hash = "sha256:205937123fbf7784f8fac1ab89b88e53eccd12ef8f266fbfcf39ebd006e32de2"
+lock_version = "3.1"
+content_hash = "sha256:000dfeaf397c7c547df18ea4ada2e0c476c2633719d46df41c92e465307c6655"
 
 [metadata.files]
 "alembic 1.6.2" = [
@@ -770,6 +790,14 @@ content_hash = "sha256:205937123fbf7784f8fac1ab89b88e53eccd12ef8f266fbfcf39ebd00
     {file = "SQLAlchemy-1.4.22-cp39-cp39-win32.whl", hash = "sha256:b48148ceedfb55f764562e04c00539bb9ea72bf07820ca15a594a9a049ff6b0e"},
     {file = "SQLAlchemy-1.4.22-cp39-cp39-win_amd64.whl", hash = "sha256:1fdae7d980a2fa617d119d0dc13ecb5c23cc63a8b04ffcb5298f2c59d86851e9"},
     {file = "SQLAlchemy-1.4.22.tar.gz", hash = "sha256:ec1be26cdccd60d180359a527d5980d959a26269a2c7b1b327a1eea0cab37ed8"},
+]
+"sqlalchemy2-stubs 0.0.2a15" = [
+    {file = "sqlalchemy2_stubs-0.0.2a15-py3-none-any.whl", hash = "sha256:3da19252c87c1ae6bf0e49c2873e72a6e5684a1ede2490c8b75b78834239258b"},
+    {file = "sqlalchemy2-stubs-0.0.2a15.tar.gz", hash = "sha256:9336e0724c985623e055e2db28e8d78a62b40a2628b862c6cd50d7942fd5a238"},
+]
+"sqlmodel 0.0.4" = [
+    {file = "sqlmodel-0.0.4-py3-none-any.whl", hash = "sha256:441224eea75ea3799661dad0f9599bbd70322ce7d083f30f6741ebc807bc3ee6"},
+    {file = "sqlmodel-0.0.4.tar.gz", hash = "sha256:9503befd4374a8e84e9432b344dc9488e9ca2cc4bd1c944ab6837c1bae0b9837"},
 ]
 "starlette 0.14.2" = [
     {file = "starlette-0.14.2-py3-none-any.whl", hash = "sha256:3c8e48e52736b3161e34c9f0e8153b4f32ec5d8995a3ee1d59410d92f75162ed"},

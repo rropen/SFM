@@ -1,9 +1,9 @@
 [project]
-name = "MEC Backend"
+name = "SFM Backend"
 version = ""
-description = "FastAPI-based API for the MEC App"
+description = "FastAPI-based API for the SFM App"
 authors = [
-    {name = "Josh Haines", email = "Josh@JoshHaines.com"},
+    {name = "Rolls-Royce Software Factory", email = "Josh.Haines@Rolls-Royce.com"},
 ]
 dependencies = [
     "sqlalchemy~=1.4",
@@ -16,6 +16,7 @@ dependencies = [
     "uvicorn~=0.14",
     "fastapi~=0.66",
     "icecream~=2.1",
+    "sqlmodel~=0.0",
 ]
 requires-python = ">=3.8"
 dynamic = ["classifiers"]
