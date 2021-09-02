@@ -118,3 +118,5 @@ dist
 .pnp.*
 workspace.code-workspace
 .dccache
+src/backend/.pdm.toml
+*.pyc

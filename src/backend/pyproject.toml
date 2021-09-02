@@ -1,0 +1,50 @@
+[project]
+name = "SFM Backend"
+version = ""
+description = "FastAPI-based API for the SFM App"
+authors = [
+    {name = "Rolls-Royce Software Factory", email = "Josh.Haines@Rolls-Royce.com"},
+]
+dependencies = [
+    "sqlalchemy~=1.4",
+    "pydantic==1.8.2",
+    "pip==21.1.1",
+    "msal==1.11.0",
+    "pyodbc==4.0.30",
+    "alembic==1.6.2",
+    "python-dotenv~=0.18",
+    "uvicorn~=0.14",
+    "fastapi~=0.66",
+    "icecream~=2.1",
+    "sqlmodel~=0.0",
+]
+requires-python = ">=3.8"
+dynamic = ["classifiers"]
+license = {text = "MIT"}
+
+[project.urls]
+homepage = ""
+
+
+[project.optional-dependencies]
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]
+[[tool.pdm.source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+[[tool.pdm.source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[tool.pdm.dev-dependencies]
+test = [
+    "pytest~=6.2",
+    "coverage~=5.5",
+    "pytest-cov~=2.12",
+]
