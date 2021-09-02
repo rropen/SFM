@@ -404,3 +404,9 @@ uvicorn==0.14.0 \
     --hash=sha256:45ad7dfaaa7d55cab4cd1e85e03f27e9d60bc067ddc59db52a2b0aeca8870292
 --index-url https://pypi.org/simple
 --index-url https://pypi.org/simple
+sqlmodel==0.0.4 \
+    --hash=sha256:441224eea75ea3799661dad0f9599bbd70322ce7d083f30f6741ebc807bc3ee6 \
+    --hash=sha256:9503befd4374a8e84e9432b344dc9488e9ca2cc4bd1c944ab6837c1bae0b9837
+sqlalchemy2-stubs==0.0.2a15 \
+    --hash=sha256:3da19252c87c1ae6bf0e49c2873e72a6e5684a1ede2490c8b75b78834239258b \
+    --hash=sha256:9336e0724c985623e055e2db28e8d78a62b40a2628b862c6cd50d7942fd5a238

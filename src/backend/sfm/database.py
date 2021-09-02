@@ -29,5 +29,6 @@ if "sqlite" in DATABASE_URL:
 else:
     engine = create_engine(DATABASE_URL)
 
+
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

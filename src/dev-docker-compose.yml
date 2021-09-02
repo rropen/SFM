@@ -8,7 +8,7 @@ services:
         environment:
             ENV: "Local"
         volumes:
-            - ./backend:/usr/mec/static
+            - ./backend:/usr/sfm/static
     
     frontend:
         build:

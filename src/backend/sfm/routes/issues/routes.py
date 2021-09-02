@@ -1,10 +1,9 @@
 from sfm.routes.issues import crud
 from sfm.models import IssueRead, IssueCreate 
 from typing import List
-from sqlmodel import Session, select
+from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path
 from sfm.database import engine
-import json
 
 # Create a database connection we can use
 def get_db():
@@ -60,11 +59,10 @@ def delete_issue(
     """
     ## Delete an issue 
 
-    Pass a issueTitle value and the issue will be deleted from the database.
+    Pass an issueTitle value and the issue will be deleted from the database.
     """
     if not issueTitle:
         raise HTTPException(status_code=404, detail="issueTitle not provided")
-        response_object = []
 
     response = crud.delete_issue(db, issueTitle)
 
@@ -73,11 +71,5 @@ def delete_issue(
     else:
         return {
             "code": "error",
-            "message": "Issue not Deleted or Multiple issues with same issueTitle existed.",
+            "message": "Issue not deleted or multiple issues with same issueTitle existed.",
         }
-
-@router.get("/test")
-def crud_test(db: Session = Depends(get_db)):
-    response = crud.group_cost(db)
-    # print(response)
-    return json.dumps(response)

@@ -1,55 +1,37 @@
-from sfm.models import Meeting
-from sqlalchemy.orm import Session
+from fastapi.exceptions import HTTPException
+from sfm.models import Issue, IssueRead, IssueCreate, IssueUpdate 
+from sqlmodel import Session, select
 
 def get_all(db: Session, skip: int = 0, limit: int = 25):
-    """Get all the meetings and return the them."""
+    """Get all the issues and return them."""
 
-    return db.query(Meeting).offset(skip).limit(limit).all()
+    return db.exec(select(Issue).offset(skip).limit(limit).all())
 
-def group_cost(db: Session):
-    """Finds the cost of meetings with the same group ID"""
-    meetings = db.query(Meeting).all()
-
-    meeting_list = []
-    for m in meetings: 
-        print("Title: {}".format(m.title))
-        print("Comments: {}".format(m.comment))
-        meeting_list.append(m.title)
-        
-    return meeting_list
-
-def create_meeting(db: Session, meeting_data):
-    """Take data from request and create a new meeting in the database."""
-    meeting = Meeting()
-    meeting.meetingId = meeting_data.meetingId
-    meeting.totalCost = meeting_data.totalCost
-    meeting.time = meeting_data.time
-    meeting.date = meeting_data.date
-    meeting.employeeNumber = meeting_data.employeeNumber
-    meeting.meetingGroup = meeting_data.meetingGroup
-    meeting.powerpointSlides = meeting_data.powerpointSlides
-    meeting.comment = meeting_data.comment
-    meeting.title = meeting_data.title
-    meeting.groupCost = meeting_data.groupCost
-
-    db.add(meeting)
+def create_issue(db: Session, issue_data):
+    """Take data from request and create a new issue in the database."""
+    issue_db = Issue.from_orm(issue_data) 
+    db.add(issue_db)
     db.commit()
 
     # Check the new record
-    new_meeting = db.query(Meeting).filter_by(id=meeting.id).first()
-    if new_meeting.meetingId == meeting_data.meetingId:
+    new_issue = db.get(Issue, issue_data.id).first()
+    if new_issue.issueTitle == issue_data.issueTitle:
         return True  # successfully created record
     else:
         return False  # didn't store correctly
 
 
-def delete_meeting(db: Session, item_id):
-    """Take a meetingId (not primary key "id") and remove the row from the database."""
-    db.query(Meeting).filter_by(meetingId=item_id).delete()
+def delete_issue(db: Session, issueTitle):
+    """Take a issueTitle and remove the row from the database."""
+    issue = db.exec(select(Issue).where(Issue.issueTitle == issueTitle))
+    if not issue:
+        raise HTTPException(status_code=404, detail="Issue not found")
+
+    db.delete(issue)
     db.commit()
 
     # Check our work
-    row = db.query(Meeting).filter_by(meetingId=item_id).first()
+    row = db.exec(select(Issue).where(issueTitle == issueTitle).where(Issue.issueTitle == issueTitle).first())
     if row:
         return False  # Row didn't successfully delete or another one exists
     else:
