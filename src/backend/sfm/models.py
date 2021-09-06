@@ -15,20 +15,13 @@ class ProjectBase(SQLModel):
 
 class Project(ProjectBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    project_auth_key: str  # TODO: Figure this out
+    # project_auth_key: str  # TODO: Figure this out
 
     work_items: List["WorkItem"] = Relationship(back_populates="project")
 
 
 class ProjectRead(ProjectBase):
     id: int
-
-
-# Response Model to be used if grabbing one project. Allows for the query to grab info
-# on the work_items associated with that project. If grabbing multiple projects,
-# we would most likely want to just show work item ids
-class ProjectReadWithWorkItems(ProjectRead):
-    work_items: List["WorkItemRead"] = []
 
 
 class ProjectCreate(ProjectBase):
@@ -46,7 +39,6 @@ class ProjectUpdate(SQLModel):
 
 
 class WorkItemBase(SQLModel):
-    id: Optional[int] = Field(default=None, primary_key=True)
     category: str
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
@@ -57,18 +49,13 @@ class WorkItemBase(SQLModel):
 
 
 class WorkItem(WorkItemBase, table=True):
-    project: Optional["Project"] = Relationship(back_populates="work_items")
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    project: Optional[Project] = Relationship(back_populates="work_items")
 
 
 class WorkItemRead(WorkItemBase):
     id: int
-
-
-# Response model to use if you are querying one WorkItem. This will respond with info
-# on the project that the workitem is apart of. If querying many WorkItems, it will be
-# better to respond with WorkItemRead and just pass back the id of the project
-class WorkItemReadWithProject(WorkItemRead):
-    project: Optional[ProjectRead] = None
 
 
 class WorkItemCreate(WorkItemBase):
@@ -83,3 +70,17 @@ class WorkItemUpdate(SQLModel):
     comments: Optional[str] = None
 
     project_id: Optional[int] = None
+
+
+# Response Model to be used if grabbing one project. Allows for the query to grab info
+# on the work_items associated with that project. If grabbing multiple projects,
+# we would most likely want to just show work item ids
+class ProjectReadWithWorkItems(ProjectRead):
+    work_items: List[WorkItemRead] = []
+
+
+# Response model to use if you are querying one WorkItem. This will respond with info
+# on the project that the workitem is apart of. If querying many WorkItems, it will be
+# better to respond with WorkItemRead and just pass back the id of the project
+class WorkItemReadWithProject(WorkItemRead):
+    project: Optional[ProjectRead] = None
