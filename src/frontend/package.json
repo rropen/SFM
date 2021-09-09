@@ -1,6 +1,6 @@
 {
-  "name": "meeting_efficiency_calculator",
-  "version": "0.3.1",
+  "name": "software_factory_metricss",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "serve": "vite --host 0.0.0.0 --port 3000",
