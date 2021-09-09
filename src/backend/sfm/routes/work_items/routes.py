@@ -18,8 +18,8 @@ router = APIRouter()
 def get_work_items(
     skip: int = 0,
     limit: int = 100,
-    project_id: int = None,
-    project_name: str = None,
+    project_id: Optional[int] = None,
+    project_name: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
     """

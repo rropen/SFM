@@ -31,6 +31,7 @@ def create_project(db: Session, project_data, admin_key):
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check the new record
+    db.refresh(project_db)
     new_project = db.get(Project, project_db.id)
     if new_project.name == project_data.name:
         return new_project  # successfully created record
