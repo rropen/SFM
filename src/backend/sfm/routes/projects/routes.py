@@ -1,3 +1,4 @@
+from fastapi.param_functions import Header
 from sfm.routes.projects import crud
 from sfm.models import ProjectRead, ProjectCreate
 from typing import List
@@ -27,8 +28,25 @@ def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
     return projects
 
 
+@router.get("/{project_id}", response_model=ProjectRead)
+def get_project(project_id: int, db: Session = Depends(get_db)):
+    """
+    ## Get Project by Id
+
+    Get a the project with matching id stored in the database
+    """
+    project = crud.get_by_id(db, project_id=project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
+
+
 @router.post("/")
-def create_project(project_data: ProjectCreate, db: Session = Depends(get_db)):
+def create_project(
+    project_data: ProjectCreate,
+    admin_key: str = Header(...),
+    db: Session = Depends(get_db),
+):
     """
     ## Create Project
 
@@ -39,12 +57,13 @@ def create_project(project_data: ProjectCreate, db: Session = Depends(get_db)):
 
     # Creates the database row and stores it in the table
 
-    new_project_success = crud.create_project(db, project_data)
+    new_project = crud.create_project(db, project_data, admin_key)
 
-    if new_project_success:
+    if new_project:
         return {
             "code": "success",
-            "message": "Row Created",
+            "id": new_project.id,
+            "token": new_project.project_auth_token,
         }
     else:
         return {"code": "error", "message": "Row Not Created"}
@@ -52,23 +71,51 @@ def create_project(project_data: ProjectCreate, db: Session = Depends(get_db)):
 
 @router.delete("/{project_id}")
 def delete_project(
-    project_id: int = Path(..., title="The ID of the project"),
+    project_id: int,
+    admin_key: str = Header(...),
     db: Session = Depends(get_db),
 ):
     """
-    # Delete a project
+    ## Delete a project
 
     Pass a project_id value and the project will be deleted from the database.
     """
     if not project_id:
         raise HTTPException(status_code=404, detail="project_id not provided")
 
-    response = crud.delete_project(db, project_id)
+    response = crud.delete_project(db, project_id, admin_key)
 
     if response:
-        return {"code": "success", "message": "Project {} Deleted".format(project_id)}
+        return {
+            "code": "success",
+            "message": "Project {} and associated workItems deleted".format(project_id),
+        }
     else:
         return {
             "code": "error",
             "message": "Project not deleted or multiple projects with same project_id existed.",
         }
+
+
+@router.post("/{project_id}")
+def refresh_project_key(
+    project_id: int,
+    admin_key: str = Header(...),
+    db: Session = Depends(get_db),
+):
+    """
+    ## Refresh a project auth token
+
+    Pass a project_id value and admin key and the project auth token will be refreshed.
+    """
+    if not project_id:
+        raise HTTPException(status_code=404, detail="project_id not provided")
+
+    refreshed_token = crud.refresh_project_key(db, project_id, admin_key)
+    if refreshed_token:
+        return {
+            "code": "success",
+            "token": refreshed_token,
+        }
+    else:
+        return {"code": "error", "message": "Token Not Refreshed"}

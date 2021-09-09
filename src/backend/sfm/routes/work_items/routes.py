@@ -1,8 +1,8 @@
 from sfm.routes.work_items import crud
 from sfm.models import WorkItemRead, WorkItemCreate
-from typing import List
+from typing import List, Optional
 from sqlmodel import Session
-from fastapi import APIRouter, HTTPException, Depends, Path
+from fastapi import APIRouter, HTTPException, Depends, Path, Header
 from sfm.database import engine
 
 # Create a database connection we can use
@@ -15,20 +15,45 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[WorkItemRead])
-def get_work_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_work_items(
+    skip: int = 0,
+    limit: int = 100,
+    project_id: int = None,
+    project_name: str = None,
+    db: Session = Depends(get_db),
+):
     """
     ## Get WorkItems
 
     Get a list of all the WorkItems stored in the database
     """
-    work_items = crud.get_all(db, skip=skip, limit=limit)
+    work_items = crud.get_all(
+        db, skip=skip, limit=limit, project_id=project_id, project_name=project_name
+    )
     if not work_items:
         raise HTTPException(status_code=404, detail="WorkItems not found")
     return work_items
 
 
+@router.get("/{work_item_id}")
+def get_work_item(work_item_id: int, db: Session = Depends(get_db)):
+    """
+    ## Get WorkItem Specified by ID
+
+    Get a WorkItem stored in the database
+    """
+    work_item = crud.get_by_id(db, work_item_id)
+    if not work_item:
+        raise HTTPException(status_code=404, detail="WorkItem not found")
+    return work_item
+
+
 @router.post("/")
-def create_work_item(work_item_data: WorkItemCreate, db: Session = Depends(get_db)):
+def create_work_item(
+    work_item_data: WorkItemCreate,
+    project_auth_token: str = Header(...),
+    db: Session = Depends(get_db),
+):
     """
     ## Create WorkItem
 
@@ -39,12 +64,13 @@ def create_work_item(work_item_data: WorkItemCreate, db: Session = Depends(get_d
 
     # Creates the database row and stores it in the table
 
-    new_work_item_success = crud.create_work_item(db, work_item_data)
+    new_work_item_success = crud.create_work_item(
+        db, work_item_data, project_auth_token
+    )
 
     if new_work_item_success:
         return {
             "code": "success",
-            "message": "Row Created",
             "id": new_work_item_success,
         }
     else:
@@ -54,7 +80,8 @@ def create_work_item(work_item_data: WorkItemCreate, db: Session = Depends(get_d
 # Since  WorkItem has no name, use database id to delete item
 @router.delete("/{work_item_id}")
 def delete_work_item(
-    work_item_id: int = Path(..., title="The database id of the WorkItem"),
+    work_item_id: int,
+    project_auth_token: str = Header(...),
     db: Session = Depends(get_db),
 ):
     """
@@ -65,7 +92,7 @@ def delete_work_item(
     if not work_item_id:
         raise HTTPException(status_code=404, detail="work_item_id not provided")
 
-    response = crud.delete_work_item(db, work_item_id)
+    response = crud.delete_work_item(db, work_item_id, project_auth_token)
 
     if response:
         return {

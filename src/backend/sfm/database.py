@@ -25,7 +25,8 @@ assert DATABASE_URL != ""
 # check_same_thread = false only works in sqlite, not postgres or others
 if "sqlite" in DATABASE_URL:
     print("Using a sqlite database")
-    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    connect_args = {"check_same_thread": False}
+    engine = create_engine(DATABASE_URL, connect_args=connect_args)
 else:
     engine = create_engine(DATABASE_URL)
 

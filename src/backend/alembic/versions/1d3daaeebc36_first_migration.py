@@ -47,6 +47,7 @@ def upgrade():
         sa.Column("location", sa.VARCHAR(), nullable=False),
         sa.Column("repo_url", sa.VARCHAR(), nullable=False),
         sa.Column("on_prem", sa.BOOLEAN(), nullable=False),
+        sa.Column("project_auth_token", sa.VARCHAR(), nullable=False),
     )
     # op.create_index("ix_workItems_id", "workItems", ["id"], unique=True)
     # ### end Alembic commands ###
