@@ -31,8 +31,24 @@
               font-sans
             "
           >
-            <span class="text-rrpink-400" v-if="env == 'development'">dev</span
-            >Metrics
+            Software Factory Metrics
+          </div></router-link
+        >
+      </div>
+      <div class="h-16">
+        <router-link :to="{ name: 'About' }"
+          ><div
+            class="
+              h-full
+              w-auto
+              px-6
+              inline-block
+              no-underline
+              text-white
+              hover:text-white hover:bg-rrblue-400
+            "
+          >
+            About
           </div></router-link
         >
       </div>
@@ -40,20 +56,8 @@
   </div>
 </template>
 
-<script>
-import { ref, defineComponent } from "vue";
-
-export default defineComponent({
-  name: "Header",
-  components: {},
-  setup() {
-    const env = process.env.VUE_APP_ENV;
-
-    return {
-      env,
-    };
-  },
-});
+<script setup lang="ts">
+const env = import.meta.env.VITE_ENV;
 </script>
 
 <style scoped>

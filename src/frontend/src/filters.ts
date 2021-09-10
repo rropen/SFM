@@ -13,7 +13,7 @@ export default {
       return "";
     } else {
       if (typeof val === "string") {
-        return moment.unix(parseInt(val) / 1000).format("DD MMM YYYY");
+        return moment.unix(parseInt(val) / 1000).format("DD MMM YYYY"); // rounding error occurs here
       }
       return moment.unix(val / 1000).format("DD MMM YYYY");
     }
