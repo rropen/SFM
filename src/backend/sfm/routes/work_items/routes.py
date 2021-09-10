@@ -1,5 +1,5 @@
 from sfm.routes.work_items import crud
-from sfm.models import WorkItemRead, WorkItemCreate
+from sfm.models import WorkItemRead, WorkItemCreate, WorkItemUpdate
 from typing import List, Optional
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Header
@@ -104,3 +104,31 @@ def delete_work_item(
             "code": "error",
             "message": "WorkItem not deleted or multiple WorkItems with same work_item_id existed.",
         }
+
+
+@router.patch("/{work_item_id}")
+def update_work_item(
+    work_item_id: int,
+    work_item_data: WorkItemUpdate,
+    project_auth_token: str = Header(...),
+    db: Session = Depends(get_db),
+):
+    """
+    ## Update WorkItem
+
+    Update an existing WorkItem in the database from the data provided in the request.
+    """
+    if not work_item_data:
+        raise HTTPException(status_code=404, detail="WorkItem data not provided")
+
+    update_work_item_success = crud.update_work_item(
+        db, work_item_id, work_item_data, project_auth_token
+    )
+
+    if update_work_item_success:
+        return {
+            "code": "success",
+            "id": update_work_item_success,
+        }
+    else:
+        return {"code": "error", "message": "Row not updated"}
