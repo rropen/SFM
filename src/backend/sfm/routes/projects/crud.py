@@ -1,7 +1,7 @@
 from os import stat
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm.session import DEACTIVE
-from sfm.models import Project
+from sfm.models import Project, WorkItem
 from sqlmodel import Session, select
 
 from sfm.utils import create_project_auth_token, verify_admin_key
@@ -79,3 +79,31 @@ def refresh_project_key(db: Session, project_id, admin_key):
         return new_token
     else:
         return False
+
+
+def update_project(db: Session, project_id, project_data, admin_key):
+    """Take data from request and update an existing Project in the database."""
+
+    verified_admin = verify_admin_key(admin_key)
+    if verified_admin:
+        project = db.get(Project, project_id)
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        project_newdata = project_data.dict(exclude_unset=True)
+        for key, value in project_newdata.items():
+            setattr(project, key, value)
+
+        db.add(project)
+        db.commit()
+
+    else:
+        raise HTTPException(status_code=401, detail="Credentials are incorrect")
+
+    # return updated item
+    db.refresh(project)
+    print(project)
+    if project:
+        return project  # updated record
+    else:
+        return False  # didn't store correctly

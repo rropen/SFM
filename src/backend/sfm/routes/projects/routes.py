@@ -1,6 +1,11 @@
 from fastapi.param_functions import Header
 from sfm.routes.projects import crud
-from sfm.models import ProjectRead, ProjectCreate
+from sfm.models import (
+    ProjectRead,
+    ProjectCreate,
+    ProjectUpdate,
+    ProjectReadWithWorkItems,
+)
 from typing import List
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path
@@ -28,7 +33,7 @@ def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
     return projects
 
 
-@router.get("/{project_id}", response_model=ProjectRead)
+@router.get("/{project_id}", response_model=ProjectReadWithWorkItems)
 def get_project(project_id: int, db: Session = Depends(get_db)):
     """
     ## Get Project by Id
@@ -119,3 +124,31 @@ def refresh_project_key(
         }
     else:
         return {"code": "error", "message": "Token Not Refreshed"}
+
+
+@router.patch("/{project_id}")
+def update_project(
+    project_id: int,
+    project_data: ProjectUpdate,
+    admin_key: str = Header(...),
+    db: Session = Depends(get_db),
+):
+    """
+    ## Update Project
+
+    Update an existing Project in the database from the data provided in the request.
+    """
+    if not project_data:
+        raise HTTPException(status_code=404, detail="Project data not provided")
+
+    update_project_success = crud.update_project(
+        db, project_id, project_data, admin_key
+    )
+
+    if update_project_success:
+        return {
+            "code": "success",
+            "id": update_project_success.id,
+        }
+    else:
+        return {"code": "error", "message": "Row not updated"}
