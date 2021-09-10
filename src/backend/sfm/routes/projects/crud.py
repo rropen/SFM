@@ -14,6 +14,9 @@ def get_all(db: Session, skip: int, limit: int):
 
 def get_by_id(db: Session, project_id: int):
     """Get the project with corresponding id and return it."""
+    project = db.get(Project, project_id)
+
+    print(project.work_items)
     return db.get(Project, project_id)
 
 
