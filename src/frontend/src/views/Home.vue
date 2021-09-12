@@ -15,7 +15,7 @@
           leave-from="opacity-100"
           leave-to="opacity-0"
         >
-          <DialogOverlay class="fixed inset-0 bg-gray-600 bg-opacity-75" />
+          <DialogOverlay class="fixed inset-0 bg-rrgrey-800 bg-opacity-95" />
         </TransitionChild>
         <TransitionChild
           as="template"
@@ -26,6 +26,7 @@
           leave-from="translate-x-0"
           leave-to="-translate-x-full"
         >
+          <!-- Mobile Sidebar -->
           <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
             <TransitionChild
               as="template"
@@ -37,6 +38,7 @@
               leave-to="opacity-0"
             >
               <div class="absolute top-0 right-0 -mr-12 pt-2">
+                <!-- Close Sidebar Button -->
                 <button
                   type="button"
                   class="
@@ -47,10 +49,8 @@
                     h-10
                     w-10
                     rounded-full
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-inset
-                    focus:ring-rrblue-400
+                    bg-rrgrey-800
+                    ring-2 ring-inset ring-rrblue-400
                   "
                   @click="sidebarOpen = false"
                 >
@@ -59,7 +59,30 @@
                 </button>
               </div>
             </TransitionChild>
-            <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+            <div class="flex-1 h-0 pb-4 overflow-y-auto">
+              <h1
+                class="
+                  mx-auto
+                  text-center
+                  mt-5
+                  text-2xl
+                  font-semibold
+                  text-rrgrey-800
+                "
+              >
+                Dora<br />Metrics
+              </h1>
+              <p
+                class="
+                  mx-auto
+                  mt-2
+                  text-center text-rrblue-800
+                  underline
+                  text-sm
+                "
+              >
+                Learn More
+              </p>
               <nav class="mt-5 px-2 space-y-1">
                 <a
                   v-for="item in navigation"
@@ -98,8 +121,25 @@
     <div class="hidden md:flex md:flex-shrink-0">
       <div class="flex flex-col w-64">
         <!-- Sidebar component, swap this element with another sidebar if you like -->
-        <div class="flex-1 flex flex-col min-h-0 bg-white">
-          <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+        <div class="flex-1 flex flex-col min-h-0 bg-white shadow-lg">
+          <div class="flex-1 flex flex-col pb-4 overflow-y-auto">
+            <h1
+              class="
+                mx-auto
+                text-center
+                mt-5
+                text-2xl
+                font-semibold
+                text-rrgrey-800
+              "
+            >
+              Dora<br />Metrics
+            </h1>
+            <p
+              class="mx-auto mt-2 text-center text-rrblue-800 underline text-sm"
+            >
+              Learn More
+            </p>
             <nav class="mt-5 flex-1 px-2 bg-white space-y-1">
               <a
                 v-for="item in navigation"
@@ -142,12 +182,12 @@
             items-center
             justify-center
             rounded-md
-            text-gray-500
-            hover:text-gray-900
+            text-rrgrey-600
+            hover:text-rrgrey-800
             focus:outline-none
             focus:ring-2
             focus:ring-inset
-            focus:ring-indigo-500
+            focus:ring-rrblue-400
           "
           @click="sidebarOpen = true"
         >
@@ -167,14 +207,16 @@
       >
         <div class="py-6">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-2xl font-semibold text-rrgry-900">Content</h1>
+            <h1 class="text-2xl font-semibold text-rrgrey-900">Project Name</h1>
           </div>
           <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <!-- Replace with your content -->
             <div class="py-4">
               <div
                 class="border-4 border-dashed border-gray-200 rounded-lg h-96"
-              />
+              >
+                charts go here
+              </div>
             </div>
             <!-- /End replace -->
           </div>
