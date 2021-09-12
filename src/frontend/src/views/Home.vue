@@ -26,7 +26,6 @@
           leave-from="translate-x-0"
           leave-to="-translate-x-full"
         >
-          <!-- Mobile Sidebar -->
           <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
             <TransitionChild
               as="template"
