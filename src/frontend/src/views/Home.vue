@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex overflow-hidden bg-gray-100">
+  <div class="h-screen flex overflow-hidden bg-gray-100 px-4">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog
         as="div"
