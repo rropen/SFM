@@ -34,7 +34,6 @@ def get_all(db: Session, skip: int, limit: int, project_id: int, project_name: s
 
 def get_by_id(db: Session, work_item_id):
     """Get a specified WorkItem and return it."""
-
     return db.get(WorkItem, work_item_id)
 
 
@@ -44,7 +43,7 @@ def create_work_item(db: Session, work_item_data, project_auth_token):
     if not intended_project:
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
-        project_auth_token, intended_project.project_auth_token
+        project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
         work_item_db = WorkItem.from_orm(work_item_data)
@@ -70,7 +69,7 @@ def delete_work_item(db: Session, work_item_id, project_auth_token):
     if not intended_project:
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
-        project_auth_token, intended_project.project_auth_token
+        project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
         db.delete(work_item)
@@ -96,7 +95,7 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
     if not intended_project:
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
-        project_auth_token, intended_project.project_auth_token
+        project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
         work_item_newdata = work_item_data.dict(exclude_unset=True)

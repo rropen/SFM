@@ -11,10 +11,47 @@ ALGORITHM = config.ALGORITHM
 ADMIN_KEY = config.ADMIN_KEY
 
 
-def create_project_auth_token(expires_delta: Optional[timedelta] = None):
-    letters = string.ascii_uppercase
-    randString = "".join(random.choice(letters) for i in range(10))
-    to_encode = {"string": randString}
+def create_project_auth_token():
+    low_letters = string.ascii_lowercase
+    up_letters = string.ascii_uppercase
+    digits = string.digits
+    symbols = [
+        "!",
+        "#",
+        "$",
+        "%",
+        "&",
+        "*",
+        "+",
+        ":",
+        ";",
+        "?",
+        "<",
+        ">",
+        "=",
+        "_",
+        "~",
+    ]
+
+    rand_arr = []
+    for i in range(10):
+        choice = random.randrange(4)
+        if choice == 0:
+            rand_char = random.choice(low_letters)
+        elif choice == 1:
+            rand_char = random.choice(up_letters)
+        elif choice == 2:
+            rand_char = random.choice(digits)
+        elif choice == 3:
+            rand_char = random.choice(symbols)
+
+        rand_arr.append(rand_char)
+
+    return "".join(rand_arr)
+
+
+def hash_project_auth_token(token: str, expires_delta: Optional[timedelta] = None):
+    to_encode = {"sub": token}
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -25,7 +62,8 @@ def create_project_auth_token(expires_delta: Optional[timedelta] = None):
 
 
 def verify_project_auth_token(attempt: str, target: str):
-    if attempt == target:
+    decoded_target = jwt.decode(target, SECRET_KEY, algorithms=[ALGORITHM])
+    if attempt == decoded_target["sub"]:
         return True
     else:
         return False

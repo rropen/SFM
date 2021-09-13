@@ -4,7 +4,6 @@ from sfm.models import (
     ProjectRead,
     ProjectCreate,
     ProjectUpdate,
-    ProjectReadWithWorkItems,
 )
 from typing import List
 from sqlmodel import Session
@@ -33,7 +32,7 @@ def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
     return projects
 
 
-@router.get("/{project_id}", response_model=ProjectReadWithWorkItems)
+@router.get("/{project_id}", response_model=ProjectRead)
 def get_project(project_id: int, db: Session = Depends(get_db)):
     """
     ## Get Project by Id
@@ -62,13 +61,15 @@ def create_project(
 
     # Creates the database row and stores it in the table
 
-    new_project = crud.create_project(db, project_data, admin_key)
+    new_project_arr = crud.create_project(db, project_data, admin_key)
 
-    if new_project:
+    if new_project_arr:
+        new_project = new_project_arr[0]
+        token = new_project_arr[1]
         return {
             "code": "success",
             "id": new_project.id,
-            "token": new_project.project_auth_token,
+            "token": token,
         }
     else:
         return {"code": "error", "message": "Row Not Created"}

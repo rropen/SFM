@@ -15,7 +15,7 @@ class ProjectBase(SQLModel):
 
 class Project(ProjectBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    project_auth_token: str
+    project_auth_token_hashed: str
 
     work_items: List["WorkItem"] = Relationship(back_populates="project")
 
