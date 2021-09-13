@@ -1,14 +1,16 @@
 import config
 from datetime import datetime, timedelta
 from typing import Optional
+from passlib.context import CryptContext
 
-import jwt
 import string
 import random
 
 SECRET_KEY = config.SECRET_KEY
 ALGORITHM = config.ALGORITHM
 ADMIN_KEY = config.ADMIN_KEY
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def create_project_auth_token():
@@ -51,22 +53,11 @@ def create_project_auth_token():
 
 
 def hash_project_auth_token(token: str, expires_delta: Optional[timedelta] = None):
-    to_encode = {"sub": token}
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(days=365)  # By default, expire in a year
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return pwd_context.hash(token)
 
 
 def verify_project_auth_token(attempt: str, target: str):
-    decoded_target = jwt.decode(target, SECRET_KEY, algorithms=[ALGORITHM])
-    if attempt == decoded_target["sub"]:
-        return True
-    else:
-        return False
+    return pwd_context.verify(attempt, target)
 
 
 def verify_admin_key(attempt):
