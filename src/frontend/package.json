@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@headlessui/vue": "^1.4.0",
+    "@rrglobal/vue-cobalt": "1.0.0",
     "@heroicons/vue": "^1.0.3",
     "apexcharts": "^3.27.3",
     "axios": "^0.21.2",
@@ -21,6 +22,7 @@
     "nanoid": "^3.1.25",
     "node-sass": "^6.0.1",
     "package.json": "^2.0.1",
+    "pinia": "^2.0.0-rc.8",
     "primeicons": "^4.1.0",
     "primevue": "^3.6.4",
     "vee-validate": "^4.4.9",
