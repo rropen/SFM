@@ -161,3 +161,4 @@ src/backend/.pdm.toml
 # Editor Files
 src/backend/*.db
 .npmrc
+.yarnrc
