@@ -1,0 +1,106 @@
+{
+  "name": "software_factory_metrics",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "serve": "vite --host 0.0.0.0 --port 3000",
+    "build": "vite build",
+    "cypress": "cypress run",
+    "cy": "start-server-and-test serve http-get://localhost:3000 cypress",
+    "cy-open": "cypress open",
+    "cy-ct": "cypress run-ct",
+    "cy-open-ct": "cypress open-ct"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.4.0",
+    "@rrglobal/vue-cobalt": "1.0.0",
+    "@heroicons/vue": "^1.0.3",
+    "apexcharts": "^3.27.3",
+    "axios": "^0.21.2",
+    "flush-promises": "^1.0.2",
+    "moment": "^2.29.1",
+    "nanoid": "^3.1.25",
+    "node-sass": "^6.0.1",
+    "package.json": "^2.0.1",
+    "pinia": "^2.0.0-rc.8",
+    "primeicons": "^4.1.0",
+    "primevue": "^3.6.4",
+    "vee-validate": "^4.4.9",
+    "vue": "^3.2.1",
+    "vue-apexcharts": "^1.6.0",
+    "vue-axios": "^3.2.5",
+    "vue-router": "^4.0.10",
+    "yarn": "^1.22.11",
+    "yup": "^0.32.9"
+  },
+  "devDependencies": {
+    "@cypress/vite-dev-server": "^2.0.7",
+    "@cypress/vue": "^3.0.3",
+    "@tailwindcss/aspect-ratio": "^0.2.1",
+    "@tailwindcss/forms": "^0.3.3",
+    "@tailwindcss/line-clamp": "^0.2.1",
+    "@tailwindcss/typography": "^0.4.1",
+    "@vitejs/plugin-vue": "^1.4.0",
+    "@vue/compiler-sfc": "^3.0.11",
+    "autoprefixer": "^10.2.5",
+    "cypress": "^8.2.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.24.1",
+    "eslint-plugin-vue": "^7.16.0",
+    "path-parse": "^1.0.7",
+    "postcss": "^8.2.10",
+    "prettier": "^2.3.2",
+    "start-server-and-test": "^1.13.1",
+    "tailwindcss": "^2.2.7",
+    "trim-newlines": "^3.0.1",
+    "typescript": "~3.9.3",
+    "vite": "^2.4.4"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "browser": true,
+      "es2021": true
+    },
+    "extends": [
+      "plugin:vue/strongly-recommended",
+      "plugin:vue/vue3-recommended",
+      "eslint:recommended",
+      "@vue/prettier"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 12,
+      "sourceType": "module",
+      "parser": "@typescript-eslint/parser"
+    },
+    "plugins": [
+      "vue",
+      "prettier",
+      "@typescript-eslint"
+    ],
+    "rules": {
+      "vue/component-definition-name-casing": "error",
+      "vue/component-tags-order": "warn"
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ]
+      }
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "src/frontend/node_modules/cz-conventional-changelog"
+    }
+  }
+}

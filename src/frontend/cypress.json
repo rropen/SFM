@@ -1,0 +1,9 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "experimentalStudio": true,
+  "viewportWidth": 1440,
+  "viewportHeight": 1000,
+  "video": false,
+  "componentFolder": "src",
+  "testFiles": "**/*.spec.js"
+}
