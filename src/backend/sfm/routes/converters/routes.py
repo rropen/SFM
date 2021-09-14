@@ -33,6 +33,11 @@ async def webhook_handler(
     # project_auth_token: str = Header(...),
     db: Session = Depends(get_db),
 ):
+    """
+    ## Github Converter
+
+    Takes webhook payload and parse into database items
+    """
     # handle events
     payload = await request.json()
     event_type = request.headers.get("X-Github-Event")
