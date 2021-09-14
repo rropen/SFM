@@ -176,10 +176,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@rrglobal/vue-cobalt@^1.1.1":
-  version "1.1.1"
-  resolved "https://npm.pkg.github.com/download/@rrglobal/vue-cobalt/1.1.1/7a15ccfda35ebf3eeaced277bcb14412637145ee4d7f566bf2bef7e140372504#322e2887798faba5d3ab7c31a6425e7472103e3c"
-  integrity sha512-iNEMkXgQdnHkWjQlANGfizBs2WKajsCOHbJeGwT46VhYTiOv8ZcfWFuJ9SVQvsQBy2bMnY9A7KAqa02SzCH8sw==
+"@rrglobal/vue-cobalt@^1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@rrglobal/vue-cobalt/1.2.1/bb0ead98f13cd7a501f2d3c4cab2cf765e85819d4bdc3360193d4ed834d7d4fa#ff01ea8a9a4f3d3ad317ea89c94672e98c3999c6"
+  integrity sha512-nf1trFgiuconRWF/Efts9wo9U/SbcyDkmhrOzOl1LhY+isZXu6JgiVrgwSj0Y5gwvdtmQCEaoweUMwRByO1Xpw==
   dependencies:
     vue "^3.2.0"
 
@@ -4527,12 +4527,17 @@ vue-eslint-parser@^7.10.0:
     lodash "^4.17.21"
     semver "^6.3.0"
 
-vue-router@^4.0.10:
+vue-router@4:
   version "4.0.11"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.0.11.tgz#cd649a0941c635281763a20965b599643ddc68ed"
   integrity sha512-sha6I8fx9HWtvTrFZfxZkiQQBpqSeT+UCwauYjkdOQYRvwsGwimlQQE2ayqUwuuXGzquFpCPoXzYKWlzL4OuXg==
   dependencies:
     "@vue/devtools-api" "^6.0.0-beta.14"
+
+vue3-apexcharts@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/vue3-apexcharts/-/vue3-apexcharts-1.4.1.tgz#ea561308430a1c5213b7f17c44ba3c845f6c490d"
+  integrity sha512-96qP8JDqB9vwU7bkG5nVU+E0UGQn7yYQVqUUCLQMYWDuQyu2vE77H/UFZ1yI+hwzlSTBKT9BqnNG8JsFegB3eg==
 
 vue@^3.2.0, vue@^3.2.1:
   version "3.2.11"
