@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from statistics import median
 from sfm.routes.work_items import crud
@@ -54,9 +54,11 @@ def get_work_items(
         deployments = [
             item for item in project.work_items if (item.category == "Deployment")
         ]
+        deployment_dates = [deploy.end_time.date() for deploy in deployments]
+        print(deployment_dates)
         # ^^^ We will return the dates of this back to the front end to display on charts. We need to only grab
         #     the last three months of deployments for our "Current Status" metric
-        three_months_ago = datetime.now() - relativedelta(months=3)
+        three_months_ago = datetime.now() - timedelta(days=84)
         recent_deploy_dates = [
             deployment.end_time
             for deployment in deployments
@@ -65,27 +67,61 @@ def get_work_items(
 
         deploy_frequency = "Yearly"  # for now
 
-        weekly_deploys = []
+        days_deployed = (
+            []
+        )  # list of 12 integers that represent the number of days during that week a deployment occurred
+        weekly_deployed = (
+            []
+        )  # list of 12 integers(1,0) that represent if a deploy happened during that week
         week_start = three_months_ago
         for i in range(12):  # 12 weeks in 3 months
-            week_end = week_start + relativedelta(days=7)
-            deploys_in_week = filter(
-                lambda deploy_date: (
-                    deploy_date >= week_start and deploy_date <= week_end
-                ),
-                recent_deploy_dates,
-            )
-            weekly_deploys.append(len(list(deploys_in_week)))
+            week_end = week_start + timedelta(days=7)
+            deploys_in_week = []
+            for deploy_date in recent_deploy_dates:
+                if (
+                    (deploy_date >= week_start)
+                    and (deploy_date < week_end)
+                    and (deploy_date.date() not in deploys_in_week)
+                ):
+                    # only one deploy per day counts
+                    deploys_in_week.append(deploy_date)
 
-            week_start += relativedelta(days=7)
+            days_deployed.append(len(deploys_in_week))
 
-        for i, week in enumerate(weekly_deploys):
-            print(i, "th Week had:", week, "deploys")
+            if deploys_in_week:
+                weekly_deployed.append(1)
+            else:
+                weekly_deployed.append(0)
 
-        if median(weekly_deploys) >= 3:
+            week_start += timedelta(days=7)
+
+        monthly_deploys = (
+            []
+        )  # list of 3 integers that represent if a deploy happened during that month
+        # for i, week in enumerate(weekly_deployed):
+        #     monthly_deploys[i % 3] += week
+
+        for i in range(0, 12, 4):
+            if any(weekly_deployed[i : i + 4]):
+                monthly_deploys.append(1)
+
+        print("DAILY DEPLOYS:", days_deployed)
+        print("WEEKLY DEPLOYS:", weekly_deployed)
+        print("MONTHLY DEPLOYS:", monthly_deploys)
+
+        for i, week in enumerate(days_deployed):
+            print(i + 1, "th Week had:", week, "deploys")
+
+        if median(days_deployed) >= 3:
             deploy_frequency = "Daily"
+        elif median(weekly_deployed) >= 1:
+            deploy_frequency = "Weekly"
+        elif median(monthly_deploys) >= 1:
+            deploy_frequency = "Monthly"
+        else:
+            deploy_frequency = "Yearly"
 
-        print("DEPLOYMENT FREQUENCY VALUE:", median(weekly_deploys))
+        print("DEPLOYMENT FREQUENCY VALUE:", median(days_deployed))
 
         print("DEPLOYMENT FREQUENCY:", deploy_frequency)
 
