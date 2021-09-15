@@ -214,7 +214,7 @@
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <h1 class="text-2xl font-semibold text-rrgrey-900">Project Name</h1>
           </div>
-          <div class="max-w-full mx-auto px-4 sm:px-6 md:px-14">
+          <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
               <div
