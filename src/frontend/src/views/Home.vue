@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex overflow-hidden bg-gray-100 px-4">
+  <div class="h-screen flex overflow-hidden bg-gray-100">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog
         as="div"
@@ -163,6 +163,12 @@
                 />
                 {{ item.name }}
               </a>
+              <rrDropdown
+                label="Project"
+                :choices="projectDropdownChoices"
+                :selected="initialProjectChoice"
+                @updatedChoice="onChange"
+              />
             </nav>
           </div>
         </div>
@@ -205,16 +211,16 @@
         "
       >
         <div class="py-6">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <h1 class="text-2xl font-semibold text-rrgrey-900">Project Name</h1>
           </div>
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
               <div
                 class="border-4 border-dashed border-gray-200 rounded-lg h-96"
               >
-                charts go here
+                Project Dropdown Value: {{ initialProjectChoice }}
               </div>
             </div>
             <!-- /End replace -->
@@ -227,6 +233,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { rrDropdown } from "@rrglobal/vue-cobalt";
 import {
   Dialog,
   DialogOverlay,
@@ -244,6 +251,11 @@ import {
   XIcon,
 } from "@heroicons/vue/outline";
 
+const projectDropdownChoices = ["All", "SFM", "MEC"];
+const initialProjectChoice = ref("SFM");
+function onChange(val: string) {
+  initialProjectChoice.value = val;
+}
 const navigation = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
   { name: "Team", href: "#", icon: UsersIcon, current: false },

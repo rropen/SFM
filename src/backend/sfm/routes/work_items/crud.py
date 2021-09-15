@@ -6,7 +6,13 @@ from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
 
 
-def get_all(db: Session, skip: int, limit: int, project_id: int, project_name: str):
+def get_all(
+    db: Session,
+    skip: int = None,
+    limit: int = None,
+    project_id: int = None,
+    project_name: str = None,
+):
     """Get all the WorkItems and return them."""
     project = None
     if project_name and not project_id:

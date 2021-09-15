@@ -163,3 +163,4 @@ __pypackages__/
 # Editor Files
 src/backend/*.db
 .npmrc
+.yarnrc
