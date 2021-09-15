@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@headlessui/vue": "^1.4.0",
-    "@rrglobal/vue-cobalt": "^1.1.1",
+    "@rrglobal/vue-cobalt": "^1.2.1",
     "@heroicons/vue": "^1.0.3",
     "apexcharts": "^3.27.3",
     "axios": "^0.21.2",
