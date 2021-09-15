@@ -25,7 +25,7 @@ def populate_db(
     ## Populate standardized local db for deployment frequency metric testing
 
     """
-    # Create project to file deployments under:
+    # fIRST PROJECT: Create project to file deployments under:
     project_dict = {
         "name": "Project for Deployments Testing",
         "lead_name": "Gabe",
@@ -90,18 +90,56 @@ def populate_db(
         work_item_data = WorkItemCreate(**deployment_dict)
         crud.create_work_item(db, work_item_data, project_auth_token)
 
+    # SECOND PROJECT
+    project_dict2 = {
+        "name": "2nd Project for testing",
+        "lead_name": "Gabe",
+        "description": "Second project",
+        "location": "Indianapolis",
+        "repo_url": "a_different_sample_url",
+        "on_prem": False,
+    }
+
+    proj_data2 = ProjectCreate(**project_dict2)
+    [project2, project_auth_token2] = proj_crud.create_project(
+        db, proj_data2, admin_key="admin_key"
+    )
+
+    # Creates the deployment items:
+    dates2 = [
+        datetime(2021, 5, 31),  # Week 1
+        datetime(2021, 6, 7),  # Week 2
+        datetime(2021, 8, 4),  # Week 10
+        datetime(2021, 8, 10),  # Week 11
+        datetime(2021, 8, 11),
+        datetime(2021, 8, 16),  # Week 12
+    ]
+
+    for date in dates2:
+        deployment_dict = {
+            "category": "Deployment",
+            "end_time": date
+            + timedelta(
+                days=25
+            ),  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
+            "project_id": project2.id,
+        }
+
+        work_item_data = WorkItemCreate(**deployment_dict)
+        crud.create_work_item(db, work_item_data, project_auth_token2)
+
     all_projects = proj_crud.get_all(db)
 
     print(all_projects)
     print(len(all_projects))
 
-    if len(all_projects) != 1:
+    if len(all_projects) != 2:
         return "Incorrect number of projects present. Clear database and rerun."
     else:
         pass
 
-    all_deployments = crud.get_all(db, project_id=project.id)
-    if len(all_deployments) != len(dates):
+    all_deployments = crud.get_all(db)
+    if len(all_deployments) != (len(dates) + len(dates2)):
         return "Incorrect number of deployments present. Clear database and rerun."
     else:
         pass
