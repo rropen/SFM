@@ -104,6 +104,8 @@ def get_work_items(
         for i in range(0, 12, 4):
             if any(weekly_deployed[i : i + 4]):
                 monthly_deploys.append(1)
+            else:
+                monthly_deploys.append(0)
 
         print("DAILY DEPLOYS:", days_deployed)
         print("WEEKLY DEPLOYS:", weekly_deployed)
@@ -145,4 +147,7 @@ def get_work_items(
         # projects = db.exec(select(Project)).all()
         pass
 
-    return str(deploy_frequency)
+    return {
+        "deployment_dates": deployment_dates,
+        "deployment_frequency": deploy_frequency,
+    }
