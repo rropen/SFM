@@ -142,7 +142,7 @@ def get_work_items(
     # deployFreq = average(deployInWeek)
     # jsonData.append({"week-range": deployFreq})
 
-    # new test comment
+    # new test comment2
 
     else:
         # return all project deployment frequency data in json object
