@@ -77,3 +77,8 @@ class WorkItemUpdate(SQLModel):
     comments: Optional[str] = None
 
     project_id: Optional[int] = None
+
+
+class ChartData(SQLModel):
+    deployment_dates: Optional[List] = None
+    deployment_frequency: Optional[str] = None

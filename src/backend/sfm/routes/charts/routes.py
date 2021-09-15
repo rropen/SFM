@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from statistics import median
 from sfm.routes.work_items import crud
-from sfm.models import WorkItemRead, WorkItemCreate, WorkItemUpdate, Project
+from sfm.models import WorkItemRead, WorkItemCreate, WorkItemUpdate, Project, ChartData
 from typing import List, Optional
 from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
@@ -18,7 +18,7 @@ def get_db():
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("/", response_model=ChartData)
 def get_work_items(
     category: str,
     project_id: Optional[int] = None,
@@ -149,7 +149,11 @@ def get_work_items(
         # projects = db.exec(select(Project)).all()
         pass
 
-    return {
+    chart_dict = {
         "deployment_dates": deployment_dates,
         "deployment_frequency": deploy_frequency,
     }
+
+    chart_data = ChartData(**chart_dict)
+
+    return chart_data
