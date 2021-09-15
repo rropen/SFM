@@ -157,6 +157,8 @@ workspace.code-workspace
 .dccache
 src/backend/.pdm.toml
 *.pyc
+__pycache__/
+__pypackages__/
 
 # Editor Files
 src/backend/*.db

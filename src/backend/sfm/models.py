@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List, Optional
 from datetime import datetime, timedelta
 from sqlmodel import Field, SQLModel, Relationship
@@ -38,8 +39,14 @@ class ProjectUpdate(SQLModel):
     on_prem: Optional[bool] = None
 
 
+class WorkItemCategory(str, Enum):
+    deployment = "Deployment"
+    issue = "Issue"
+    pull_request = "Pull Request"
+
+
 class WorkItemBase(SQLModel):
-    category: str
+    category: WorkItemCategory
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     duration_open: Optional[timedelta] = None
