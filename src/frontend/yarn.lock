@@ -176,10 +176,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@rrglobal/vue-cobalt@1.0.0":
-  version "1.0.0"
-  resolved "https://npm.pkg.github.com/download/@rrglobal/vue-cobalt/1.0.0/2fa650fb4042ca919ff6bd64ff3d6abc899797b86a14ce07b074dfeeb4ae4210#eaee11d2efd3f4ed496e080877f9557b034d0737"
-  integrity sha512-b8Zw1BQ0K4FtXluIe49DrOLCmthEuWlVcDHZuPOW/MxWJ4Ikl3pSOl5uOphoGzOa+kTYdkSJZVKtpSy3i68dqQ==
+"@rrglobal/vue-cobalt@^1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@rrglobal/vue-cobalt/1.2.1/bb0ead98f13cd7a501f2d3c4cab2cf765e85819d4bdc3360193d4ed834d7d4fa#ff01ea8a9a4f3d3ad317ea89c94672e98c3999c6"
+  integrity sha512-nf1trFgiuconRWF/Efts9wo9U/SbcyDkmhrOzOl1LhY+isZXu6JgiVrgwSj0Y5gwvdtmQCEaoweUMwRByO1Xpw==
   dependencies:
     vue "^3.2.0"
 
