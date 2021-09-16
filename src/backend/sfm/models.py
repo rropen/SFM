@@ -81,8 +81,9 @@ class WorkItemUpdate(SQLModel):
 
 
 class ChartData(SQLModel):
-    deployment_dates: Optional[List] = None
-    deployment_frequency: Optional[str] = None
+    project_name: str
+    deployment_dates: Optional[List]
+    deployment_frequency: str
 
 
 class LeadTimeData(SQLModel):

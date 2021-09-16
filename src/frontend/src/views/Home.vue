@@ -84,7 +84,7 @@
               </p>
               <nav class="mt-5 px-2 space-y-1">
                 <a
-                  v-for="item in navigation"
+                  v-for="item in NAVIGATION"
                   :key="item.name"
                   :href="item.href"
                   :class="[
@@ -141,7 +141,7 @@
             </p>
             <nav class="mt-5 flex-1 px-2 bg-white space-y-1">
               <a
-                v-for="item in navigation"
+                v-for="item in NAVIGATION"
                 :key="item.name"
                 :href="item.href"
                 :class="[
@@ -166,7 +166,7 @@
               <rrDropdown
                 label="Project"
                 :choices="projectDropdownChoices"
-                :selected="initialProjectChoice"
+                :selected="selectedProject"
                 @updatedChoice="onChange"
               />
             </nav>
@@ -212,15 +212,10 @@
       >
         <div class="py-6">
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
-            <h1 class="text-2xl font-semibold text-rrgrey-900">Project Name</h1>
-          </div>
-          <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
-              <div
-                class="border-4 border-dashed border-gray-200 rounded-lg h-96"
-              >
-                <div id="chart">
+              <div class="rounded-lg h-96">
+                <div class="shadow-xl p-4" id="chart">
                   <apexchart
                     ref="realtimeChart"
                     type="line"
@@ -228,6 +223,23 @@
                     :options="chartOptions"
                     :series="series"
                   ></apexchart>
+                </div>
+                <div
+                  class="
+                    flex
+                    box-content
+                    h-12
+                    w-5/12
+                    p-4
+                    my-6
+                    mx-auto
+                    rounded-full
+                    text-4xl
+                    justify-center
+                  "
+                  :class="deploymentFreqRatingColor"
+                >
+                  Current Rating: {{ deploymentFreqRating }}
                 </div>
               </div>
             </div>
@@ -240,7 +252,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+/* ----------------------------------------------
+                  IMPORTS
+---------------------------------------------- */
+import { ref, onMounted } from "vue";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
@@ -260,21 +275,16 @@ import {
   UsersIcon,
   XIcon,
 } from "@heroicons/vue/outline";
+import { setMapStoreSuffix } from "pinia";
 
-const projectDropdownChoices = ["All", "SFM", "MEC"];
-const initialProjectChoice = ref("SFM");
-function onChange(val: string) {
-  initialProjectChoice.value = val;
-  // console.log('here is this: ', this)
-  formatDeploymentDataWrapper();
-}
+/* ----------------------------------------------
+                GLOBAL VARIABLES
+---------------------------------------------- */
 
 const CONNECTION_STRING = "http://localhost:8181/";
-// function formatData(d) {
+const INITIAL_PROJECT_CHOICE = "All";
 
-// }
-
-const navigation = [
+const NAVIGATION = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
   { name: "Team", href: "#", icon: UsersIcon, current: false },
   { name: "Projects", href: "#", icon: FolderIcon, current: false },
@@ -283,19 +293,145 @@ const navigation = [
   { name: "Reports", href: "#", icon: ChartBarIcon, current: false },
 ];
 
-function formatDeploymentDataWrapper() {
-  axios.get("http://localhost:8181/charts?category=Deployment").then((res) => {
-    series.value[0].data = formatDeploymentData(res);
-    // this.$refs.updateSeries([
-    //   {
-    //     data: formatDeploymentData(res),
-    //   },
-    // ]);
+/* ----------------------------------------------
+                  VARIABLES
+---------------------------------------------- */
+const projectDropdownChoices = ref([]);
+const selectedProject = ref(INITIAL_PROJECT_CHOICE);
+const deploymentFreqRating = ref("");
+const deploymentFreqRatingColor = ref("");
+
+const series = ref([
+  {
+    name: "Successful Deployments",
+    data: [],
+  },
+]);
+
+const chartOptions = ref({
+  chart: {
+    height: 350,
+    type: "line",
+    zoom: {
+      enabled: false,
+    },
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  stroke: {
+    curve: "straight",
+    colors: ["#10069f"],
+  },
+  title: {
+    text: "Monthly Deployments",
+    align: "left",
+  },
+  grid: {
+    row: {
+      colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+      opacity: 0.5,
+    },
+  },
+  xaxis: {
+    categories: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+  },
+});
+
+const sidebarOpen = ref(false);
+
+/* ----------------------------------------------
+                    FUNCTIONS
+---------------------------------------------- */
+function setProjectDropdownChoicesWrapper() {
+  axios.get(CONNECTION_STRING + "projects").then((res) => {
+    projectDropdownChoices.value = setProjectDropdownChoices(res);
   });
 }
 
+function setProjectDropdownChoices(resp) {
+  let arr = ["All"];
+  for (let ele of resp.data) {
+    arr.push(ele.name);
+  }
+  return arr;
+}
+
+function setSelectedProject(proj) {
+  selectedProject.value = proj;
+}
+
+function onChange(val: string) {
+  setSelectedProject(val);
+  formatDeploymentDataWrapper();
+}
+
+function setDeploymentFreqRating(str) {
+  let rating = "";
+  switch (str) {
+    case "Daily":
+      rating = "Elite";
+      deploymentFreqRatingColor.value = "bg-bggreen";
+      break;
+    case "Weekly":
+      rating = "High";
+      deploymentFreqRatingColor.value = "bg-bgyellow";
+      break;
+    case "Monthly":
+      rating = "Medium";
+      deploymentFreqRatingColor.value = "bg-bgorange";
+      break;
+    case "Yearly":
+      rating = "Low";
+      deploymentFreqRatingColor.value = "bg-red-600";
+      break;
+    default:
+      rating = "No data";
+  }
+  return rating;
+}
+
+function formatDeploymentDataWrapper() {
+  if (selectedProject.value == "All") {
+    axios.get(CONNECTION_STRING + "charts?category=Deployment").then((res) => {
+      series.value[0].data = formatDeploymentData(res);
+      console.log(res);
+      deploymentFreqRating.value = setDeploymentFreqRating(
+        res.data[0].deployment_frequency
+      );
+    });
+  } else {
+    axios
+      .get(
+        CONNECTION_STRING +
+          "charts?category=Deployment&project_name=" +
+          encodeURIComponent(selectedProject.value) +
+          "&="
+      )
+      .then((res) => {
+        series.value[0].data = formatDeploymentData(res);
+        deploymentFreqRating.value = setDeploymentFreqRating(
+          res.data[0].deployment_frequency
+        );
+      });
+  }
+}
+
 function formatDeploymentData(res) {
-  let data = res.data.deployment_dates;
+  let data = res.data[0].deployment_dates;
   let monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   for (let ele of data) {
     ele = ele.slice(5, 7);
@@ -341,53 +477,12 @@ function formatDeploymentData(res) {
   return monthArr;
 }
 
-const series = ref([
-  {
-    name: "Successful Deployments",
-    data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-  },
-]);
-
-const chartOptions = {
-  chart: {
-    height: 350,
-    type: "line",
-    zoom: {
-      enabled: false,
-    },
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  stroke: {
-    curve: "straight",
-  },
-  title: {
-    text: "Monthly Deployments",
-    align: "left",
-  },
-  grid: {
-    row: {
-      colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-      opacity: 0.5,
-    },
-  },
-  xaxis: {
-    categories: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-  },
-};
-const sidebarOpen = ref(false);
+/* ----------------------------------------------
+             VUE BUILT-IN FUNCTIONS
+---------------------------------------------- */
+onMounted(() => {
+  setProjectDropdownChoicesWrapper();
+  setSelectedProject("All");
+  formatDeploymentDataWrapper();
+});
 </script>
