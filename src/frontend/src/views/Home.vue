@@ -166,7 +166,7 @@
               <rrDropdown
                 label="Project"
                 :choices="projectDropdownChoices"
-                :selected="initialProjectChoice"
+                :selected="selectedProject"
                 @updatedChoice="onChange"
               />
             </nav>
@@ -211,9 +211,6 @@
         "
       >
         <div class="py-6">
-          <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
-            <h1 class="text-2xl font-semibold text-rrgrey-900">Project Name</h1>
-          </div>
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
@@ -270,6 +267,7 @@ import { setMapStoreSuffix } from "pinia";
 ---------------------------------------------- */
 
 const CONNECTION_STRING = "http://localhost:8181/";
+const INITIAL_PROJECT_CHOICE = "All";
 
 const NAVIGATION = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
@@ -284,13 +282,12 @@ const NAVIGATION = [
                   VARIABLES
 ---------------------------------------------- */
 const projectDropdownChoices = ref([]);
-
-const initialProjectChoice = ref("All");
+const selectedProject = ref(INITIAL_PROJECT_CHOICE);
 
 const series = ref([
   {
     name: "Successful Deployments",
-    data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    data: [],
   },
 ]);
 
@@ -348,7 +345,6 @@ function setProjectDropdownChoicesWrapper() {
 }
 
 function setProjectDropdownChoices(resp) {
-  console.log("here is the response: ", resp);
   let arr = ["All"];
   for (let ele of resp.data) {
     arr.push(ele.name);
@@ -356,18 +352,39 @@ function setProjectDropdownChoices(resp) {
   return arr;
 }
 
+function setSelectedProject(proj) {
+  selectedProject.value = proj;
+}
+
 function onChange(val: string) {
+  setSelectedProject(val);
   formatDeploymentDataWrapper();
 }
 
 function formatDeploymentDataWrapper() {
-  axios.get("http://localhost:8181/charts?category=Deployment").then((res) => {
-    series.value[0].data = formatDeploymentData(res);
-  });
+  console.log("here is selected project: ", selectedProject.value);
+  if (selectedProject.value == "All") {
+    axios.get(CONNECTION_STRING + "charts?category=Deployment").then((res) => {
+      series.value[0].data = formatDeploymentData(res);
+    });
+  } else {
+    console.log("here");
+    axios
+      .get(
+        CONNECTION_STRING +
+          "charts?category=Deployment&project_name=" +
+          encodeURIComponent(selectedProject.value) +
+          "&="
+        // 'http://localhost:8181/charts?category=Deployment&project_name=Project%20for%20Deployments%20Testing&='
+      )
+      .then((res) => {
+        series.value[0].data = formatDeploymentData(res);
+      });
+  }
 }
 
 function formatDeploymentData(res) {
-  let data = res.data.deployment_dates;
+  let data = res.data[0].deployment_dates;
   let monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   for (let ele of data) {
     ele = ele.slice(5, 7);
@@ -418,6 +435,7 @@ function formatDeploymentData(res) {
 ---------------------------------------------- */
 onMounted(() => {
   setProjectDropdownChoicesWrapper();
+  setSelectedProject("All");
   formatDeploymentDataWrapper();
 });
 </script>
