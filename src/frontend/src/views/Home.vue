@@ -214,10 +214,8 @@
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
-              <div
-                class="border-4 border-dashed border-gray-200 rounded-lg h-96"
-              >
-                <div id="chart">
+              <div class="rounded-lg h-96">
+                <div class="shadow-xl p-4" id="chart">
                   <apexchart
                     ref="realtimeChart"
                     type="line"
@@ -225,6 +223,23 @@
                     :options="chartOptions"
                     :series="series"
                   ></apexchart>
+                </div>
+                <div
+                  class="
+                    flex
+                    box-content
+                    h-12
+                    w-5/12
+                    p-4
+                    my-6
+                    mx-auto
+                    rounded-full
+                    text-4xl
+                    justify-center
+                  "
+                  :class="deploymentFreqRatingColor"
+                >
+                  Current Rating: {{ deploymentFreqRating }}
                 </div>
               </div>
             </div>
@@ -283,6 +298,8 @@ const NAVIGATION = [
 ---------------------------------------------- */
 const projectDropdownChoices = ref([]);
 const selectedProject = ref(INITIAL_PROJECT_CHOICE);
+const deploymentFreqRating = ref("");
+const deploymentFreqRatingColor = ref("");
 
 const series = ref([
   {
@@ -304,6 +321,7 @@ const chartOptions = ref({
   },
   stroke: {
     curve: "straight",
+    colors: ["#10069f"],
   },
   title: {
     text: "Monthly Deployments",
@@ -361,24 +379,53 @@ function onChange(val: string) {
   formatDeploymentDataWrapper();
 }
 
+function setDeploymentFreqRating(str) {
+  let rating = "";
+  switch (str) {
+    case "Daily":
+      rating = "Elite";
+      deploymentFreqRatingColor.value = "bg-bggreen";
+      break;
+    case "Weekly":
+      rating = "High";
+      deploymentFreqRatingColor.value = "bg-bgyellow";
+      break;
+    case "Monthly":
+      rating = "Medium";
+      deploymentFreqRatingColor.value = "bg-bgorange";
+      break;
+    case "Yearly":
+      rating = "Low";
+      deploymentFreqRatingColor.value = "bg-red-600";
+      break;
+    default:
+      rating = "No data";
+  }
+  return rating;
+}
+
 function formatDeploymentDataWrapper() {
-  console.log("here is selected project: ", selectedProject.value);
   if (selectedProject.value == "All") {
     axios.get(CONNECTION_STRING + "charts?category=Deployment").then((res) => {
       series.value[0].data = formatDeploymentData(res);
+      console.log(res);
+      deploymentFreqRating.value = setDeploymentFreqRating(
+        res.data[0].deployment_frequency
+      );
     });
   } else {
-    console.log("here");
     axios
       .get(
         CONNECTION_STRING +
           "charts?category=Deployment&project_name=" +
           encodeURIComponent(selectedProject.value) +
           "&="
-        // 'http://localhost:8181/charts?category=Deployment&project_name=Project%20for%20Deployments%20Testing&='
       )
       .then((res) => {
         series.value[0].data = formatDeploymentData(res);
+        deploymentFreqRating.value = setDeploymentFreqRating(
+          res.data[0].deployment_frequency
+        );
       });
   }
 }
