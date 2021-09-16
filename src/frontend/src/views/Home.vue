@@ -141,7 +141,7 @@
             </p>
             <nav class="mt-5 flex-1 px-2 bg-white space-y-1">
               <a
-                v-for="item in navigation"
+                v-for="item in NAVIGATION"
                 :key="item.name"
                 :href="item.href"
                 :class="[
@@ -240,6 +240,9 @@
 </template>
 
 <script setup lang="ts">
+/* ----------------------------------------------
+                  IMPORTS                       
+---------------------------------------------- */
 import { ref } from "vue";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
@@ -261,20 +264,13 @@ import {
   XIcon,
 } from "@heroicons/vue/outline";
 
-const projectDropdownChoices = ["All", "SFM", "MEC"];
-const initialProjectChoice = ref("SFM");
-function onChange(val: string) {
-  initialProjectChoice.value = val;
-  // console.log('here is this: ', this)
-  formatDeploymentDataWrapper();
-}
+/* ----------------------------------------------
+                GLOBAL VARIABLES                        
+---------------------------------------------- */
 
 const CONNECTION_STRING = "http://localhost:8181/";
-// function formatData(d) {
 
-// }
-
-const navigation = [
+const NAVIGATION = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
   { name: "Team", href: "#", icon: UsersIcon, current: false },
   { name: "Projects", href: "#", icon: FolderIcon, current: false },
@@ -283,14 +279,79 @@ const navigation = [
   { name: "Reports", href: "#", icon: ChartBarIcon, current: false },
 ];
 
+/* ----------------------------------------------
+                  VARIABLES                        
+---------------------------------------------- */
+const projectDropdownChoices = ["All", "SFM", "MEC"];
+const initialProjectChoice = ref("All");
+
+/* ----------------------------------------------
+                    REFS                        
+---------------------------------------------- */
+
+const series = ref([
+  {
+    name: "Successful Deployments",
+    data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+  },
+]);
+
+const chartOptions = ref({
+  chart: {
+    height: 350,
+    type: "line",
+    zoom: {
+      enabled: false,
+    },
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  stroke: {
+    curve: "straight",
+  },
+  title: {
+    text: "Monthly Deployments",
+    align: "left",
+  },
+  grid: {
+    row: {
+      colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+      opacity: 0.5,
+    },
+  },
+  xaxis: {
+    categories: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+  },
+});
+
+const sidebarOpen = ref(false);
+
+/* ----------------------------------------------
+                    FUNCTIONS                        
+---------------------------------------------- */
+
+function onChange(val: string) {
+  initialProjectChoice.value = val;
+  formatDeploymentDataWrapper();
+}
+
 function formatDeploymentDataWrapper() {
   axios.get("http://localhost:8181/charts?category=Deployment").then((res) => {
     series.value[0].data = formatDeploymentData(res);
-    // this.$refs.updateSeries([
-    //   {
-    //     data: formatDeploymentData(res),
-    //   },
-    // ]);
   });
 }
 
@@ -341,53 +402,7 @@ function formatDeploymentData(res) {
   return monthArr;
 }
 
-const series = ref([
-  {
-    name: "Successful Deployments",
-    data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-  },
-]);
-
-const chartOptions = {
-  chart: {
-    height: 350,
-    type: "line",
-    zoom: {
-      enabled: false,
-    },
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  stroke: {
-    curve: "straight",
-  },
-  title: {
-    text: "Monthly Deployments",
-    align: "left",
-  },
-  grid: {
-    row: {
-      colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-      opacity: 0.5,
-    },
-  },
-  xaxis: {
-    categories: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-  },
-};
-const sidebarOpen = ref(false);
+/* ----------------------------------------------
+             VUE BUILT-IN FUNCTIONS                        
+---------------------------------------------- */
 </script>
