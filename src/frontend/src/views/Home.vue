@@ -84,7 +84,7 @@
               </p>
               <nav class="mt-5 px-2 space-y-1">
                 <a
-                  v-for="item in navigation"
+                  v-for="item in NAVIGATION"
                   :key="item.name"
                   :href="item.href"
                   :class="[
@@ -241,9 +241,9 @@
 
 <script setup lang="ts">
 /* ----------------------------------------------
-                  IMPORTS                       
+                  IMPORTS
 ---------------------------------------------- */
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
@@ -263,9 +263,10 @@ import {
   UsersIcon,
   XIcon,
 } from "@heroicons/vue/outline";
+import { setMapStoreSuffix } from "pinia";
 
 /* ----------------------------------------------
-                GLOBAL VARIABLES                        
+                GLOBAL VARIABLES
 ---------------------------------------------- */
 
 const CONNECTION_STRING = "http://localhost:8181/";
@@ -280,14 +281,11 @@ const NAVIGATION = [
 ];
 
 /* ----------------------------------------------
-                  VARIABLES                        
+                  VARIABLES
 ---------------------------------------------- */
-const projectDropdownChoices = ["All", "SFM", "MEC"];
-const initialProjectChoice = ref("All");
+const projectDropdownChoices = ref([]);
 
-/* ----------------------------------------------
-                    REFS                        
----------------------------------------------- */
+const initialProjectChoice = ref("All");
 
 const series = ref([
   {
@@ -341,11 +339,24 @@ const chartOptions = ref({
 const sidebarOpen = ref(false);
 
 /* ----------------------------------------------
-                    FUNCTIONS                        
+                    FUNCTIONS
 ---------------------------------------------- */
+function setProjectDropdownChoicesWrapper() {
+  axios.get(CONNECTION_STRING + "projects").then((res) => {
+    projectDropdownChoices.value = setProjectDropdownChoices(res);
+  });
+}
+
+function setProjectDropdownChoices(resp) {
+  console.log("here is the response: ", resp);
+  let arr = ["All"];
+  for (let ele of resp.data) {
+    arr.push(ele.name);
+  }
+  return arr;
+}
 
 function onChange(val: string) {
-  initialProjectChoice.value = val;
   formatDeploymentDataWrapper();
 }
 
@@ -403,6 +414,10 @@ function formatDeploymentData(res) {
 }
 
 /* ----------------------------------------------
-             VUE BUILT-IN FUNCTIONS                        
+             VUE BUILT-IN FUNCTIONS
 ---------------------------------------------- */
+onMounted(() => {
+  setProjectDropdownChoicesWrapper();
+  formatDeploymentDataWrapper();
+});
 </script>
