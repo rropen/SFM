@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from statistics import median
 from sfm.routes.work_items import crud
-from sfm.models import WorkItem, Project, ChartData
+from sfm.models import WorkItem, Project, ChartData, LeadTimeData
 from typing import List, Optional
 from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
@@ -164,3 +164,62 @@ def get_work_items(
     }
 
     return chart_dict
+
+
+"""
+@router.get("/LeadTimeToChange", response_model=LeadTimeData)
+def get_pull_request(
+    category: str,
+    project_id: Optional[int] = None,
+    project_name: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+
+    project = None
+    if project_name and not project_id:
+        project = db.exec(select(Project).where(Project.name == project_name)).first()
+        if not project:
+            return False
+    elif project_id and not project_name:
+        project = db.get(Project, project_id)
+        if not project:
+            return False
+    elif project_id and project_name:
+        project = db.exec(
+            select(Project).where(
+                and_(Project.id == project_id, Project.name == project_name)
+            )
+        ).first()
+        if not project:
+            return False
+
+    if project:
+        # return specific project deployment frequency json object
+        pullRequests = [
+            item for item in project.work_items if (item.category == "Pull Request")
+        ]
+        lead_times = [pullRequest.commit_median_merge_time for pullRequest in pullRequests]
+
+        #deploy_frequency = calc_frequency(deployments, deployment_dates)
+
+    else:
+        # return all project deployment frequency data in json object
+        all_items = crud.get_all(db)
+        pullRequests = [item for item in all_items if (item.category == "Pull Request")]
+        lead_times = [pullRequest.commit_median_merge_time for pullRequest in pullRequests]
+
+        #deploy_frequency = calc_frequency(deployments, deployment_dates)
+
+    #calculate median time in minutes
+    #median_time_to_deploy = int((median(commits_time_to_deploy) % 3600) // 60)
+
+    LeadTime_dict = {
+        "lead_time" : lead_time,
+        "time_units" : "minutes",
+        "performance" : performance,
+        "lead_time_description" : "median lead time for a commit to get pulled to main branch in minutes",
+        "performance_description" : "Elite = less than an hour, High = less than one day, Medium = less than one week, Low = Between one week and one month, Abismal = Greater than one month",
+    }
+
+    return LeadTime_dict
+"""

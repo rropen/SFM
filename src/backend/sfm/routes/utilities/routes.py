@@ -144,7 +144,11 @@ def populate_db(
     else:
         pass
 
-    return "Successfully created local database for deployment frequency testing"
+    return (
+        "Successfully created local database. Project Auth tokens are:",
+        project_auth_token,
+        project_auth_token2,
+    )
 
 
 @router.delete("/clear_local_db")
