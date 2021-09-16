@@ -142,6 +142,7 @@ def get_deployments(
 
     if project:
         # return specific project deployment frequency json object
+        project_name = project.name
         deployments = [
             item for item in project.work_items if (item.category == "Deployment")
         ]
