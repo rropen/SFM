@@ -222,6 +222,7 @@
               >
                 <div id="chart">
                   <apexchart
+                    ref="realtimeChart"
                     type="line"
                     height="350"
                     :options="chartOptions"
@@ -242,6 +243,7 @@
 import { ref } from "vue";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
+import axios from "axios";
 import {
   Dialog,
   DialogOverlay,
@@ -263,7 +265,15 @@ const projectDropdownChoices = ["All", "SFM", "MEC"];
 const initialProjectChoice = ref("SFM");
 function onChange(val: string) {
   initialProjectChoice.value = val;
+  // console.log('here is this: ', this)
+  formatDeploymentDataWrapper();
 }
+
+const CONNECTION_STRING = "http://localhost:8181/";
+// function formatData(d) {
+
+// }
+
 const navigation = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
   { name: "Team", href: "#", icon: UsersIcon, current: false },
@@ -273,12 +283,70 @@ const navigation = [
   { name: "Reports", href: "#", icon: ChartBarIcon, current: false },
 ];
 
-const series = [
+function formatDeploymentDataWrapper() {
+  axios.get("http://localhost:8181/charts?category=Deployment").then((res) => {
+    series.value[0].data = formatDeploymentData(res);
+    // this.$refs.updateSeries([
+    //   {
+    //     data: formatDeploymentData(res),
+    //   },
+    // ]);
+  });
+}
+
+function formatDeploymentData(res) {
+  let data = res.data.deployment_dates;
+  let monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  for (let ele of data) {
+    ele = ele.slice(5, 7);
+    switch (ele) {
+      case "01":
+        monthArr[0]++;
+        break;
+      case "02":
+        monthArr[1]++;
+        break;
+      case "03":
+        monthArr[2]++;
+        break;
+      case "04":
+        monthArr[3]++;
+        break;
+      case "05":
+        monthArr[4]++;
+        break;
+      case "06":
+        monthArr[5]++;
+        break;
+      case "07":
+        monthArr[6]++;
+        break;
+      case "08":
+        monthArr[7]++;
+        break;
+      case "09":
+        monthArr[8]++;
+        break;
+      case "10":
+        monthArr[9]++;
+        break;
+      case "11":
+        monthArr[10]++;
+        break;
+      case "12":
+        monthArr[11]++;
+        break;
+    }
+  }
+  return monthArr;
+}
+
+const series = ref([
   {
-    name: "Desktops",
-    data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
+    name: "Successful Deployments",
+    data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
   },
-];
+]);
 
 const chartOptions = {
   chart: {
@@ -295,7 +363,7 @@ const chartOptions = {
     curve: "straight",
   },
   title: {
-    text: "Product Trends by Month",
+    text: "Monthly Deployments",
     align: "left",
   },
   grid: {
@@ -305,7 +373,20 @@ const chartOptions = {
     },
   },
   xaxis: {
-    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+    categories: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
   },
 };
 const sidebarOpen = ref(false);
