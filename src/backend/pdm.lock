@@ -37,6 +37,16 @@ requires_python = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
 summary = "Classes Without Boilerplate"
 
 [[package]]
+name = "bcrypt"
+version = "3.2.0"
+requires_python = ">=3.6"
+summary = "Modern password hashing for your software and your servers"
+dependencies = [
+    "cffi>=1.1",
+    "six>=1.4.1",
+]
+
+[[package]]
 name = "certifi"
 version = "2021.5.30"
 summary = "Python package for providing Mozilla's CA Bundle."
@@ -83,15 +93,6 @@ requires_python = ">=3.6"
 summary = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 dependencies = [
     "cffi>=1.12",
-]
-
-[[package]]
-name = "ecdsa"
-version = "0.17.0"
-requires_python = ">=2.6,!=3.0.*,!=3.1.*,!=3.2.*"
-summary = "ECDSA cryptographic signature library (pure python)"
-dependencies = [
-    "six>=1.9.0",
 ]
 
 [[package]]
@@ -178,6 +179,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "passlib"
+version = "1.7.4"
+summary = "comprehensive password hashing framework supporting over 30 schemes"
+
+[[package]]
 name = "pip"
 version = "21.1.1"
 requires_python = ">=3.6"
@@ -194,11 +200,6 @@ name = "py"
 version = "1.10.0"
 requires_python = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
 summary = "library with cross-python path, ini-parsing, io, code, log facilities"
-
-[[package]]
-name = "pyasn1"
-version = "0.4.8"
-summary = "ASN.1 types and codecs"
 
 [[package]]
 name = "pycparser"
@@ -296,16 +297,6 @@ version = "1.0.4"
 summary = "Programmatically open an editor, capture the result."
 
 [[package]]
-name = "python-jose"
-version = "3.3.0"
-summary = "JOSE implementation in Python"
-dependencies = [
-    "ecdsa!=0.15",
-    "pyasn1",
-    "rsa",
-]
-
-[[package]]
 name = "requests"
 version = "2.26.0"
 requires_python = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
@@ -315,15 +306,6 @@ dependencies = [
     "charset-normalizer~=2.0.0; python_version >= \"3\"",
     "idna<4,>=2.5; python_version >= \"3\"",
     "urllib3<1.27,>=1.21.1",
-]
-
-[[package]]
-name = "rsa"
-version = "4.7.2"
-requires_python = ">=3.5,<4.0"
-summary = "Pure-Python RSA implementation"
-dependencies = [
-    "pyasn1>=0.1.3",
 ]
 
 [[package]]
@@ -396,7 +378,7 @@ dependencies = [
 
 [metadata]
 lock_version = "3.1"
-content_hash = "sha256:3672235af5775662536458cc38ff1a37ac6c06076b6bcc6830f3db92b29c8446"
+content_hash = "sha256:a8d7999d688cc88883d5b3c253738b3d33d4c53d12488a1306c80f82bf045373"
 
 [metadata.files]
 "alembic 1.6.2" = [
@@ -417,6 +399,15 @@ content_hash = "sha256:3672235af5775662536458cc38ff1a37ac6c06076b6bcc6830f3db92b
 "attrs 21.2.0" = [
     {file = "attrs-21.2.0-py2.py3-none-any.whl", hash = "sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1"},
     {file = "attrs-21.2.0.tar.gz", hash = "sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb"},
+]
+"bcrypt 3.2.0" = [
+    {file = "bcrypt-3.2.0-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:c95d4cbebffafcdd28bd28bb4e25b31c50f6da605c81ffd9ad8a3d1b2ab7b1b6"},
+    {file = "bcrypt-3.2.0-cp36-abi3-manylinux1_x86_64.whl", hash = "sha256:63d4e3ff96188e5898779b6057878fecf3f11cfe6ec3b313ea09955d587ec7a7"},
+    {file = "bcrypt-3.2.0-cp36-abi3-manylinux2010_x86_64.whl", hash = "sha256:cd1ea2ff3038509ea95f687256c46b79f5fc382ad0aa3664d200047546d511d1"},
+    {file = "bcrypt-3.2.0-cp36-abi3-manylinux2014_aarch64.whl", hash = "sha256:cdcdcb3972027f83fe24a48b1e90ea4b584d35f1cc279d76de6fc4b13376239d"},
+    {file = "bcrypt-3.2.0-cp36-abi3-win32.whl", hash = "sha256:a67fb841b35c28a59cebed05fbd3e80eea26e6d75851f0574a9273c80f3e9b55"},
+    {file = "bcrypt-3.2.0-cp36-abi3-win_amd64.whl", hash = "sha256:81fec756feff5b6818ea7ab031205e1d323d8943d237303baca2c5f9c7846f34"},
+    {file = "bcrypt-3.2.0.tar.gz", hash = "sha256:5b93c1726e50a93a033c36e5ca7fdcd29a5c7395af50a6892f5d9e7c6cfbfb29"},
 ]
 "certifi 2021.5.30" = [
     {file = "certifi-2021.5.30-py2.py3-none-any.whl", hash = "sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8"},
@@ -550,10 +541,6 @@ content_hash = "sha256:3672235af5775662536458cc38ff1a37ac6c06076b6bcc6830f3db92b
     {file = "cryptography-3.4.7-pp37-pypy37_pp73-manylinux2014_x86_64.whl", hash = "sha256:ee77aa129f481be46f8d92a1a7db57269a2f23052d5f2433b4621bb457081cc9"},
     {file = "cryptography-3.4.7-pp37-pypy37_pp73-win_amd64.whl", hash = "sha256:bf40af59ca2465b24e54f671b2de2c59257ddc4f7e5706dbd6930e26823668d3"},
     {file = "cryptography-3.4.7.tar.gz", hash = "sha256:3d10de8116d25649631977cb37da6cbdd2d6fa0e0281d014a5b7d337255ca713"},
-]
-"ecdsa 0.17.0" = [
-    {file = "ecdsa-0.17.0-py2.py3-none-any.whl", hash = "sha256:5cf31d5b33743abe0dfc28999036c849a69d548f994b535e527ee3cb7f3ef676"},
-    {file = "ecdsa-0.17.0.tar.gz", hash = "sha256:b9f500bb439e4153d0330610f5d26baaf18d17b8ced1bc54410d189385ea68aa"},
 ]
 "executing 0.8.0" = [
     {file = "executing-0.8.0-py2.py3-none-any.whl", hash = "sha256:7ef8637519b0c01b69c4a1785a0d13dcc2cf9f0d078804268887edad2b4f26d1"},
@@ -698,6 +685,10 @@ content_hash = "sha256:3672235af5775662536458cc38ff1a37ac6c06076b6bcc6830f3db92b
     {file = "packaging-21.0-py3-none-any.whl", hash = "sha256:c86254f9220d55e31cc94d69bade760f0847da8000def4dfe1c6b872fd14ff14"},
     {file = "packaging-21.0.tar.gz", hash = "sha256:7dc96269f53a4ccec5c0670940a4281106dd0bb343f47b7471f779df49c2fbe7"},
 ]
+"passlib 1.7.4" = [
+    {file = "passlib-1.7.4-py2.py3-none-any.whl", hash = "sha256:aa6bca462b8d8bda89c70b382f0c298a20b5560af6cbfa2dce410c0a2fb669f1"},
+    {file = "passlib-1.7.4.tar.gz", hash = "sha256:defd50f72b65c5402ab2c573830a6978e5f202ad0d984793c8dde2c4152ebe04"},
+]
 "pip 21.1.1" = [
     {file = "pip-21.1.1-py3-none-any.whl", hash = "sha256:11d095ed5c15265fc5c15cc40a45188675c239fb0f9913b673a33e54ff7d45f0"},
     {file = "pip-21.1.1.tar.gz", hash = "sha256:51ad01ddcd8de923533b01a870e7b987c2eb4d83b50b89e1bf102723ff9fed8b"},
@@ -709,10 +700,6 @@ content_hash = "sha256:3672235af5775662536458cc38ff1a37ac6c06076b6bcc6830f3db92b
 "py 1.10.0" = [
     {file = "py-1.10.0-py2.py3-none-any.whl", hash = "sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a"},
     {file = "py-1.10.0.tar.gz", hash = "sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3"},
-]
-"pyasn1 0.4.8" = [
-    {file = "pyasn1-0.4.8-py2.py3-none-any.whl", hash = "sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d"},
-    {file = "pyasn1-0.4.8.tar.gz", hash = "sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba"},
 ]
 "pycparser 2.20" = [
     {file = "pycparser-2.20-py2.py3-none-any.whl", hash = "sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705"},
@@ -792,17 +779,9 @@ content_hash = "sha256:3672235af5775662536458cc38ff1a37ac6c06076b6bcc6830f3db92b
     {file = "python_editor-1.0.4-py3-none-any.whl", hash = "sha256:1bf6e860a8ad52a14c3ee1252d5dc25b2030618ed80c022598f00176adc8367d"},
     {file = "python-editor-1.0.4.tar.gz", hash = "sha256:51fda6bcc5ddbbb7063b2af7509e43bd84bfc32a4ff71349ec7847713882327b"},
 ]
-"python-jose 3.3.0" = [
-    {file = "python_jose-3.3.0-py2.py3-none-any.whl", hash = "sha256:9b1376b023f8b298536eedd47ae1089bcdb848f1535ab30555cd92002d78923a"},
-    {file = "python-jose-3.3.0.tar.gz", hash = "sha256:55779b5e6ad599c6336191246e95eb2293a9ddebd555f796a65f838f07e5d78a"},
-]
 "requests 2.26.0" = [
     {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
-]
-"rsa 4.7.2" = [
-    {file = "rsa-4.7.2-py3-none-any.whl", hash = "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2"},
-    {file = "rsa-4.7.2.tar.gz", hash = "sha256:9d689e6ca1b3038bc82bf8d23e944b6b6037bc02301a574935b2dd946e0353b9"},
 ]
 "six 1.16.0" = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
