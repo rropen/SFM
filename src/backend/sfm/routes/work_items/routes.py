@@ -27,6 +27,10 @@ def get_work_items(
 
     Get a list of all the WorkItems stored in the database.
 
+    Query Parmeters:
+
+    ---
+
     - **skip**: sets the number of items to skip at the beginning of the listing
     - **limit**: sets the max number of items to be displayed when called
     - **project_id**: specifying **project_id** returns only work items in a given project
@@ -47,6 +51,12 @@ def get_work_item(work_item_id: int, db: Session = Depends(get_db)):
 
     Get a specific WorkItem by specifying the ID in the path.
 
+    ---
+
+    Path Parameters:
+
+    -**work_item_id**: id of the work item to be requested
+
     """
     work_item = crud.get_by_id(db, work_item_id)
     if not work_item:
@@ -64,6 +74,16 @@ def create_work_item(
     ## Create WorkItem entry in db
 
     Create a new WorkItem in the database by specifying data in the request.
+
+    ---
+
+    Request Headers:
+
+    - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
+
+    ---
+
+    Request Body Parameters:
 
     - **category**: event category for the work item. Must be one of the following options:
         1. "Deployment"
@@ -104,7 +124,17 @@ def delete_work_item(
     ## Delete a WorkItem
 
     Pass a WorkItem database id value in the path and the WorkItem will be deleted from the database.
+
+    ---
+
+    Path Parameters:
+
     - **work_item_id**: selects WorkItem being open
+
+    ---
+
+    Request Headers:
+
     - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
     """
     if not work_item_id:
@@ -136,8 +166,22 @@ def update_work_item(
 
     Update an existing WorkItem in the database from the data provided in the request.
 
+    ---
+
+    Path Parameters:
+
     - **work_item_id**: selects WorkItem being open
+
+    ---
+
+    Request Headers:
+
     - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
+
+    ---
+
+    Request Body Parameters:
+
     - **category**: event category for the work item. Must be one of the following options:
         1. "Deployment"
         2. "Issue"

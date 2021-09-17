@@ -123,6 +123,10 @@ def get_deployments(
     Get the json data needed to produce an SFM chart on frontend
     Data should be formatted as a timeseries(?)
 
+    ---
+
+    Query Parameters:
+
     - **category**: event category for the work item. Must be one of the following options:
         1. "Deployment"
         2. "Issue"
