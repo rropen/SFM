@@ -7,7 +7,7 @@ from sfm.models import (
 )
 from typing import List
 from sqlmodel import Session
-from fastapi import APIRouter, HTTPException, Depends, Path
+from fastapi import APIRouter, HTTPException, Depends, Path, Query
 from sfm.database import engine
 
 # Create a database connection we can use
@@ -19,8 +19,24 @@ def get_db():
 router = APIRouter()
 
 
+class CustomGetParams:
+    def __init__(
+        self,
+        skip: int = Query(
+            ...,
+            description="This parameter sets the number of projects to *skip* at the beginning of the listing.",
+        ),
+        limit: int = Query(
+            ...,
+            description="This parameter sets the maximum number of projects to display in the response.",
+        ),
+    ):
+        self.skip = skip
+        self.limit = limit
+
+
 @router.get("/", response_model=List[ProjectRead])
-def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_projects(params: CustomGetParams = Depends(), db: Session = Depends(get_db)):
     """
     ## Get Multiple Projects
 
@@ -31,8 +47,10 @@ def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
     - **skip**: sets the number of projects to *skip* at the beginning of the listing
     - **limit**: sets the maximum number of projects to display in the listing
 
+    >When used together, *skip* and *limit* facilitate serverside pagination support.
+
     """
-    projects = crud.get_all(db, skip=skip, limit=limit)
+    projects = crud.get_all(db, skip=params.skip, limit=params.limit)
     if not projects:
         raise HTTPException(status_code=404, detail="Projects not found")
     return projects
