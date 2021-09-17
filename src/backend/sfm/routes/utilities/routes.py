@@ -17,12 +17,14 @@ def get_db():
 router = APIRouter()
 
 
-@router.post("/create_local_db/deployment_frequency")
+@router.post("/populate_mock_data")
 def populate_db(
     db: Session = Depends(get_db),
 ):
     """
-    ## Populate standardized local db for deployment frequency metric testing
+    ## Populate Local Database to house Mock Data
+
+    Calling this endpoint creates a database at SFM/src/backend/sfm/issues.db. This database is set in .env and created in database.py. Sample work items, projects, and commits are generated to be used in metrics testing. A date offset can be manually set on the mock data to allow the dates of the data to be shifted nearer the current date for a more realistic mock data set.
 
     """
     # fIRST PROJECT: Create project to file deployments under:
@@ -153,5 +155,12 @@ def populate_db(
 
 @router.delete("/clear_local_db")
 def clear_db():
+
+    """
+    ## Clear Local Database
+
+    Calling this endpoint drops all entries from all tables present in the local issues.db database.
+
+    """
     SQLModel.metadata.drop_all(engine)
     return "Database cleared"

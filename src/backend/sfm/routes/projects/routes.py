@@ -22,9 +22,15 @@ router = APIRouter()
 @router.get("/", response_model=List[ProjectRead])
 def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
-    ## Get Projects
+    ## Get Multiple Projects
 
-    Get a list of all the projects stored in the database
+    ---
+
+    Query Parameters:
+
+    - **skip**: sets the number of projects to *skip* at the beginning of the listing
+    - **limit**: sets the maximum number of projects to display in the listing
+
     """
     projects = crud.get_all(db, skip=skip, limit=limit)
     if not projects:
@@ -33,11 +39,18 @@ def get_projects(skip: int = 0, limit: int = 100, db: Session = Depends(get_db))
 
 
 @router.get("/{project_id}", response_model=ProjectRead)
-def get_project(project_id: int, db: Session = Depends(get_db)):
+def get_project_by_id(project_id: int, db: Session = Depends(get_db)):
     """
     ## Get Project by Id
 
-    Get a the project with matching id stored in the database
+    Get a single project with matching **project_id** stored in the database
+
+    ---
+
+    Path Parameters:
+
+    - **project_id**: Unique identifier that links to the project in the database
+
     """
     project = crud.get_by_id(db, project_id=project_id)
     if not project:
@@ -52,9 +65,26 @@ def create_project(
     db: Session = Depends(get_db),
 ):
     """
-    ## Create Project
+    ## Create a Project
 
     Create a new project in the database from the data provided in the request.
+
+    ---
+
+    Request Headers:
+
+    - **admin_key**: Authorization key that allows for large changes to items in the database
+
+    ---
+
+    Request Body Parameters:
+    - **name**: Name of the project or repository
+    - **lead_name**: Name of the person in charge of the project
+    - **lead_email**: Email of the person in charge of the project
+    - **description**: Long string describing what the project/repo is about
+    - **location**: Location of the owner's group. (E.g. Indianapolis, UK, Germany, etc.)
+    - **repo-url**: Github or Gitlab url to the corresponding project
+    - **on_prem**: Boolean describing if the repo is located on a "on-premises" server
     """
     if not project_data:
         raise HTTPException(status_code=404, detail="Project data not provided")
@@ -84,7 +114,14 @@ def delete_project(
     """
     ## Delete a project
 
-    Pass a project_id value and the project will be deleted from the database.
+    Pass a **project_id** value and the project will be deleted from the database.
+
+    ---
+
+    Path Parameters:
+
+    - **project_id**: Unique identifier that links to the object in the database to be deleted
+
     """
     if not project_id:
         raise HTTPException(status_code=404, detail="project_id not provided")
@@ -110,9 +147,22 @@ def refresh_project_key(
     db: Session = Depends(get_db),
 ):
     """
-    ## Refresh a project auth token
+    ## Refresh a Project's Auth Token
 
-    Pass a project_id value and admin key and the project auth token will be refreshed.
+    Pass a project_id value and admin key and the project auth token will be refreshed and returned.
+
+    ---
+
+    Request Headers:
+
+    - **admin_key**: Authorization key that allows for large changes to items in the database
+
+    ---
+
+    Path Parameters:
+
+    - **project_id**: Unique identifier that links to the project to be deleted
+
     """
     if not project_id:
         raise HTTPException(status_code=404, detail="project_id not provided")
@@ -138,6 +188,31 @@ def update_project(
     ## Update Project
 
     Update an existing Project in the database from the data provided in the request.
+
+    ---
+
+    Request Headers:
+
+    - **admin_key**: Authorization key that allows for large changes to items in the database
+
+    ---
+
+    Path Parameters:
+
+    - **project_id**: Unique identifier that links to the project to be updated
+
+    ---
+
+    Request Body Parameters:
+
+    - **name**: Name of the project or repository
+    - **lead_name**: Name of the person in charge of the project
+    - **lead_email**: Email of the person in charge of the project
+    - **description**: Long string describing what the project/repo is about
+    - **location**: Location of the owner's group. (E.g. Indianapolis, UK, Germany, etc.)
+    - **repo-url**: Github or Gitlab url to the corresponding project
+    - **on_prem**: Boolean describing if the repo is located on a "on-premises" server
+
     """
     if not project_data:
         raise HTTPException(status_code=404, detail="Project data not provided")
