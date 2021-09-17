@@ -201,7 +201,7 @@ cd src/backend
 pdm install
 ```
 
-To run the project just run `pdm run uvicorn main:app --workers 4 --host 0.0.0.0 --port 8181 --reload`
+To run the project just run `pdm run uvicorn sfm.main:app --workers 4 --host 0.0.0.0 --port 8181 --reload`
 
 Your backend container should be running at `http://localhost:8181/docs` on your local machine.
 
