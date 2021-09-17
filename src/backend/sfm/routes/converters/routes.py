@@ -70,16 +70,18 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
 router = APIRouter()
 
 
-@router.post("/webhook_events/")
+@router.post("/github_webhooks/")
 async def webhook_handler(
     request: Request,
     # project_auth_token: str = Header(...),
     db: Session = Depends(get_db),
 ):
     """
-    ## Github Converter
+    ## Github Webhook Handler
 
-    Takes webhook payload and parse into database items
+    Awaits incoming payload from Github Webhooks and parses the data.
+    Currently, endpoint processes two different event types: "Deployment" and "Pull Request".
+    The payload data is parsed and data needed to calculate the DORA metrics is stored in the db tables.
     """
     # handle events
     payload = await request.json()

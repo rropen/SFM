@@ -122,6 +122,17 @@ def get_deployments(
 
     Get the json data needed to produce an SFM chart on frontend
     Data should be formatted as a timeseries(?)
+
+    - **category**: event category for the work item. Must be one of the following options:
+        1. "Deployment"
+        2. "Issue"
+        3. "Pull Request"
+    - **group_project**: If *True*, data returned grouped by project. If *False*, data returned with project grouping.
+
+    #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
+    - **project_id**: sets project for data
+    - **project_name**: sets project the WorkItem belongs to
+
     """
     project = None
     if project_name and not project_id:
@@ -204,7 +215,8 @@ def get_deployments_test(
     """
     ## Get Chart Info (Dates return in UNIX time, naive format)
 
-    Get the json data needed to produce an SFM chart on frontend
+    Same fields as /charts/ endpoint, but returns dates in UNIX time format
+
     """
     project = None
     if project_name and not project_id:
