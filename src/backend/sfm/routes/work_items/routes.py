@@ -25,7 +25,12 @@ def get_work_items(
     """
     ## Get WorkItems
 
-    Get a list of all the WorkItems stored in the database
+    Get a list of all the WorkItems stored in the database.
+
+    - **skip**: sets the number of items to skip at the beginning of the listing
+    - **limit**: sets the max number of items to be displayed when called
+    - **project_id**: specifying **project_id** returns only work items in a given project
+    - **project_name**: specifying **project_name** returns only work items in a given project
     """
     work_items = crud.get_all(
         db, skip=skip, limit=limit, project_id=project_id, project_name=project_name
@@ -38,9 +43,10 @@ def get_work_items(
 @router.get("/{work_item_id}")
 def get_work_item(work_item_id: int, db: Session = Depends(get_db)):
     """
-    ## Get WorkItem Specified by ID
+    ## Get WorkItem by ID
 
-    Get a WorkItem stored in the database
+    Get a specific WorkItem by specifying the ID in the path.
+
     """
     work_item = crud.get_by_id(db, work_item_id)
     if not work_item:
@@ -55,9 +61,19 @@ def create_work_item(
     db: Session = Depends(get_db),
 ):
     """
-    ## Create WorkItem
+    ## Create WorkItem entry in db
 
-    Create a new WorkItem in the database from the data provided in the request.
+    Create a new WorkItem in the database by specifying data in the request.
+
+    - **category**: event category for the work item. Must be one of the following options:
+        1. "Deployment"
+        2. "Issue"
+        3. "Pull Request"
+    - **start_time**: sets the start time of the WorkItem
+    - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
+    - **duration_open**: sets duration of WorkItem being open
+    - **project_id**: sets project the WorkItem belongs to
+
     """
     if not work_item_data:
         raise HTTPException(status_code=404, detail="WorkItem data not provided")
@@ -87,7 +103,9 @@ def delete_work_item(
     """
     ## Delete a WorkItem
 
-    Pass a WorkItem database id value and the WorkItem will be deleted from the database.
+    Pass a WorkItem database id value in the path and the WorkItem will be deleted from the database.
+    - **work_item_id**: selects WorkItem being open
+    - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
     """
     if not work_item_id:
         raise HTTPException(status_code=404, detail="work_item_id not provided")
@@ -117,6 +135,16 @@ def update_work_item(
     ## Update WorkItem
 
     Update an existing WorkItem in the database from the data provided in the request.
+
+    - **work_item_id**: selects WorkItem being open
+    - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
+    - **category**: event category for the work item. Must be one of the following options:
+        1. "Deployment"
+        2. "Issue"
+        3. "Pull Request"
+    - **start_time**: sets the start time of the WorkItem
+    - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
+    - **project_id**: sets project the WorkItem belongs to
     """
     if not work_item_data:
         raise HTTPException(status_code=404, detail="WorkItem data not provided")
