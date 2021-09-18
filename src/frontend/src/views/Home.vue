@@ -228,6 +228,7 @@
                   IMPORTS
 ---------------------------------------------- */
 import { ref, onMounted, computed } from "vue";
+import { projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
@@ -324,19 +325,19 @@ const sidebarOpen = ref(false);
 /* ----------------------------------------------
                     FUNCTIONS
 ---------------------------------------------- */
-function setProjectDropdownChoicesWrapper() {
-  axios.get("projects").then((res) => {
-    projectDropdownChoices.value = setProjectDropdownChoices(res);
-  });
-}
+// function setProjectDropdownChoicesWrapper() {
+//   axios.get("projects").then((res) => {
+//     projectDropdownChoices.value = setProjectDropdownChoices(res);
+//   });
+// }
 
-function setProjectDropdownChoices(resp) {
-  let arr = ["All"];
-  for (let ele of resp.data) {
-    arr.push(ele.name);
-  }
-  return arr;
-}
+// function setProjectDropdownChoices(resp) {
+//   let arr = ["All"];
+//   for (let ele of resp.data) {
+//     arr.push(ele.name);
+//   }
+//   return arr;
+// }
 
 function setSelectedProject(proj) {
   selectedProject.value = proj;
@@ -382,7 +383,7 @@ function formatDeploymentDataWrapper() {
     axios
       .get(CONNECTION_STRING + "charts/test?category=Deployment")
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         series.value[0].data = formatDeploymentData(res);
         deploymentFreqRating.value = setDeploymentFreqRating(
           res.data[0].deployment_frequency
@@ -464,11 +465,44 @@ function formatDeploymentDataMonthly(res) {
 }
 function formatDeploymentDataWeekly(res) {}
 
+/* 
+  ==============
+  Josh's Updates
+  ============== 
+*/
+
+/* List of Strings including "All" then all fetched project names */
+const projectDropdownChoices = computed(() => {
+  let dropdownChoices = projects.value.map((a) => a.name);
+  dropdownChoices.unshift("All");
+  return dropdownChoices;
+});
+
+const projects = ref<projectItem[]>([]); // holds all fetched projects
+
+/* GET request to /projects to retrieve array of projects. */
+const fetchProjects = () => {
+  axios
+    .get("projects", {
+      params: { skip: 0, limit: 100 },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      projects.value = response.data;
+    })
+    .catch((error) => {
+      console.log("GET Projects Error: ", error);
+    });
+};
+
 /* ----------------------------------------------
              VUE BUILT-IN FUNCTIONS
 ---------------------------------------------- */
 onMounted(() => {
-  setProjectDropdownChoicesWrapper();
+  fetchProjects();
+  // setProjectDropdownChoicesWrapper();
   setSelectedProject("All");
   formatDeploymentDataWrapper();
 });
