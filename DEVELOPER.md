@@ -167,7 +167,10 @@ docker-compose -f docker-compose.yml -f local-docker-compose.yml build
 
 # Run the container in detached mode to return your command prompt
 docker-compose -f docker-compose.yml -f local-docker-compose.yml up -d backend
+```
 
+<!--
+```
 # Check the status of your container.
 docker ps
 
@@ -179,6 +182,7 @@ docker exec -it src_backend_1 bash
 alembic upgrade head
 exit
 ```
+-->
 
 ### Run Locally
 
@@ -197,9 +201,17 @@ cd src/backend
 pdm install
 ```
 
-To run the project just run `pdm run uvicorn main:app --workers 4 --host 0.0.0.0 --port 8181 --reload`
+To run the project just run `pdm run uvicorn sfm.main:app --workers 4 --host 0.0.0.0 --port 8181 --reload`
 
 Your backend container should be running at `http://localhost:8181/docs` on your local machine.
+
+### Clearing the database
+
+To clear the database and prepare it for seeding mock data, simply navigate to the bottom of the SwaggerUI docs located at `http://localhost:8181/docs` and execute the `/clear_local_db` endpoint. To do this programmatically, send a DELETE request to `http://localhost:8181/utilities/clear_local_db`
+
+### Seeding the Database
+
+To help with local development amongst teams, an API endpoint was created to initialize the database with a standardized set of mock data. _This will require a cleared database to work._ You can access this endpoint either at the bottom of the SwaggerUI docs located at `http://localhost:8181/docs` or by sending a POST request to `http://localhost:8181/utilities/populate_mock_data`
 
 ### Unit Testing
 

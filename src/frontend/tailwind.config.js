@@ -70,7 +70,10 @@ module.exports = {
         600: "#8c2ace", // Violet
         800: "#58009c", // Dark Violet
       },
-
+      gold: "#ffe900",
+      bggreen: "#00A300",
+      bgyellow: "#FFFF00",
+      bgorange: "#FF7E19",
       black: colors.black,
       white: colors.white,
       gray: colors.coolGray,
@@ -81,6 +84,7 @@ module.exports = {
       indigo: colors.indigo,
       purple: colors.violet,
       pink: colors.pink,
+      orange: colors.orange,
     },
     spacing: {
       px: "1px",
