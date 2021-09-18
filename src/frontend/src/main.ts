@@ -8,7 +8,7 @@ import VueApexCharts from "vue3-apexcharts";
 import PrimeVue from "primevue/config";
 import axios from "axios";
 
-axios.defaults.baseURL = "import.meta.env.API_URL";
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 createApp(App)
   .use(router)

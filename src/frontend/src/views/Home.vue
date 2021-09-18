@@ -227,7 +227,7 @@
 /* ----------------------------------------------
                   IMPORTS
 ---------------------------------------------- */
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
@@ -275,7 +275,8 @@ const MONTHLY_CATEGORIES = [
 /* ----------------------------------------------
                   VARIABLES
 ---------------------------------------------- */
-const projectDropdownChoices = ref([]);
+// const projectDropdownChoices = ref([]);
+// const projectDropdownChoices = computed(() => {});
 const selectedProject = ref(INITIAL_PROJECT_CHOICE);
 const deploymentFreqRating = ref("");
 const deploymentFreqRatingColor = ref("");
