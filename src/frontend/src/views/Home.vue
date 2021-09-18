@@ -272,15 +272,6 @@ const MONTHLY_CATEGORIES = [
   "December",
 ];
 
-const NAVIGATION = [
-  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-  { name: "Team", href: "#", icon: UsersIcon, current: false },
-  { name: "Projects", href: "#", icon: FolderIcon, current: false },
-  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "#", icon: InboxIcon, current: false },
-  { name: "Reports", href: "#", icon: ChartBarIcon, current: false },
-];
-
 /* ----------------------------------------------
                   VARIABLES
 ---------------------------------------------- */
@@ -333,7 +324,7 @@ const sidebarOpen = ref(false);
                     FUNCTIONS
 ---------------------------------------------- */
 function setProjectDropdownChoicesWrapper() {
-  axios.get(CONNECTION_STRING + "projects").then((res) => {
+  axios.get("projects").then((res) => {
     projectDropdownChoices.value = setProjectDropdownChoices(res);
   });
 }
