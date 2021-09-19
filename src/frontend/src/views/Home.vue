@@ -91,7 +91,7 @@
                 />
                 <rrDropdown
                   label="Timescale"
-                  :choices="TIMESCALE_DROPDOWN_CHOICES"
+                  :choices="timescaleChoices"
                   :selected="selectedTimescale"
                   @updatedChoice="changeTimescale"
                 />
@@ -137,7 +137,7 @@
               />
               <rrDropdown
                 label="Timescale"
-                :choices="TIMESCALE_DROPDOWN_CHOICES"
+                :choices="timescaleChoices"
                 :selected="selectedTimescale"
                 @updatedChoice="changeTimescale"
               />
@@ -227,7 +227,7 @@
 /* ----------------------------------------------
                   IMPORTS
 ---------------------------------------------- */
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
@@ -253,11 +253,9 @@ import { setMapStoreSuffix } from "pinia";
 /* ----------------------------------------------
                 GLOBAL VARIABLES
 ---------------------------------------------- */
-
 const CONNECTION_STRING = "http://localhost:8181/";
 const INITIAL_PROJECT_CHOICE = "All";
-const INITIAL_TIMESCALE = "Monthly";
-const TIMESCALE_DROPDOWN_CHOICES = ["All Time", "Monthly", "Weekly", "Daily"];
+// const INITIAL_TIMESCALE = "Monthly";
 const MONTHLY_CATEGORIES = [
   "January",
   "February",
@@ -281,7 +279,7 @@ const MONTHLY_CATEGORIES = [
 const selectedProject = ref(INITIAL_PROJECT_CHOICE);
 const deploymentFreqRating = ref("");
 const deploymentFreqRatingColor = ref("");
-const selectedTimescale = ref(INITIAL_TIMESCALE);
+// const selectedTimescale = ref(INITIAL_TIMESCALE);
 
 const series = ref([
   {
@@ -345,11 +343,6 @@ function setSelectedProject(proj) {
 
 function changeProject(val: string) {
   setSelectedProject(val);
-  formatDeploymentDataWrapper();
-}
-
-function changeTimescale(val: string) {
-  selectedTimescale.value = val;
   formatDeploymentDataWrapper();
 }
 
@@ -465,10 +458,20 @@ function formatDeploymentDataMonthly(res) {
 }
 function formatDeploymentDataWeekly(res) {}
 
-/* 
+/* ----------------------------------------------
+               VUE BUILT-IN FUNCTIONS
+  ---------------------------------------------- */
+onMounted(() => {
+  fetchProjects();
+  // setProjectDropdownChoicesWrapper();
+  setSelectedProject("All");
+  formatDeploymentDataWrapper();
+});
+
+/*
   ==============
   Josh's Updates
-  ============== 
+  ==============
 */
 
 /* List of Strings including "All" then all fetched project names */
@@ -497,13 +500,19 @@ const fetchProjects = () => {
     });
 };
 
-/* ----------------------------------------------
-             VUE BUILT-IN FUNCTIONS
----------------------------------------------- */
-onMounted(() => {
-  fetchProjects();
-  // setProjectDropdownChoicesWrapper();
-  setSelectedProject("All");
-  formatDeploymentDataWrapper();
+const timescaleChoices = ["All Time", "Monthly", "Weekly", "Daily"];
+const selectedTimescale = ref(timescaleChoices[0]);
+
+/* Manage changes from  */
+function changeTimescale(val: string) {
+  selectedTimescale.value = val;
+  // formatDeploymentDataWrapper();
+}
+
+/* Demo watcher to track a changing variable... delete me later */
+watch(selectedTimescale, (val, oldVal) => {
+  console.log("Selected Timescale: ");
+  console.log("was: ", oldVal);
+  console.log("Is: ", val);
 });
 </script>

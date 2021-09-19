@@ -21,6 +21,5 @@ const appText =
   "SFM (Software Factory Metrics) is an app to present DevOps metrics for the various applications being built throughout the Software Factory.  These include metrics such as Deployment Frequency which can give insights into the health of the software delivery processes at work and business value delivery in the greater Software Value Stream.";
 const route = useRoute();
 const pathName = computed(() => route.name);
-console.log("VITE_API_URL", import.meta.env.VITE_API_URL);
 </script>
 <style></style>
