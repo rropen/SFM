@@ -492,13 +492,13 @@ function fetchDeployments() {
       },
     })
     .then((response) => {
-      series.value[0].data = formatDeploymentData(response);
+      // series.value[0].data = formatDeploymentData(response);
       deploymentTimescale.value = setdeploymentTimescale(
         response.data[0].deployment_frequency
       );
       // console.log(response.data[0].deployment_dates);
       series.value[0].data = sortByMonth(response.data[0].deployment_dates);
-      console.log("Sort: ", sortByMonth(response.data[0].deployment_dates));
+      // console.log("Sort: ", sortByMonth(response.data[0].deployment_dates));
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);
