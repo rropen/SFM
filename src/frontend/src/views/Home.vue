@@ -257,7 +257,7 @@ import { sortByMonth } from "../utils";
 const CONNECTION_STRING = "http://localhost:8181/";
 // const INITIAL_PROJECT_CHOICE = "All";
 // const INITIAL_TIMESCALE = "Monthly";
-const MONTHLY_CATEGORIES = [
+const months = [
   "January",
   "February",
   "March",
@@ -315,7 +315,7 @@ const chartOptions = ref({
     },
   },
   xaxis: {
-    categories: MONTHLY_CATEGORIES,
+    categories: months,
   },
 });
 
@@ -398,64 +398,64 @@ function setdeploymentTimescale(str) {
 //   }
 // }
 
-function formatDeploymentData(res) {
-  let retVal;
-  switch (selectedTimescale.value) {
-    case "Monthly":
-      retVal = formatDeploymentDataMonthly(res);
-      break;
-    case "Weekly":
-      retVal = formatDeploymentDataWeekly(res);
-      break;
-    case "Daily":
-      retVal = formatDeploymentDataDaily(res);
-      break;
-    default:
-      retVal = formatDeploymentDataAllTime(res);
-  }
-  return retVal;
-}
+// function formatDeploymentData(res) {
+//   let retVal;
+//   switch (selectedTimescale.value) {
+//     case "Monthly":
+//       retVal = formatDeploymentDataMonthly(res);
+//       break;
+//     case "Weekly":
+//       retVal = formatDeploymentDataWeekly(res);
+//       break;
+//     case "Daily":
+//       retVal = formatDeploymentDataDaily(res);
+//       break;
+//     default:
+//       retVal = formatDeploymentDataAllTime(res);
+//   }
+//   return retVal;
+// }
 
-function formatDeploymentDataAllTime(res) {}
+// function formatDeploymentDataAllTime(res) {}
 
-function formatDeploymentDataDaily(res) {}
+// function formatDeploymentDataDaily(res) {}
 
-function formatDeploymentDataMonthly(res) {
-  let currDate = new Date();
-  let currMonth = currDate.getMonth();
-  let datesAligned = false;
-  let chartMonth = new Date(
-    Date.parse(chartOptions.value.xaxis.categories[11] + " 1, 2012")
-  ).getMonth();
-  if (currMonth == chartMonth) {
-    datesAligned = true;
-  }
-  let currDateUnix = Date.now();
-  let data = res.data[0].deployment_dates;
+// function formatDeploymentDataMonthly(res) {
+//   let currDate = new Date();
+//   let currMonth = currDate.getMonth();
+//   let datesAligned = false;
+//   let chartMonth = new Date(
+//     Date.parse(chartOptions.value.xaxis.categories[11] + " 1, 2012")
+//   ).getMonth();
+//   if (currMonth == chartMonth) {
+//     datesAligned = true;
+//   }
+//   let currDateUnix = Date.now();
+//   let data = res.data[0].deployment_dates;
 
-  data = data.map((element) => {
-    if (element * 1000 > currDateUnix - 31536000000) {
-      let temp = new Date(element * 1000);
-      return temp;
-    }
-  });
-  let monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+//   data = data.map((element) => {
+//     if (element * 1000 > currDateUnix - 31536000000) {
+//       let temp = new Date(element * 1000);
+//       return temp;
+//     }
+//   });
+//   let monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  for (let ele of data) {
-    let i = ele.getMonth();
-    monthArr[i]++;
-  }
-  for (let i = currMonth + 1; i > 0; i--) {
-    monthArr.push(monthArr.shift());
-    if (!datesAligned) {
-      chartOptions.value.xaxis.categories.push(
-        chartOptions.value.xaxis.categories.shift()
-      );
-    }
-  }
-  return monthArr;
-}
-function formatDeploymentDataWeekly(res) {}
+//   for (let ele of data) {
+//     let i = ele.getMonth();
+//     monthArr[i]++;
+//   }
+//   for (let i = currMonth + 1; i > 0; i--) {
+//     monthArr.push(monthArr.shift());
+//     if (!datesAligned) {
+//       chartOptions.value.xaxis.categories.push(
+//         chartOptions.value.xaxis.categories.shift()
+//       );
+//     }
+//   }
+//   return monthArr;
+// }
+// function formatDeploymentDataWeekly(res) {}
 
 /* ----------------------------------------------
                VUE BUILT-IN FUNCTIONS
