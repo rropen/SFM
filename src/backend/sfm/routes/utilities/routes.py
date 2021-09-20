@@ -10,6 +10,8 @@ from fastapi import APIRouter, HTTPException, Depends, Path, Header
 from sfm.database import engine
 from datetime import datetime, timedelta
 from sfm.utils import create_project_auth_token
+import string
+import random
 
 # Create a database connection we can use
 def get_db():
@@ -18,6 +20,13 @@ def get_db():
 
 
 router = APIRouter()
+
+
+def random_sha(seed):
+    N = 20
+    random.seed(a=seed)
+    res = "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
+    return res
 
 
 @router.post("/populate_mock_data")
@@ -158,10 +167,13 @@ def populate_db(
         datetime(2021, 8, 11),
     ]
 
+    i = 0
     for item_id in pull_req_work_items:
         for date in commit_dates:
             commit_dict = {
-                "sha": create_project_auth_token(),  # used for random string generation (not actually a proj auth token)
+                "sha": random_sha(
+                    i
+                ),  # used for random string generation (not actually a proj auth token)
                 "date": date + time_shift,
                 "author": "Gabe Geiger",
                 "work_item_id": item_id,
@@ -169,20 +181,19 @@ def populate_db(
 
             commit_data = CommitCreate(**commit_dict)
             commit_crud.create_commit(db, commit_data, project_auth_token2)
+            i += 1
 
     all_projects = proj_crud.get_all(db)
-
-    print(all_projects)
-    print(len(all_projects))
 
     if len(all_projects) != 2:
         return "Incorrect number of projects present. Clear database and rerun."
     else:
         pass
 
-    all_deployments = crud.get_all(db)
-    if len(all_deployments) != (len(dates) + len(dates2) + len(commit_dates)):
-        return "Incorrect number of deployments present. Clear database and rerun."
+    all_work_items = crud.get_all(db)
+
+    if len(all_work_items) != (len(dates) + len(dates2) + len(pull_dates)):
+        return "Incorrect number of work items present. Clear database and rerun."
     else:
         pass
 
