@@ -40,8 +40,6 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
     work_item_data = WorkItemCreate(**pull_request_dict)
     work_item_id = crud.create_work_item(db, work_item_data, project_auth_token)
 
-    pull_date = datetime.strptime(pull_request.get("merged_at"), "%Y-%m-%dT%H:%M:%SZ")
-
     # commits_url = pull_request.get("commits_url")
     commits_url = "https://api.github.com/repos/Codertocat/Hello-World/commits"
 
@@ -58,13 +56,12 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
             "work_item_id": work_item_id,
             "sha": commit_data["sha"],
             "date": date,
-            "time_to_pull": (pull_date - date).total_seconds(),
             "message": commit_data["commit"]["message"],
             "author": commit_data["commit"]["author"]["name"],
         }
 
-        commit_data = CommitCreate(**commit_dict)
-        commit_crud.create_commit(db, commit_data, project_auth_token)
+        commit_obj = CommitCreate(**commit_dict)
+        commit_crud.create_commit(db, commit_obj, project_auth_token)
 
 
 router = APIRouter()

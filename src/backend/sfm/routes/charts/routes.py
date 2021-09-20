@@ -310,7 +310,6 @@ def get_pull_request(
     project_name: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
-
     project = None
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
