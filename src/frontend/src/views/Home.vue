@@ -193,7 +193,7 @@
                     type="line"
                     height="350"
                     :options="chartOptions"
-                    :series="series"
+                    :series="deploymentsData"
                   ></apexchart>
                 </div>
                 <div
@@ -228,7 +228,7 @@
                   IMPORTS
 ---------------------------------------------- */
 import { ref, onMounted, computed, watch } from "vue";
-import { projectItem } from "../types";
+import { deploymentItem, projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
@@ -252,11 +252,11 @@ import { setMapStoreSuffix } from "pinia";
 import { sortByMonth } from "../utils";
 
 /* ----------------------------------------------
-                GLOBAL VARIABLES
+                     CONSTANTS
 // ---------------------------------------------- */
-// const CONNECTION_STRING = "http://localhost:8181/";
-// const INITIAL_PROJECT_CHOICE = "All";
-// const INITIAL_TIMESCALE = "Monthly";
+
+const timescaleChoices = ["All Time", "Monthly", "Weekly", "Daily"];
+
 const months = [
   "January",
   "February",
@@ -275,12 +275,14 @@ const months = [
 /* ----------------------------------------------
                   VARIABLES
 ---------------------------------------------- */
-// const projectDropdownChoices = ref([]);
-// const projectDropdownChoices = computed(() => {});
-const deploymentTimescale = ref("");
+const deploymentTimescale = ref("Monthly");
 const deploymentTimescaleColor = ref("");
 const sidebarOpen = ref(false);
-// const selectedTimescale = ref(INITIAL_TIMESCALE);
+const selectedProject = ref("All");
+const selectedTimescale = ref(timescaleChoices[1]);
+
+const projects = ref<projectItem[]>([]); // holds all fetched projects
+const deployments = ref<deploymentItem>(); // holds currently fetched deployment data
 
 const series = ref([
   {
@@ -320,30 +322,107 @@ const chartOptions = ref({
 });
 
 /* ----------------------------------------------
+                      COMPUTED
+  ---------------------------------------------- */
+
+/* List of Strings including "All" then all fetched project names */
+const projectDropdownChoices = computed(() => {
+  let dropdownChoices = projects.value.map((a) => a.name);
+  dropdownChoices.unshift("All");
+  selectedProject.value = dropdownChoices[0]; //set initial value
+  return dropdownChoices;
+});
+
+// Deployments Data that goes in chart
+const deploymentsData = computed(() => {
+  if (deployments.value) {
+    let sortedData = sortByMonth(deployments.value.deployment_dates);
+    return [
+      {
+        name: "Successful Deployments",
+        data: sortedData,
+      },
+    ];
+    return sortedData;
+  } else {
+    return {};
+  }
+});
+
+/* ----------------------------------------------
+                     WATCHERS
+  ---------------------------------------------- */
+
+/* Demo watcher to track a changing variable... delete me later */
+watch(selectedTimescale, (val, oldVal) => {
+  console.log("Selected Timescale: ");
+  console.log("was: ", oldVal);
+  console.log("Is: ", val);
+});
+
+/* Watch to update data when changing selected project */
+watch(selectedProject, (val, oldVal) => {
+  if (oldVal) {
+    fetchDeployments();
+  }
+});
+
+/* ----------------------------------------------
                     FUNCTIONS
 ---------------------------------------------- */
-// function setProjectDropdownChoicesWrapper() {
-//   axios.get("projects").then((res) => {
-//     projectDropdownChoices.value = setProjectDropdownChoices(res);
-//   });
-// }
 
-// function setProjectDropdownChoices(resp) {
-//   let arr = ["All"];
-//   for (let ele of resp.data) {
-//     arr.push(ele.name);
-//   }
-//   return arr;
-// }
+function fetchDeployments() {
+  console.log("fetch deployments called");
+  console.log(selectedProject.value);
+  //set url string
+  let url = "";
+  if (selectedProject.value == "All") {
+    url = "charts/test?category=Deployment";
+  } else {
+    url =
+      "charts/test?category=Deployment&project_name=" +
+      encodeURIComponent(selectedProject.value);
+  }
+  // retrieve deployments
+  axios
+    .get(url, {
+      params: {},
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      console.log("in then of fetchDeployments");
+      deployments.value = response.data[0];
+      deploymentTimescale.value = setDeploymentTimescale(
+        response.data[0].deployment_frequency
+      );
+      // series.value[0].data = sortByMonth(response.data[0].deployment_dates);
 
-// function setSelectedProject(proj) {
-//   selectedProject.value = proj;
-// }
+      console.log("deployments updated");
+    })
+    .catch((error) => {
+      console.error("GET Deployments Error: ", error);
+    });
+}
 
-// function changeProject(val: string) {
-//   setSelectedProject(val);
-//   formatDeploymentDataWrapper();
-// }
+/* GET request to /projects to retrieve array of projects. */
+const fetchProjects = () => {
+  console.log("fetch projects called");
+  axios
+    .get("projects", {
+      params: { skip: 0, limit: 100 },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      projects.value = response.data;
+    })
+    .catch((error) => {
+      console.error("GET Projects Error: ", error);
+    });
+};
 
 function setDeploymentTimescale(str) {
   let rating = "";
@@ -370,192 +449,21 @@ function setDeploymentTimescale(str) {
   return rating;
 }
 
-// function formatDeploymentDataWrapper() {
-//   if (selectedProject.value == "All") {
-//     axios
-//       .get(CONNECTION_STRING + "charts/test?category=Deployment")
-//       .then((res) => {
-//         // console.log(res);
-//         series.value[0].data = formatDeploymentData(res);
-//         deploymentTimescale.value = setdeploymentTimescale(
-//           res.data[0].deployment_frequency
-//         );
-//       });
-//   } else {
-//     axios
-//       .get(
-//         CONNECTION_STRING +
-//           "charts/test?category=Deployment&project_name=" +
-//           encodeURIComponent(selectedProject.value) +
-//           "&="
-//       )
-//       .then((res) => {
-//         series.value[0].data = formatDeploymentData(res);
-//         deploymentTimescale.value = setdeploymentTimescale(
-//           res.data[0].deployment_frequency
-//         );
-//       });
-//   }
-// }
-
-// function formatDeploymentData(res) {
-//   let retVal;
-//   switch (selectedTimescale.value) {
-//     case "Monthly":
-//       retVal = formatDeploymentDataMonthly(res);
-//       break;
-//     case "Weekly":
-//       retVal = formatDeploymentDataWeekly(res);
-//       break;
-//     case "Daily":
-//       retVal = formatDeploymentDataDaily(res);
-//       break;
-//     default:
-//       retVal = formatDeploymentDataAllTime(res);
-//   }
-//   return retVal;
-// }
-
-// function formatDeploymentDataAllTime(res) {}
-
-// function formatDeploymentDataDaily(res) {}
-
-// function formatDeploymentDataMonthly(res) {
-//   let currDate = new Date();
-//   let currMonth = currDate.getMonth();
-//   let datesAligned = false;
-//   let chartMonth = new Date(
-//     Date.parse(chartOptions.value.xaxis.categories[11] + " 1, 2012")
-//   ).getMonth();
-//   if (currMonth == chartMonth) {
-//     datesAligned = true;
-//   }
-//   let currDateUnix = Date.now();
-//   let data = res.data[0].deployment_dates;
-
-//   data = data.map((element) => {
-//     if (element * 1000 > currDateUnix - 31536000000) {
-//       let temp = new Date(element * 1000);
-//       return temp;
-//     }
-//   });
-//   let monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-//   for (let ele of data) {
-//     let i = ele.getMonth();
-//     monthArr[i]++;
-//   }
-//   for (let i = currMonth + 1; i > 0; i--) {
-//     monthArr.push(monthArr.shift());
-//     if (!datesAligned) {
-//       chartOptions.value.xaxis.categories.push(
-//         chartOptions.value.xaxis.categories.shift()
-//       );
-//     }
-//   }
-//   return monthArr;
-// }
-// function formatDeploymentDataWeekly(res) {}
-
-/* ----------------------------------------------
-               VUE BUILT-IN FUNCTIONS
-  ---------------------------------------------- */
-onMounted(() => {
-  fetchProjects();
-  fetchDeployments();
-  // setProjectDropdownChoicesWrapper();
-  // setSelectedProject("All");
-  // formatDeploymentDataWrapper();
-});
-
-/*
-  ==============
-  Josh's Updates
-  ==============
-*/
-function fetchDeployments() {
-  //set url string
-  let url = "";
-  if (selectedProject.value == "All") {
-    url = "charts/test?category=Deployment";
-  } else {
-    url =
-      "charts/test?category=Deployment&project_name=" +
-      encodeURIComponent(selectedProject.value);
-  }
-  // retrieve deployments
-  axios
-    .get(url, {
-      params: {},
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => {
-      // series.value[0].data = formatDeploymentData(response);
-      deploymentTimescale.value = setDeploymentTimescale(
-        response.data[0].deployment_frequency
-      );
-      // console.log(response.data[0].deployment_dates);
-      series.value[0].data = sortByMonth(response.data[0].deployment_dates);
-      // console.log("Sort: ", sortByMonth(response.data[0].deployment_dates));
-    })
-    .catch((error) => {
-      console.error("GET Deployments Error: ", error);
-    });
-}
-
-const selectedProject = ref("");
-
-/* List of Strings including "All" then all fetched project names */
-const projectDropdownChoices = computed(() => {
-  let dropdownChoices = projects.value.map((a) => a.name);
-  dropdownChoices.unshift("All");
-  selectedProject.value = dropdownChoices[0]; //set initial value
-  return dropdownChoices;
-});
-
-const projects = ref<projectItem[]>([]); // holds all fetched projects
-
-/* GET request to /projects to retrieve array of projects. */
-const fetchProjects = () => {
-  axios
-    .get("projects", {
-      params: { skip: 0, limit: 100 },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => {
-      projects.value = response.data;
-    })
-    .catch((error) => {
-      console.error("GET Projects Error: ", error);
-    });
-};
-
 /* Manage changes from project dropdown  */
 function changeProject(val: string) {
   selectedProject.value = val;
 }
 
-/* Watch to update data when changing selected project */
-watch(selectedProject, (val, oldVal) => {
-  fetchDeployments();
-});
-
-const timescaleChoices = ["All Time", "Monthly", "Weekly", "Daily"];
-const selectedTimescale = ref(timescaleChoices[1]);
-
-/* Manage changes from timescale dropdown  */
+/* Manage changes from timescale dropdown */
 function changeTimescale(val: string) {
   selectedTimescale.value = val;
 }
 
-/* Demo watcher to track a changing variable... delete me later */
-watch(selectedTimescale, (val, oldVal) => {
-  console.log("Selected Timescale: ");
-  console.log("was: ", oldVal);
-  console.log("Is: ", val);
+/* ----------------------------------------------
+               VUE BUILT-IN FUNCTIONS
+  ---------------------------------------------- */
+onMounted(() => {
+  fetchDeployments();
+  fetchProjects();
 });
 </script>

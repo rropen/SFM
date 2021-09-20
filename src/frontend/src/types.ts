@@ -2,20 +2,6 @@
 
 import { number } from "yup";
 
-export interface meetingItem {
-  id?: number;
-  comment: string;
-  date: number;
-  employeeNumber: number;
-  groupCost: number;
-  meetingGroup: string;
-  meetingId: string;
-  powerpointSlides: number;
-  time: number;
-  title: string;
-  totalCost: number;
-}
-
 export interface projectItem {
   name: string;
   lead_name: string;
@@ -25,4 +11,10 @@ export interface projectItem {
   repo_url: string;
   on_prem: boolean;
   id: number;
+}
+
+export interface deploymentItem {
+  deployment_dates: Array<number>;
+  deployment_frequency: string;
+  project_name: string;
 }
