@@ -112,7 +112,7 @@ def calc_frequency(
 def get_deployments(
     project_id: Optional[int] = None,
     project_name: Optional[str] = None,
-    group_projects: Optional[bool] = False,
+    all_deployments: Optional[bool] = True,
     db: Session = Depends(get_db),
 ):
     """
@@ -123,9 +123,9 @@ def get_deployments(
     ---
 
     Query Parameters:
-    - **group_project**: If *True*, data returned grouped by project. If *False*, data returned with project grouping.
+    - **all_deployments**: If *True*, all deployments will be returned for the org. If *False*, return deployments grouped by project.
 
-    #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
+    ##### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
     - **project_id**: sets project for data
     - **project_name**: sets project the WorkItem belongs to
 
@@ -134,11 +134,17 @@ def get_deployments(
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
-            return False
+            raise HTTPException(
+                status_code=404,
+                detail=f"No project found with the specified name: {project_name}",
+            )
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
-            return False
+            raise HTTPException(
+                status_code=404,
+                detail=f"No project found with the specified id: {project_id}",
+            )
     elif project_id and project_name:
         project = db.exec(
             select(Project).where(
@@ -146,7 +152,10 @@ def get_deployments(
             )
         ).first()
         if not project:
-            return False
+            raise HTTPException(
+                status_code=404,
+                detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
+            )
 
     if project:
         # return specific project deployment frequency json object
@@ -159,7 +168,17 @@ def get_deployments(
         ]
         deploy_frequency = calc_frequency(deployments)
 
-    elif group_projects:
+        deployment_data = [
+            {
+                "project_name": project_name,
+                "deployment_dates": deployment_dates,
+                "deployment_frequency": deploy_frequency,
+            }
+        ]
+
+        return deployment_data
+
+    elif not all_deployments:
         projects = proj_crud.get_all(db)
         group_deployments = []
         for project in projects:
@@ -182,6 +201,8 @@ def get_deployments(
                 }
             )
 
+        return group_deployments
+
     else:
         all_items = crud.get_all(db)
         deployments = [item for item in all_items if (item.category == "Deployment")]
@@ -191,7 +212,6 @@ def get_deployments(
         ]
         deploy_frequency = calc_frequency(deployments)
 
-    if not group_projects:
         deployment_data = [
             {
                 "project_name": project_name,
@@ -199,10 +219,8 @@ def get_deployments(
                 "deployment_frequency": deploy_frequency,
             }
         ]
-    else:
-        deployment_data = group_deployments
 
-    return deployment_data
+        return deployment_data
 
 
 """
