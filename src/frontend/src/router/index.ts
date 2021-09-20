@@ -26,6 +26,11 @@ const routes = [
     name: "not-found",
     component: () => import("../views/404.vue"),
   },
+  {
+    path: "/401",
+    name: "Not Authorized",
+    component: () => import("../views/401.vue"),
+  },
 ];
 
 const router = createRouter({
