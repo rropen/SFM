@@ -181,7 +181,7 @@ def populate_db(
         pass
 
     all_deployments = crud.get_all(db)
-    if len(all_deployments) != (len(dates) + len(dates2)):
+    if len(all_deployments) != (len(dates) + len(dates2) + len(commit_dates)):
         return "Incorrect number of deployments present. Clear database and rerun."
     else:
         pass
