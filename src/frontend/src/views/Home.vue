@@ -91,7 +91,7 @@
                 />
                 <rrDropdown
                   label="Timescale"
-                  :choices="TIMESCALE_DROPDOWN_CHOICES"
+                  :choices="timescaleChoices"
                   :selected="selectedTimescale"
                   @updatedChoice="changeTimescale"
                 />
@@ -137,7 +137,7 @@
               />
               <rrDropdown
                 label="Timescale"
-                :choices="TIMESCALE_DROPDOWN_CHOICES"
+                :choices="timescaleChoices"
                 :selected="selectedTimescale"
                 @updatedChoice="changeTimescale"
               />
@@ -209,9 +209,9 @@
                     text-4xl
                     justify-center
                   "
-                  :class="deploymentFreqRatingColor"
+                  :class="deploymentTimescaleColor"
                 >
-                  Current Rating: {{ deploymentFreqRating }}
+                  Current Rating: {{ deploymentTimescale }}
                 </div>
               </div>
             </div>
@@ -227,7 +227,8 @@
 /* ----------------------------------------------
                   IMPORTS
 ---------------------------------------------- */
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
+import { projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
@@ -248,16 +249,15 @@ import {
   XIcon,
 } from "@heroicons/vue/outline";
 import { setMapStoreSuffix } from "pinia";
+import { sortByMonth } from "../utils";
 
 /* ----------------------------------------------
                 GLOBAL VARIABLES
----------------------------------------------- */
-
-const CONNECTION_STRING = "http://localhost:8181/";
-const INITIAL_PROJECT_CHOICE = "All";
-const INITIAL_TIMESCALE = "Monthly";
-const TIMESCALE_DROPDOWN_CHOICES = ["All Time", "Monthly", "Weekly", "Daily"];
-const MONTHLY_CATEGORIES = [
+// ---------------------------------------------- */
+// const CONNECTION_STRING = "http://localhost:8181/";
+// const INITIAL_PROJECT_CHOICE = "All";
+// const INITIAL_TIMESCALE = "Monthly";
+const months = [
   "January",
   "February",
   "March",
@@ -266,29 +266,21 @@ const MONTHLY_CATEGORIES = [
   "June",
   "July",
   "August",
-  "Sept",
+  "September",
   "October",
   "November",
   "December",
 ];
 
-const NAVIGATION = [
-  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-  { name: "Team", href: "#", icon: UsersIcon, current: false },
-  { name: "Projects", href: "#", icon: FolderIcon, current: false },
-  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "#", icon: InboxIcon, current: false },
-  { name: "Reports", href: "#", icon: ChartBarIcon, current: false },
-];
-
 /* ----------------------------------------------
                   VARIABLES
 ---------------------------------------------- */
-const projectDropdownChoices = ref([]);
-const selectedProject = ref(INITIAL_PROJECT_CHOICE);
-const deploymentFreqRating = ref("");
-const deploymentFreqRatingColor = ref("");
-const selectedTimescale = ref(INITIAL_TIMESCALE);
+// const projectDropdownChoices = ref([]);
+// const projectDropdownChoices = computed(() => {});
+const deploymentTimescale = ref("");
+const deploymentTimescaleColor = ref("");
+const sidebarOpen = ref(false);
+// const selectedTimescale = ref(INITIAL_TIMESCALE);
 
 const series = ref([
   {
@@ -323,61 +315,54 @@ const chartOptions = ref({
     },
   },
   xaxis: {
-    categories: MONTHLY_CATEGORIES,
+    categories: months,
   },
 });
-
-const sidebarOpen = ref(false);
 
 /* ----------------------------------------------
                     FUNCTIONS
 ---------------------------------------------- */
-function setProjectDropdownChoicesWrapper() {
-  axios.get(CONNECTION_STRING + "projects").then((res) => {
-    projectDropdownChoices.value = setProjectDropdownChoices(res);
-  });
-}
+// function setProjectDropdownChoicesWrapper() {
+//   axios.get("projects").then((res) => {
+//     projectDropdownChoices.value = setProjectDropdownChoices(res);
+//   });
+// }
 
-function setProjectDropdownChoices(resp) {
-  let arr = ["All"];
-  for (let ele of resp.data) {
-    arr.push(ele.name);
-  }
-  return arr;
-}
+// function setProjectDropdownChoices(resp) {
+//   let arr = ["All"];
+//   for (let ele of resp.data) {
+//     arr.push(ele.name);
+//   }
+//   return arr;
+// }
 
-function setSelectedProject(proj) {
-  selectedProject.value = proj;
-}
+// function setSelectedProject(proj) {
+//   selectedProject.value = proj;
+// }
 
-function changeProject(val: string) {
-  setSelectedProject(val);
-  formatDeploymentDataWrapper();
-}
+// function changeProject(val: string) {
+//   setSelectedProject(val);
+//   formatDeploymentDataWrapper();
+// }
 
-function changeTimescale(val: string) {
-  selectedTimescale.value = val;
-  formatDeploymentDataWrapper();
-}
-
-function setDeploymentFreqRating(str) {
+function setDeploymentTimescale(str) {
   let rating = "";
   switch (str) {
     case "Daily":
       rating = "Elite";
-      deploymentFreqRatingColor.value = "bg-bggreen";
+      deploymentTimescaleColor.value = "bg-bggreen";
       break;
     case "Weekly":
       rating = "High";
-      deploymentFreqRatingColor.value = "bg-bgyellow";
+      deploymentTimescaleColor.value = "bg-bgyellow";
       break;
     case "Monthly":
       rating = "Medium";
-      deploymentFreqRatingColor.value = "bg-bgorange";
+      deploymentTimescaleColor.value = "bg-bgorange";
       break;
     case "Yearly":
       rating = "Low";
-      deploymentFreqRatingColor.value = "bg-red-600";
+      deploymentTimescaleColor.value = "bg-red-600";
       break;
     default:
       rating = "No data";
@@ -385,99 +370,192 @@ function setDeploymentFreqRating(str) {
   return rating;
 }
 
-function formatDeploymentDataWrapper() {
-  if (selectedProject.value == "All") {
-    axios
-      .get(CONNECTION_STRING + "charts/test?category=Deployment")
-      .then((res) => {
-        console.log(res);
-        series.value[0].data = formatDeploymentData(res);
-        deploymentFreqRating.value = setDeploymentFreqRating(
-          res.data[0].deployment_frequency
-        );
-      });
-  } else {
-    axios
-      .get(
-        CONNECTION_STRING +
-          "charts/test?category=Deployment&project_name=" +
-          encodeURIComponent(selectedProject.value) +
-          "&="
-      )
-      .then((res) => {
-        series.value[0].data = formatDeploymentData(res);
-        deploymentFreqRating.value = setDeploymentFreqRating(
-          res.data[0].deployment_frequency
-        );
-      });
-  }
-}
+// function formatDeploymentDataWrapper() {
+//   if (selectedProject.value == "All") {
+//     axios
+//       .get(CONNECTION_STRING + "charts/test?category=Deployment")
+//       .then((res) => {
+//         // console.log(res);
+//         series.value[0].data = formatDeploymentData(res);
+//         deploymentTimescale.value = setdeploymentTimescale(
+//           res.data[0].deployment_frequency
+//         );
+//       });
+//   } else {
+//     axios
+//       .get(
+//         CONNECTION_STRING +
+//           "charts/test?category=Deployment&project_name=" +
+//           encodeURIComponent(selectedProject.value) +
+//           "&="
+//       )
+//       .then((res) => {
+//         series.value[0].data = formatDeploymentData(res);
+//         deploymentTimescale.value = setdeploymentTimescale(
+//           res.data[0].deployment_frequency
+//         );
+//       });
+//   }
+// }
 
-function formatDeploymentData(res) {
-  let retVal;
-  switch (selectedTimescale.value) {
-    case "Monthly":
-      retVal = formatDeploymentDataMonthly(res);
-      break;
-    case "Weekly":
-      retVal = formatDeploymentDataWeekly(res);
-      break;
-    case "Daily":
-      retVal = formatDeploymentDataDaily(res);
-      break;
-    default:
-      retVal = formatDeploymentDataAllTime(res);
-  }
-  return retVal;
-}
+// function formatDeploymentData(res) {
+//   let retVal;
+//   switch (selectedTimescale.value) {
+//     case "Monthly":
+//       retVal = formatDeploymentDataMonthly(res);
+//       break;
+//     case "Weekly":
+//       retVal = formatDeploymentDataWeekly(res);
+//       break;
+//     case "Daily":
+//       retVal = formatDeploymentDataDaily(res);
+//       break;
+//     default:
+//       retVal = formatDeploymentDataAllTime(res);
+//   }
+//   return retVal;
+// }
 
-function formatDeploymentDataAllTime(res) {}
+// function formatDeploymentDataAllTime(res) {}
 
-function formatDeploymentDataDaily(res) {}
+// function formatDeploymentDataDaily(res) {}
 
-function formatDeploymentDataMonthly(res) {
-  let currDate = new Date();
-  let currMonth = currDate.getMonth();
-  let datesAligned = false;
-  let chartMonth = new Date(
-    Date.parse(chartOptions.value.xaxis.categories[11] + " 1, 2012")
-  ).getMonth();
-  if (currMonth == chartMonth) {
-    datesAligned = true;
-  }
-  let currDateUnix = Date.now();
-  let data = res.data[0].deployment_dates;
+// function formatDeploymentDataMonthly(res) {
+//   let currDate = new Date();
+//   let currMonth = currDate.getMonth();
+//   let datesAligned = false;
+//   let chartMonth = new Date(
+//     Date.parse(chartOptions.value.xaxis.categories[11] + " 1, 2012")
+//   ).getMonth();
+//   if (currMonth == chartMonth) {
+//     datesAligned = true;
+//   }
+//   let currDateUnix = Date.now();
+//   let data = res.data[0].deployment_dates;
 
-  data = data.map((element) => {
-    if (element * 1000 > currDateUnix - 31536000000) {
-      let temp = new Date(element * 1000);
-      return temp;
-    }
-  });
-  let monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+//   data = data.map((element) => {
+//     if (element * 1000 > currDateUnix - 31536000000) {
+//       let temp = new Date(element * 1000);
+//       return temp;
+//     }
+//   });
+//   let monthArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  for (let ele of data) {
-    let i = ele.getMonth();
-    monthArr[i]++;
-  }
-  for (let i = currMonth + 1; i > 0; i--) {
-    monthArr.push(monthArr.shift());
-    if (!datesAligned) {
-      chartOptions.value.xaxis.categories.push(
-        chartOptions.value.xaxis.categories.shift()
-      );
-    }
-  }
-  return monthArr;
-}
-function formatDeploymentDataWeekly(res) {}
+//   for (let ele of data) {
+//     let i = ele.getMonth();
+//     monthArr[i]++;
+//   }
+//   for (let i = currMonth + 1; i > 0; i--) {
+//     monthArr.push(monthArr.shift());
+//     if (!datesAligned) {
+//       chartOptions.value.xaxis.categories.push(
+//         chartOptions.value.xaxis.categories.shift()
+//       );
+//     }
+//   }
+//   return monthArr;
+// }
+// function formatDeploymentDataWeekly(res) {}
 
 /* ----------------------------------------------
-             VUE BUILT-IN FUNCTIONS
----------------------------------------------- */
+               VUE BUILT-IN FUNCTIONS
+  ---------------------------------------------- */
 onMounted(() => {
-  setProjectDropdownChoicesWrapper();
-  setSelectedProject("All");
-  formatDeploymentDataWrapper();
+  fetchProjects();
+  fetchDeployments();
+  // setProjectDropdownChoicesWrapper();
+  // setSelectedProject("All");
+  // formatDeploymentDataWrapper();
+});
+
+/*
+  ==============
+  Josh's Updates
+  ==============
+*/
+function fetchDeployments() {
+  //set url string
+  let url = "";
+  if (selectedProject.value == "All") {
+    url = "charts/test?category=Deployment";
+  } else {
+    url =
+      "charts/test?category=Deployment&project_name=" +
+      encodeURIComponent(selectedProject.value);
+  }
+  // retrieve deployments
+  axios
+    .get(url, {
+      params: {},
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      // series.value[0].data = formatDeploymentData(response);
+      deploymentTimescale.value = setDeploymentTimescale(
+        response.data[0].deployment_frequency
+      );
+      // console.log(response.data[0].deployment_dates);
+      series.value[0].data = sortByMonth(response.data[0].deployment_dates);
+      // console.log("Sort: ", sortByMonth(response.data[0].deployment_dates));
+    })
+    .catch((error) => {
+      console.error("GET Deployments Error: ", error);
+    });
+}
+
+const selectedProject = ref("");
+
+/* List of Strings including "All" then all fetched project names */
+const projectDropdownChoices = computed(() => {
+  let dropdownChoices = projects.value.map((a) => a.name);
+  dropdownChoices.unshift("All");
+  selectedProject.value = dropdownChoices[0]; //set initial value
+  return dropdownChoices;
+});
+
+const projects = ref<projectItem[]>([]); // holds all fetched projects
+
+/* GET request to /projects to retrieve array of projects. */
+const fetchProjects = () => {
+  axios
+    .get("projects", {
+      params: { skip: 0, limit: 100 },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      projects.value = response.data;
+    })
+    .catch((error) => {
+      console.error("GET Projects Error: ", error);
+    });
+};
+
+/* Manage changes from project dropdown  */
+function changeProject(val: string) {
+  selectedProject.value = val;
+}
+
+/* Watch to update data when changing selected project */
+watch(selectedProject, (val, oldVal) => {
+  fetchDeployments();
+});
+
+const timescaleChoices = ["All Time", "Monthly", "Weekly", "Daily"];
+const selectedTimescale = ref(timescaleChoices[1]);
+
+/* Manage changes from timescale dropdown  */
+function changeTimescale(val: string) {
+  selectedTimescale.value = val;
+}
+
+/* Demo watcher to track a changing variable... delete me later */
+watch(selectedTimescale, (val, oldVal) => {
+  console.log("Selected Timescale: ");
+  console.log("was: ", oldVal);
+  console.log("Is: ", val);
 });
 </script>

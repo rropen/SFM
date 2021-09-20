@@ -5,7 +5,7 @@ from sfm.models import (
     ProjectCreate,
     ProjectUpdate,
 )
-from typing import List
+from typing import List, Optional
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Query
 from sfm.database import engine
@@ -20,14 +20,21 @@ router = APIRouter()
 
 
 class CustomGetParams:
+    """Custom parameter class for the GET projects route.
+
+    skip = 0 & limit = 100 by default.
+    This format enables a custom description field for each parameter that will display
+    in the backend swagger docs.
+    """
+
     def __init__(
         self,
         skip: int = Query(
-            ...,
+            0,
             description="This parameter sets the number of projects to *skip* at the beginning of the listing.",
         ),
         limit: int = Query(
-            ...,
+            100,
             description="This parameter sets the maximum number of projects to display in the response.",
         ),
     ):
