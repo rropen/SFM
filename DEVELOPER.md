@@ -83,6 +83,8 @@ For local development, the frontend just runs on your machine. After installing 
 
 ### Running Locally
 
+You'll need to edit the two `.env` files and remove the `example` portion of the names leaving a `.env` and a `.env.development`. These files have some example environment variables. The default values should work fine for local development. This application has it's configuration values abstracted so as to run in multiple production environments. Without these files, your application won't be configured correctly.
+
 ```bash
 # from the root/src/frontend folder
 yarn serve # served with vite - app available at http://localhost:3000 by default
