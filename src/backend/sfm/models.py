@@ -80,7 +80,7 @@ class WorkItemUpdate(SQLModel):
     project_id: Optional[int] = None
 
 
-class ChartData(SQLModel):
+class MetricData(SQLModel):
     project_name: str
     deployment_dates: Optional[List]
     deployment_frequency: str
