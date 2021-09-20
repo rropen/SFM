@@ -253,8 +253,8 @@ import { sortByMonth } from "../utils";
 
 /* ----------------------------------------------
                 GLOBAL VARIABLES
----------------------------------------------- */
-const CONNECTION_STRING = "http://localhost:8181/";
+// ---------------------------------------------- */
+// const CONNECTION_STRING = "http://localhost:8181/";
 // const INITIAL_PROJECT_CHOICE = "All";
 // const INITIAL_TIMESCALE = "Monthly";
 const months = [
@@ -266,7 +266,7 @@ const months = [
   "June",
   "July",
   "August",
-  "Sept",
+  "September",
   "October",
   "November",
   "December",
@@ -345,7 +345,7 @@ const chartOptions = ref({
 //   formatDeploymentDataWrapper();
 // }
 
-function setdeploymentTimescale(str) {
+function setDeploymentTimescale(str) {
   let rating = "";
   switch (str) {
     case "Daily":
@@ -493,7 +493,7 @@ function fetchDeployments() {
     })
     .then((response) => {
       // series.value[0].data = formatDeploymentData(response);
-      deploymentTimescale.value = setdeploymentTimescale(
+      deploymentTimescale.value = setDeploymentTimescale(
         response.data[0].deployment_frequency
       );
       // console.log(response.data[0].deployment_dates);
