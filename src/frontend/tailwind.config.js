@@ -31,12 +31,14 @@ module.exports = {
         800: "#10069f", // Rolls-Royce Blue
       },
       rrgrey: {
-        200: "#efeff4", // Grey 1
-        300: "#DCDBE0", // Grey ?
-        400: "#c8c7cc", // Grey 2
-        600: "#8a8a8f", // Grey 3
-        800: "#666666", // Grey 4
-        900: "#333333", //Grey5
+        100: "#f5f5fa",
+        200: "#f1f1f1",
+        300: "#efeff4",
+        400: "#e1e1e6",
+        500: "#c8c7cc",
+        600: "#8a8a8f",
+        700: "#666666",
+        800: "#333333",
       },
       rrteal: {
         200: "#8be8df", // Extra Light Turquoise
@@ -68,7 +70,10 @@ module.exports = {
         600: "#8c2ace", // Violet
         800: "#58009c", // Dark Violet
       },
-
+      gold: "#ffe900",
+      bggreen: "#00A300",
+      bgyellow: "#FFFF00",
+      bgorange: "#FF7E19",
       black: colors.black,
       white: colors.white,
       gray: colors.coolGray,
@@ -79,6 +84,7 @@ module.exports = {
       indigo: colors.indigo,
       purple: colors.violet,
       pink: colors.pink,
+      orange: colors.orange,
     },
     spacing: {
       px: "1px",

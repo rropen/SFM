@@ -2,30 +2,27 @@
   <div class="bg-rrblue-800 min-h-full overflow-auto">
     <div id="app" class="h-full font-sans bg-rrgrey-200" style="top: 50%">
       <Header />
-      <div class="page my-8 bg-white rounded-md h-full p-4 w-3/4 mx-auto">
+      <div class="flex flex-col">
+        <div id="sidebarWrapper"></div>
+      </div>
+      <div class="page bg-rrgrey-200 h-full">
         <router-view />
       </div>
-      <Footer />
+      <rrFooter appTitle="SFM" :appText="appText" />
     </div>
   </div>
 </template>
-<script lang="ts">
+
+<script lang="ts" setup>
 import Header from "./components/Header.vue";
 import Footer from "./components/Footer.vue";
+import { rrFooter } from "@rrglobal/vue-cobalt";
 import { defineComponent, computed } from "vue";
 import { useRoute } from "vue-router";
 
-export default defineComponent({
-  name: "App",
-  components: {
-    Header,
-    Footer,
-  },
-  setup() {
-    const route = useRoute();
-    const pathName = computed(() => route.name);
-    return { pathName };
-  },
-});
+const appText =
+  "SFM (Software Factory Metrics) is an app to present DevOps metrics for the various applications being built throughout the Software Factory.  These include metrics such as Deployment Frequency which can give insights into the health of the software delivery processes at work and business value delivery in the greater Software Value Stream.";
+const route = useRoute();
+const pathName = computed(() => route.name);
 </script>
 <style></style>
