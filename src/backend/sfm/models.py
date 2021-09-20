@@ -87,8 +87,11 @@ class MetricData(SQLModel):
 
 
 class LeadTimeData(SQLModel):
-    lead_time: Optional[float] = None
-    color: Optional[str] = None
+    lead_time: int
+    time_units: str
+    performance: str
+    lead_time_description: str
+    performance_description: str
 
 
 class CommitBase(SQLModel):
