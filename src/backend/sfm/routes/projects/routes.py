@@ -34,7 +34,7 @@ class CustomGetParams:
             description="This parameter sets the number of projects to *skip* at the beginning of the listing.",
         ),
         limit: int = Query(
-            100,
+            1000,
             description="This parameter sets the maximum number of projects to display in the response.",
         ),
     ):
