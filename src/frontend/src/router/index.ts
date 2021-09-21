@@ -22,14 +22,14 @@ const routes = [
     component: () => import("../views/About.vue"),
   },
   {
-    path: "/:pathMatch(.*)*",
-    name: "not-found",
-    component: () => import("../views/404.vue"),
-  },
-  {
     path: "/401",
     name: "Not Authorized",
     component: () => import("../views/401.vue"),
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "not-found",
+    component: () => import("../views/404.vue"),
   },
 ];
 

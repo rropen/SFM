@@ -4,8 +4,8 @@
       <img class="mb-8 pt-32 mx-auto" src="../assets/img/risks.png" />
       <h1 class="text-lg font-semibold text-rrgrey-800">401 - Unauthorized</h1>
       <p class="text-rrgrey-800 text-md mt-4">
-        You're credentials are Unauthorized.<br />Please check the credentials
-        you entered.
+        Your credentials are Unauthorized.<br />Please check the credentials you
+        entered.
       </p>
       <router-link :to="{ name: 'Home' }">
         <button
