@@ -186,7 +186,7 @@
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
-              <div class="rounded-lg h-96">
+              <div class="rounded-lg h-96 w-5/12">
                 <div class="shadow-xl p-4" id="chart">
                   <apexchart
                     ref="realtimeChart"
@@ -477,16 +477,16 @@ function fetchDeployments() {
   //set url string
   let url = "";
   if (selectedProject.value == "All") {
-    url = "charts/test?category=Deployment";
+    url = "metrics/deployments?category=Deployment";
   } else {
     url =
-      "charts/test?category=Deployment&project_name=" +
+      "metrics/deployments?&project_name=" +
       encodeURIComponent(selectedProject.value);
   }
   // retrieve deployments
   axios
     .get(url, {
-      params: {},
+      params: { all_deployments: false },
       headers: {
         "Content-Type": "application/json",
       },

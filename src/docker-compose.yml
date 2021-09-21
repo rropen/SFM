@@ -1,14 +1,14 @@
 version: "3.7"
 
 services:
-  nocodb:
-    image: nocodb/nocodb
-    container_name: nocodb
-    restart: always
+  # nocodb:
+  #   image: nocodb/nocodb
+  #   container_name: nocodb
+  #   restart: always
 
   backend:
     build: ./backend
-    container_name: fastapi
+    container_name: SFM-Backend
     restart: always
     env_file:
       - ./backend/.env
