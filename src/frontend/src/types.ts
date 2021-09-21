@@ -15,3 +15,14 @@ export interface meetingItem {
   title: string;
   totalCost: number;
 }
+
+export interface projectItem {
+  name: string;
+  lead_name: string;
+  lead_email: string;
+  description: string;
+  location: string;
+  repo_url: string;
+  on_prem: boolean;
+  id: number;
+}

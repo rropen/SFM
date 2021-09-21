@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "serve": "vite --host 0.0.0.0 --port 3000",
+    "serve": "vite --mode development --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "cypress": "cypress run",
     "cy": "start-server-and-test serve http-get://localhost:3000 cypress",
@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@headlessui/vue": "^1.4.0",
-    "@rrglobal/vue-cobalt": "^1.2.1",
     "@heroicons/vue": "^1.0.3",
+    "@rrglobal/vue-cobalt": "^1.2.1",
     "apexcharts": "^3.27.3",
     "axios": "^0.21.2",
     "flush-promises": "^1.0.2",

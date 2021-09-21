@@ -1,12 +1,17 @@
+from time import time
 from sqlalchemy.sql.expression import false
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
-from sfm.models import WorkItemRead, WorkItemCreate, WorkItemUpdate, ProjectCreate
+from sfm.routes.commits import crud as commit_crud
+from sfm.models import WorkItemCreate, ProjectCreate, CommitCreate
 from typing import List, Optional
 from sqlmodel import SQLModel, Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Header
 from sfm.database import engine
 from datetime import datetime, timedelta
+from sfm.utils import create_project_auth_token
+import string
+import random
 
 # Create a database connection we can use
 def get_db():
@@ -15,6 +20,13 @@ def get_db():
 
 
 router = APIRouter()
+
+
+def random_sha(seed):
+    N = 20
+    random.seed(a=seed)
+    res = "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
+    return res
 
 
 @router.post("/populate_mock_data")
@@ -27,6 +39,9 @@ def populate_db(
     Calling this endpoint creates a database at SFM/src/backend/sfm/issues.db. This database is set in .env and created in database.py. Sample work items, projects, and commits are generated to be used in metrics testing. A date offset can be manually set on the mock data to allow the dates of the data to be shifted nearer the current date for a more realistic mock data set.
 
     """
+
+    time_shift = timedelta(days=32)
+
     # fIRST PROJECT: Create project to file deployments under:
     project_dict = {
         "name": "Project for Deployments Testing",
@@ -83,9 +98,7 @@ def populate_db(
         deployment_dict = {
             "category": "Deployment",
             "end_time": date
-            + timedelta(
-                days=25
-            ),  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
+            + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
             "project_id": project.id,
         }
 
@@ -121,28 +134,75 @@ def populate_db(
         deployment_dict = {
             "category": "Deployment",
             "end_time": date
-            + timedelta(
-                days=25
-            ),  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
+            + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
             "project_id": project2.id,
         }
 
         work_item_data = WorkItemCreate(**deployment_dict)
         crud.create_work_item(db, work_item_data, project_auth_token2)
 
-    all_projects = proj_crud.get_all(db)
+    # Create Pull Request Items
+    pull_dates = [
+        datetime(2021, 8, 11),
+        datetime(2021, 8, 19),
+    ]
 
-    print(all_projects)
-    print(len(all_projects))
+    pull_req_work_items = []
+    project_ids = [project.id, project2.id]
+    print(project_ids)
+    project_auth_tokens = [project_auth_token, project_auth_token2]
+    print(project_auth_tokens)
+    proj_iter = 0
+    for date in pull_dates:
+        pull_dict = {
+            "category": "Pull Request",
+            "end_time": date
+            + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
+            "project_id": project_ids[proj_iter],
+        }
+        work_item_data = WorkItemCreate(**pull_dict)
+        work_item_id = crud.create_work_item(
+            db, work_item_data, project_auth_tokens[proj_iter]
+        )
+        pull_req_work_items.append(work_item_id)
+        proj_iter += 1
+
+    commit_dates = [
+        datetime(2021, 8, 8),
+        datetime(2021, 8, 9),
+        datetime(2021, 8, 10),
+        datetime(2021, 8, 11),
+    ]
+
+    i = 0
+    proj_iter = 0
+    for item_id in pull_req_work_items:
+        for date in commit_dates:
+            commit_dict = {
+                "sha": random_sha(
+                    i
+                ),  # used for random string generation (not actually a proj auth token)
+                "date": date + time_shift,
+                "author": "Gabe Geiger",
+                "work_item_id": item_id,
+            }
+
+            commit_data = CommitCreate(**commit_dict)
+            commit_crud.create_commit(db, commit_data, project_auth_tokens[proj_iter])
+            i += 1
+        proj_iter += 1
+
+    all_projects = proj_crud.get_all(db)
 
     if len(all_projects) != 2:
         return "Incorrect number of projects present. Clear database and rerun."
     else:
         pass
 
-    all_deployments = crud.get_all(db)
-    if len(all_deployments) != (len(dates) + len(dates2)):
-        return "Incorrect number of deployments present. Clear database and rerun."
+    all_work_items = crud.get_all(db)
+
+    if len(all_work_items) != (len(dates) + len(dates2) + len(pull_dates)):
+        return "Incorrect number of work items present. Clear database and rerun."
     else:
         pass
 

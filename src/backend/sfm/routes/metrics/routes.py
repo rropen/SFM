@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
 from time import mktime
-from dateutil.relativedelta import relativedelta
 from statistics import median
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
-from sfm.models import WorkItem, Project, ChartData, WorkItemCategory
+from sfm.models import WorkItem, Project, MetricData, LeadTimeData
 from typing import List, Optional
 from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
@@ -109,29 +108,22 @@ def calc_frequency(
     # jsonData.append({"week-range": deployFreq})
 
 
-@router.get("/", response_model=List[ChartData])
+@router.get("/deployments", response_model=List[MetricData])
 def get_deployments(
-    category: WorkItemCategory,
     project_id: Optional[int] = None,
     project_name: Optional[str] = None,
-    group_projects: Optional[bool] = False,
+    all_deployments: Optional[bool] = True,
     db: Session = Depends(get_db),
 ):
     """
-    ## Get Chart Info
+    ## Get Deployment Metric Info
 
-    Get the json data needed to produce an SFM chart on frontend
-    Data should be formatted as a timeseries(?)
+    Get json data related to the deployments for a project or organization
 
     ---
 
     Query Parameters:
-
-    - **category**: event category for the work item. Must be one of the following options:
-        1. "Deployment"
-        2. "Issue"
-        3. "Pull Request"
-    - **group_project**: If *True*, data returned grouped by project. If *False*, data returned with project grouping.
+    - **all_deployments**: If *True*, all deployments will be returned for the org. If *False*, return deployments grouped by project.
 
     #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
     - **project_id**: sets project for data
@@ -142,11 +134,17 @@ def get_deployments(
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
-            return False
+            raise HTTPException(
+                status_code=404,
+                detail=f"No project found with the specified name: {project_name}",
+            )
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
-            return False
+            raise HTTPException(
+                status_code=404,
+                detail=f"No project found with the specified id: {project_id}",
+            )
     elif project_id and project_name:
         project = db.exec(
             select(Project).where(
@@ -154,91 +152,10 @@ def get_deployments(
             )
         ).first()
         if not project:
-            return False
-
-    if project:
-        # return specific project deployment frequency json object
-        project_name = project.name
-        deployments = [
-            item for item in project.work_items if (item.category == "Deployment")
-        ]
-        deployment_dates = [deploy.end_time.date() for deploy in deployments]
-        deploy_frequency = calc_frequency(deployments)
-
-    elif group_projects:
-        print("Test in loop")
-        projects = proj_crud.get_all(db)
-        group_deployments = []
-        for project in projects:
-            project_name = project.name
-            deployments = []
-            deployment_dates = []
-            for work_item in project.work_items:
-                if work_item.category == "Deployment":
-                    deployments.append(work_item)
-                    deployment_dates.append(work_item.end_time.date())
-
-            deploy_frequency = calc_frequency(deployments)
-            group_deployments.append(
-                {
-                    "project_name": project_name,
-                    "deployment_dates": deployment_dates,
-                    "deployment_frequency": deploy_frequency,
-                }
+            raise HTTPException(
+                status_code=404,
+                detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
             )
-
-    else:
-        all_items = crud.get_all(db)
-        deployments = [item for item in all_items if (item.category == "Deployment")]
-        project_name = "org"
-        deployment_dates = [deploy.end_time.date() for deploy in deployments]
-        deploy_frequency = calc_frequency(deployments)
-
-    if not group_projects:
-        chart_data = [
-            {
-                "project_name": project_name,
-                "deployment_dates": deployment_dates,
-                "deployment_frequency": deploy_frequency,
-            }
-        ]
-    else:
-        chart_data = group_deployments
-
-    return chart_data
-
-
-@router.get("/test/", response_model=List[ChartData])
-def get_deployments_test(
-    category: WorkItemCategory,
-    project_id: Optional[int] = None,
-    project_name: Optional[str] = None,
-    group_projects: Optional[bool] = False,
-    db: Session = Depends(get_db),
-):
-    """
-    ## Get Chart Info (Dates return in UNIX time, naive format)
-
-    Same fields as /charts/ endpoint, but returns dates in UNIX time format
-
-    """
-    project = None
-    if project_name and not project_id:
-        project = db.exec(select(Project).where(Project.name == project_name)).first()
-        if not project:
-            return False
-    elif project_id and not project_name:
-        project = db.get(Project, project_id)
-        if not project:
-            return False
-    elif project_id and project_name:
-        project = db.exec(
-            select(Project).where(
-                and_(Project.id == project_id, Project.name == project_name)
-            )
-        ).first()
-        if not project:
-            return False
 
     if project:
         # return specific project deployment frequency json object
@@ -251,8 +168,17 @@ def get_deployments_test(
         ]
         deploy_frequency = calc_frequency(deployments)
 
-    elif group_projects:
-        print("Test in loop")
+        deployment_data = [
+            {
+                "project_name": project_name,
+                "deployment_dates": deployment_dates,
+                "deployment_frequency": deploy_frequency,
+            }
+        ]
+
+        return deployment_data
+
+    elif not all_deployments:
         projects = proj_crud.get_all(db)
         group_deployments = []
         for project in projects:
@@ -275,6 +201,8 @@ def get_deployments_test(
                 }
             )
 
+        return group_deployments
+
     else:
         all_items = crud.get_all(db)
         deployments = [item for item in all_items if (item.category == "Deployment")]
@@ -284,42 +212,51 @@ def get_deployments_test(
         ]
         deploy_frequency = calc_frequency(deployments)
 
-    if not group_projects:
-        chart_data = [
+        deployment_data = [
             {
                 "project_name": project_name,
                 "deployment_dates": deployment_dates,
                 "deployment_frequency": deploy_frequency,
             }
         ]
-    else:
-        chart_data = group_deployments
 
-    for obj in chart_data:
-        for date in obj["deployment_dates"]:
-            print(datetime.utcfromtimestamp(int(date)).strftime("%Y-%m-%d %H:%M:%S"))
-
-    return chart_data
+        return deployment_data
 
 
-"""
 @router.get("/LeadTimeToChange", response_model=LeadTimeData)
-def get_pull_request(
-    category: str,
+def get_Lead_Time_To_Change(
     project_id: Optional[int] = None,
     project_name: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
 
+    """
+    ## Get Lead Time to Change Metric
+
+    Get json data describing lead time metric
+
+    ---
+
+    #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
+    - **project_id**: sets project data to be used for lead time calculation
+    - **project_name**: sets project data to be used for lead time calculation
+
+    """
     project = None
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
-            return False
+            raise HTTPException(
+                status_code=404,
+                detail=f"No project found with the specified name: {project_name}",
+            )
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
-            return False
+            raise HTTPException(
+                status_code=404,
+                detail=f"No project found with the specified id: {project_id}",
+            )
     elif project_id and project_name:
         project = db.exec(
             select(Project).where(
@@ -327,35 +264,58 @@ def get_pull_request(
             )
         ).first()
         if not project:
-            return False
+            raise HTTPException(
+                status_code=404,
+                detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
+            )
 
     if project:
-        # return specific project deployment frequency json object
         pullRequests = [
             item for item in project.work_items if (item.category == "Pull Request")
         ]
-        lead_times = [pullRequest.commit_median_merge_time for pullRequest in pullRequests]
-
-        #deploy_frequency = calc_frequency(deployments, deployment_dates)
+        if not pullRequests:
+            raise HTTPException(
+                status_code=404,
+                detail="No pull requests to main associated with specified project",
+            )
 
     else:
-        # return all project deployment frequency data in json object
         all_items = crud.get_all(db)
         pullRequests = [item for item in all_items if (item.category == "Pull Request")]
-        lead_times = [pullRequest.commit_median_merge_time for pullRequest in pullRequests]
+        if not pullRequests:
+            raise HTTPException(
+                status_code=404,
+                detail="No pull requests to main in record for any project",
+            )
 
-        #deploy_frequency = calc_frequency(deployments, deployment_dates)
+    lead_times = []
+    for request in pullRequests:
+        for commit in request.commits:
+            lead_times.append(commit.time_to_pull)
 
-    #calculate median time in minutes
-    #median_time_to_deploy = int((median(commits_time_to_deploy) % 3600) // 60)
+    # calculate median time in minutes
+    print(median(lead_times))
+    median_time_to_deploy = int(median(lead_times) / 60)
+
+    if median_time_to_deploy < (24 * 60):  # Less than one day
+        performance = "Elite"
+    elif (median_time_to_deploy >= (24 * 60)) and (
+        median_time_to_deploy < (7 * 24 * 60)
+    ):  # between one day and one week
+        performance = "High"
+    elif (median_time_to_deploy >= (7 * 24 * 60)) and (
+        median_time_to_deploy < (7 * 24 * 60 * 4)
+    ):  # between one week and one month
+        performance = "Medium"
+    elif median_time_to_deploy >= (7 * 24 * 60 * 4):  # greater than one month
+        performance = "Low"
 
     LeadTime_dict = {
-        "lead_time" : lead_time,
-        "time_units" : "minutes",
-        "performance" : performance,
-        "lead_time_description" : "median lead time for a commit to get pulled to main branch in minutes",
-        "performance_description" : "Elite = less than an hour, High = less than one day, Medium = less than one week, Low = Between one week and one month, Abismal = Greater than one month",
+        "lead_time": median_time_to_deploy,
+        "time_units": "minutes",
+        "performance": performance,
+        "lead_time_description": "median lead time for a commit to get pulled to main branch in minutes",
+        "performance_description": "Elite = less than one day, High = between one day and one week, Medium = bewtween one week and one month, Low = greater than one month",
     }
 
     return LeadTime_dict
-"""
