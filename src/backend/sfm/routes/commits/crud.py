@@ -4,6 +4,14 @@ from sqlalchemy.sql.expression import false
 from sfm.models import WorkItem, Project, Commit
 from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
+from datetime import datetime, timedelta
+
+
+def calc_time_to_pull(db: Session, commit_data, pull_date):
+    commit_temp = commit_data.dict()
+    pull_date = db.get(WorkItem, commit_temp["work_item_id"]).end_time
+    time_to_pull = pull_date - commit_temp["date"]
+    return time_to_pull
 
 
 def get_all(
@@ -53,7 +61,10 @@ def create_commit(db: Session, commit_data, project_auth_token):
         project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
-        commit_db = Commit.from_orm(commit_data)
+        commit_temp = commit_data.dict()
+        time_to_pull = int((work_item.end_time - commit_temp["date"]).total_seconds())
+        commit_temp.update({"time_to_pull": time_to_pull})
+        commit_db = Commit(**commit_temp)
         db.add(commit_db)
         db.commit()
     else:

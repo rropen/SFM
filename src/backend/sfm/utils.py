@@ -14,7 +14,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def create_project_auth_token():
-    # creates 10 character string of random letters, numbers, symbols.
+    # creates 20 character string of random letters, numbers, symbols.
     low_letters = string.ascii_lowercase
     up_letters = string.ascii_uppercase
     digits = string.digits
