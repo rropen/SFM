@@ -1,12 +1,6 @@
 version: "3.7"
 
 services:
-  # nocodb:
-  #   volumes:
-  #     - ./nocodb/data:/usr/app/data/
-  #   ports:
-  #     - 8080:8080
-
   backend:
     command: uvicorn sfm.main:app --workers 4 --host 0.0.0.0 --port 8181 --reload
     # command:

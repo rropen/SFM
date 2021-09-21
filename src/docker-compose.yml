@@ -1,11 +1,6 @@
 version: "3.7"
 
 services:
-  # nocodb:
-  #   image: nocodb/nocodb
-  #   container_name: nocodb
-  #   restart: always
-
   backend:
     build: ./backend
     container_name: SFM-Backend
