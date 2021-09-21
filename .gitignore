@@ -158,7 +158,9 @@ workspace.code-workspace
 src/backend/.pdm.toml
 *.pyc
 __pycache__/
+.coverage
 __pypackages__/
+.pytest_cache
 
 # Editor Files
 src/backend/*.db
