@@ -167,3 +167,4 @@ src/backend/*.db
 .npmrc
 .yarnrc
 *.local
+screenshots/

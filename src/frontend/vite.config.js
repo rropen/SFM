@@ -1,8 +1,16 @@
 import vue from "@vitejs/plugin-vue";
-import { defineConfig } from "vite";
+import istanbul from "vite-plugin-istanbul";
 
 export default {
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    istanbul({
+      include: "src/*",
+      exclude: ["node_modules", "test/"],
+      extension: [".js", ".ts", ".vue"],
+      requireEnv: false,
+    }),
+  ],
   define: {
     "process.env": {},
   },
