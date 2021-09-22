@@ -20,6 +20,7 @@ engine = create_engine(DATABASE_URL, connect_args=connect_args)
 @pytest.fixture(scope="session")
 def test_app():
     client = TestClient(app)
+    os.remove("issues.db")
     yield client
 
 
