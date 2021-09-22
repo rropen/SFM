@@ -187,15 +187,15 @@
             <!-- Replace with your content -->
             <div class="py-4">
               <div class="rounded-lg h-96">
-                <div class="shadow-xl p-4" id="chart">
+                <div v-if="deploymentsData" class="shadow-xl p-4" id="chart">
                   <apexchart
                     ref="realtimeChart"
-                    type="line"
                     height="350"
                     :options="chartOptions"
                     :series="deploymentsData"
                   ></apexchart>
                 </div>
+                <div v-else>Loading Data...</div>
                 <div
                   class="
                     flex
@@ -272,6 +272,11 @@ const months = [
   "December",
 ];
 
+let dataLoaded = false;
+
+let testDataPTS = [];
+let testDataPTSAverage = [];
+
 /* ----------------------------------------------
                   VARIABLES
 ---------------------------------------------- */
@@ -293,31 +298,47 @@ const series = ref([
 
 const chartOptions = ref({
   chart: {
+    // type: 'line',
+    // type: 'bar',
     height: 350,
-    type: "line",
-    zoom: {
-      enabled: false,
-    },
   },
   dataLabels: {
     enabled: false,
   },
-  stroke: {
-    curve: "straight",
-    colors: ["#10069f"],
-  },
-  title: {
-    text: "Monthly Deployments",
-    align: "left",
-  },
-  grid: {
-    row: {
-      colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-      opacity: 0.5,
+  plotOptions: {
+    bar: {
+      // columnWidth: '10%',
+      // distributed: true,
+      // width: '10%'
+      color: "#4f98ff",
     },
   },
+  // fill: false,
+  // area: {
+  //   fill: false
+  // }
+  // },
+  // columnWidth: '15%',
   xaxis: {
-    categories: months,
+    type: "datetime",
+    tickAmount: 12,
+  },
+  yaxis: {
+    formatter: (val) => {
+      return val.toFixed(2);
+    },
+    tickAmount: 4,
+    max: 4,
+    decimalsInFloat: 0,
+  },
+  tooltip: {
+    x: {
+      format: "dd MMM yyyy",
+    },
+  },
+  stroke: {
+    curve: "smooth",
+    // width: '10%'
   },
 });
 
@@ -337,10 +358,38 @@ const projectDropdownChoices = computed(() => {
 const deploymentsData = computed(() => {
   if (deployments.value) {
     let sortedData = sortByMonth(deployments.value.deployment_dates);
+
+    let currCounter = 1609992559;
+    for (let i = 0; i < 200; i++) {
+      testDataPTS.push([currCounter, Math.floor(4 * Math.random())]);
+      currCounter += 86400;
+    }
+    for (let i = 6; i < 200; i += 7) {
+      let sum = 0;
+      sum =
+        testDataPTS[i][1] +
+        testDataPTS[i - 1][1] +
+        testDataPTS[i - 2][1] +
+        testDataPTS[i - 3][1] +
+        testDataPTS[i - 4][1] +
+        testDataPTS[i - 5][1] +
+        testDataPTS[i - 6][1];
+      testDataPTSAverage.push([testDataPTS[i][0], sum / 7]);
+    }
     return [
       {
-        name: "Successful Deployments",
-        data: sortedData,
+        name: "Successful Deployments Daily",
+        type: "bar",
+        color: "#4f98ff",
+        // columnWidth: '1%',
+        data: testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]),
+      },
+      {
+        name: "Successful Deployments Rolling Average",
+        type: "line",
+        // fill: false,
+        color: "#10069f",
+        data: testDataPTSAverage.map((a) => [new Date(a[0] * 1000), a[1]]),
       },
     ];
     return sortedData;
@@ -363,6 +412,7 @@ watch(selectedTimescale, (val, oldVal) => {
 /* Watch to update data when changing selected project */
 watch(selectedProject, (val, oldVal) => {
   if (oldVal) {
+    console.log(deploymentsData.value);
     fetchDeployments();
   }
 });
@@ -397,9 +447,6 @@ function fetchDeployments() {
       deploymentTimescale.value = setDeploymentTimescale(
         response.data[0].deployment_frequency
       );
-      // series.value[0].data = sortByMonth(response.data[0].deployment_dates);
-
-      console.log("deployments updated");
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);
@@ -465,5 +512,6 @@ function changeTimescale(val: string) {
 onMounted(() => {
   fetchDeployments();
   fetchProjects();
+  dataLoaded = true;
 });
 </script>
