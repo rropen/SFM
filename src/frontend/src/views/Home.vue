@@ -347,16 +347,16 @@ function fetchDeployments() {
   //set url string
   let url = "";
   if (selectedProject.value == "All") {
-    url = "charts/test?category=Deployment";
+    url = "metrics/deployments?category=Deployment";
   } else {
     url =
-      "charts/test?category=Deployment&project_name=" +
+      "metrics/deployments?&project_name=" +
       encodeURIComponent(selectedProject.value);
   }
   // retrieve deployments
   axios
     .get(url, {
-      params: {},
+      params: { all_deployments: false },
       headers: {
         "Content-Type": "application/json",
       },

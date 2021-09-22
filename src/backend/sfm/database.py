@@ -1,5 +1,6 @@
 from sqlmodel import SQLModel, create_engine
 import os
+import config
 
 # This is the Database Connection for Azure
 # server = ''
@@ -16,10 +17,8 @@ import os
 # SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://' + SQL_USER_NAME + '@' + SQL_SERVER + ':' + SQL_PASSWORD + '@' + SQL_SERVER + ':1433/' + SQL_DATABASE + '?driver=ODBC+Driver+17+for+SQL+Server'
 # SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-DATABASE_URL = "sqlite:///./issues.db"
-# print("Database Url: {}".format(os.getenv("DATABASE_URL")))
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./issues.db")
-print(DATABASE_URL)
+
+DATABASE_URL = config.DATABASE_URL
 assert DATABASE_URL != ""
 
 # check_same_thread = false only works in sqlite, not postgres or others

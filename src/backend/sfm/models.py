@@ -80,15 +80,18 @@ class WorkItemUpdate(SQLModel):
     project_id: Optional[int] = None
 
 
-class ChartData(SQLModel):
+class MetricData(SQLModel):
     project_name: str
     deployment_dates: Optional[List]
     deployment_frequency: str
 
 
 class LeadTimeData(SQLModel):
-    lead_time: Optional[float] = None
-    color: Optional[str] = None
+    lead_time: int
+    time_units: str
+    performance: str
+    lead_time_description: str
+    performance_description: str
 
 
 class CommitBase(SQLModel):

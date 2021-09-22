@@ -7,10 +7,11 @@ import os
 from sfm.routes.work_items import routes as work_items
 from sfm.routes.projects import routes as projects
 from sfm.routes.converters import routes as converters
-from sfm.routes.charts import routes as charts
+from sfm.routes.metrics import routes as metrics
 from sfm.routes.utilities import routes as utilities
 from sfm.routes import root
 
+# this file will always be called with __name__ == "sfm.main" (even in docker container)
 create_db_and_tables()
 
 description = "<h2>Software Factory Metrics</h2><br><blockquote>A custom app built by the Software Factory to generate DORA metrics which are a key concept in the move towards DevSecOps.</blockquote>"
@@ -41,5 +42,5 @@ app.include_router(root.router, prefix="", tags=["root"])
 app.include_router(work_items.router, prefix="/workItems", tags=["workItems"])
 app.include_router(projects.router, prefix="/projects", tags=["projects"])
 app.include_router(converters.router, prefix="/converters", tags=["converters"])
-app.include_router(charts.router, prefix="/charts", tags=["charts"])
+app.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
 app.include_router(utilities.router, prefix="/utilities", tags=["utilities"])
