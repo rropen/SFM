@@ -11,6 +11,7 @@ from sfm.routes.metrics import routes as metrics
 from sfm.routes.utilities import routes as utilities
 from sfm.routes import root
 
+# this file will always be called with __name__ == "sfm.main" (even in docker container)
 create_db_and_tables()
 
 description = "<h2>Software Factory Metrics</h2><br><blockquote>A custom app built by the Software Factory to generate DORA metrics which are a key concept in the move towards DevSecOps.</blockquote>"
