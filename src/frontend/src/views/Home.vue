@@ -289,13 +289,19 @@ const selectedTimescale = ref(timescaleChoices[1]);
 const projects = ref<projectItem[]>([]); // holds all fetched projects
 const deployments = ref<deploymentItem>(); // holds currently fetched deployment data
 
+const dataHolder = getData();
+
 const series = ref([
-  { name: "Daily Deployments", type: "column", data: getData()[0] },
   {
-    name: "Rolling Average",
+    name: "Daily Deployments",
+    // type: 'column',
+    data: dataHolder[0],
+  },
+  {
+    name: "4-day Rolling Average",
     type: "line",
     color: "#10069f",
-    data: getData()[1],
+    data: dataHolder[0],
   },
 ]);
 
@@ -376,18 +382,18 @@ const chartOptions = ref({
     type: "line",
   },
   stroke: {
-    width: [0, 10],
+    width: [0, 5],
     curve: "smooth",
   },
   title: {
-    text: "Traffic Sources",
+    text: "Successful Deployments",
   },
   plotOptions: {
-    bar: {
-      columnWidth: "10%",
-    },
+    // bar: {
+    //   columnWidth: '10%',
+    // },
   },
-  color: "#10069f",
+  // color: '#10069f',
 
   xaxis: {
     type: "datetime",
@@ -398,7 +404,7 @@ const chartOptions = ref({
       return val.toFixed(2);
     },
     tickAmount: 4,
-    max: 4,
+    max: 12,
     decimalsInFloat: 0,
   },
 });
@@ -442,23 +448,39 @@ function getData() {
   let testDataPTS = [];
   let testDataPTSAverage = [];
   let currCounter = 1609992559;
-  for (let i = 0; i < 200; i++) {
-    testDataPTS.push([currCounter, Math.floor(4 * Math.random())]);
-    currCounter += 86400;
+  for (let i = 0; i < 35; i++) {
+    testDataPTS.push([currCounter, Math.floor(10 * Math.random())]);
+    // testDataPTS.push([currCounter,3])
+    currCounter += 7 * 86400;
   }
-  for (let i = 6; i < 200; i += 7) {
-    let sum = 0;
-    sum =
-      testDataPTS[i][1] +
-      testDataPTS[i - 1][1] +
-      testDataPTS[i - 2][1] +
-      testDataPTS[i - 3][1] +
-      testDataPTS[i - 4][1] +
-      testDataPTS[i - 5][1] +
-      testDataPTS[i - 6][1];
-    testDataPTSAverage.push([testDataPTS[i][0], sum / 7]);
+  console.log("here is test pts", testDataPTS);
+  // console.log('test data pts', testDataPTS);
+  for (let i = 0; i < 35; i++) {
+    if (i < 7) {
+      testDataPTSAverage.push([testDataPTS[i][0], testDataPTS[i][1]]);
+      // console.log(i, testDataPTSAverage)
+      // } else if (i > 196) {
+      //   console.log('got here')
+      //   testDataPTSAverage.push([testDataPTS[i][0], testDataPTS[i][1]])
+      // } else {
+    } else {
+      // console.log('got here');
+      let sum = 0;
+      sum =
+        testDataPTS[i][1] +
+        testDataPTS[i - 1][1] +
+        testDataPTS[i - 2][1] +
+        testDataPTS[i - 3][1] +
+        testDataPTS[i - 4][1] +
+        testDataPTS[i - 5][1] +
+        testDataPTS[i - 6][1];
+      testDataPTSAverage.push([testDataPTS[i][0], sum / 7]);
+      // console.log(i, testDataPTSAverage)
+    }
   }
+  // console.log('test data pts avg: ', testDataPTSAverage);
   let retval1 = testDataPTSAverage.map((a) => [new Date(a[0] * 1000), a[1]]);
+  // console.log(ret)
   let retval2 = testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]);
   return [retval2, retval1];
   // return sortedData;
