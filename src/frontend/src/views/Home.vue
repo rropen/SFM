@@ -189,7 +189,7 @@
               <div class="rounded-lg h-96">
                 <div v-if="dataLoaded" class="shadow-xl p-4" id="chart">
                   <apexchart
-                    type="line"
+                    type="bar"
                     height="350"
                     :options="chartOptions"
                     :series="series"
@@ -256,26 +256,7 @@ import { sortByMonth } from "../utils";
 // ---------------------------------------------- */
 
 const timescaleChoices = ["All Time", "Monthly", "Weekly", "Daily"];
-
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 const dataLoaded = ref(false);
-
-// let testDataPTS = [];
-// let testDataPTSAverage = [];
 
 /* ----------------------------------------------
                   VARIABLES
@@ -294,118 +275,27 @@ const dataHolder = getData();
 const series = ref([
   {
     name: "Daily Deployments",
-    // type: 'column',
-    data: dataHolder[0],
-  },
-  {
-    name: "4-day Rolling Average",
-    type: "line",
     color: "#10069f",
-    data: dataHolder[0],
+    data: dataHolder,
   },
 ]);
-
-// const chartOptions = ref({
-//   chart: {
-//     type: 'line',
-//     // type: 'bar',
-//     height: 350,
-//   },
-//   dataLabels: {
-//     enabled: false,
-//   },
-//   plotOptions: {
-//     bar: {
-//       fill: {
-//         type: 'gradient',
-//         gradient: {
-//           shade: 'dark',
-//           type: 'horizontal',
-//           shadeIntensity: 0.5,
-//           gradientToColors: undefined,
-//           inverseColors: true,
-//           opacityFrom: 0.2,
-//           opacityTo: 1,
-//           stops: [0, 50, 100],
-//           colorStops: [],
-//         },
-//       },
-//       columnWidth: '50%',
-//       // distributed: true,
-//       // width: '10%'
-//       // color: "#4f98ff",
-//       colors: {
-//         ranges: [
-//           {
-//             color: '#4f98ff',
-//           },
-//         ],
-//         backgroundBarOpacity: 0.5,
-//       },
-//     },
-//   },
-//   // dataLabels: {},
-//   // fill: false,
-//   // area: {
-//   //   fill: false
-//   // }
-//   // },
-//   // columnWidth: '15%',
-//   xaxis: {
-//     type: 'datetime',
-//     tickAmount: 12,
-//   },
-//   yaxis: {
-//     formatter: (val) => {
-//       return val.toFixed(2);
-//     },
-//     tickAmount: 4,
-//     max: 4,
-//     decimalsInFloat: 0,
-//   },
-//   tooltip: {
-//     shared: true,
-//     intersect: false,
-//     x: {
-//       format: 'dd MMM yyyy',
-//     },
-//   },
-//   stroke: {
-//     curve: 'smooth',
-//     // width: '10%'
-//   },
-// });
 
 const chartOptions = ref({
   chart: {
     height: 350,
-    type: "line",
+    type: "bar",
+  },
+  dataLabels: {
+    enabled: false,
   },
   stroke: {
-    width: [0, 5],
     curve: "smooth",
   },
   title: {
     text: "Successful Deployments",
   },
-  plotOptions: {
-    // bar: {
-    //   columnWidth: '10%',
-    // },
-  },
-  // color: '#10069f',
-
   xaxis: {
     type: "datetime",
-    // tickAmount: 10,
-  },
-  yaxis: {
-    formatter: (val) => {
-      return val.toFixed(2);
-    },
-    tickAmount: 4,
-    max: 12,
-    decimalsInFloat: 0,
   },
 });
 
@@ -418,7 +308,6 @@ const projectDropdownChoices = computed(() => {
   let dropdownChoices = projects.value.map((a) => a.name);
   dropdownChoices.unshift("All");
   selectedProject.value = dropdownChoices[0]; //set initial value
-  // console.log(dropdownChoices);
   return dropdownChoices;
 });
 
@@ -436,7 +325,6 @@ watch(selectedTimescale, (val, oldVal) => {
 /* Watch to update data when changing selected project */
 watch(selectedProject, (val, oldVal) => {
   if (oldVal) {
-    // console.log(deploymentsData.value);
     fetchDeployments();
   }
 });
@@ -446,49 +334,16 @@ watch(selectedProject, (val, oldVal) => {
 ---------------------------------------------- */
 function getData() {
   let testDataPTS = [];
-  let testDataPTSAverage = [];
   let currCounter = 1609992559;
-  for (let i = 0; i < 35; i++) {
-    testDataPTS.push([currCounter, Math.floor(10 * Math.random())]);
-    // testDataPTS.push([currCounter,3])
-    currCounter += 7 * 86400;
+  for (let i = 0; i < 200; i++) {
+    testDataPTS.push([currCounter, Math.floor(4 * Math.random())]);
+    currCounter += 86400;
   }
-  console.log("here is test pts", testDataPTS);
-  // console.log('test data pts', testDataPTS);
-  for (let i = 0; i < 35; i++) {
-    if (i < 7) {
-      testDataPTSAverage.push([testDataPTS[i][0], testDataPTS[i][1]]);
-      // console.log(i, testDataPTSAverage)
-      // } else if (i > 196) {
-      //   console.log('got here')
-      //   testDataPTSAverage.push([testDataPTS[i][0], testDataPTS[i][1]])
-      // } else {
-    } else {
-      // console.log('got here');
-      let sum = 0;
-      sum =
-        testDataPTS[i][1] +
-        testDataPTS[i - 1][1] +
-        testDataPTS[i - 2][1] +
-        testDataPTS[i - 3][1] +
-        testDataPTS[i - 4][1] +
-        testDataPTS[i - 5][1] +
-        testDataPTS[i - 6][1];
-      testDataPTSAverage.push([testDataPTS[i][0], sum / 7]);
-      // console.log(i, testDataPTSAverage)
-    }
-  }
-  // console.log('test data pts avg: ', testDataPTSAverage);
-  let retval1 = testDataPTSAverage.map((a) => [new Date(a[0] * 1000), a[1]]);
-  // console.log(ret)
-  let retval2 = testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]);
-  return [retval2, retval1];
-  // return sortedData;
+  let retval = testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]);
+  return retval;
 }
 
 function fetchDeployments() {
-  console.log("fetch deployments called");
-  console.log(selectedProject.value);
   //set url string
   let url = "";
   if (selectedProject.value == "All") {
@@ -512,8 +367,6 @@ function fetchDeployments() {
       deploymentTimescale.value = setDeploymentTimescale(
         response.data[0].deployment_frequency
       );
-      console.log("here is series value before: ", series.value);
-      console.log("here is series value: ", series.value);
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);
