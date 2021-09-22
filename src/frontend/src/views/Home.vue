@@ -89,12 +89,6 @@
                   :selected="selectedProject"
                   @updatedChoice="changeProject"
                 />
-                <rrDropdown
-                  label="Timescale"
-                  :choices="timescaleChoices"
-                  :selected="selectedTimescale"
-                  @updatedChoice="changeTimescale"
-                />
               </nav>
             </div>
           </div>
@@ -134,12 +128,6 @@
                 :choices="projectDropdownChoices"
                 :selected="selectedProject"
                 @updatedChoice="changeProject"
-              />
-              <rrDropdown
-                label="Timescale"
-                :choices="timescaleChoices"
-                :selected="selectedTimescale"
-                @updatedChoice="changeTimescale"
               />
             </nav>
           </div>
@@ -187,16 +175,20 @@
             <!-- Replace with your content -->
             <div class="py-4">
               <div class="rounded-lg h-96">
-                <div v-if="dataLoaded" class="shadow-xl p-4" id="chart">
+                <div
+                  v-if="dataLoaded === true"
+                  class="shadow-xl p-4"
+                  id="chart"
+                >
                   <apexchart
                     type="bar"
                     height="350"
                     :options="chartOptions"
-                    :series="series"
+                    :series="deploymentsData"
                   ></apexchart>
                 </div>
-                <div v-else>Loading Data...</div>
                 <div
+                  v-if="dataLoaded"
                   class="
                     flex
                     box-content
@@ -209,10 +201,11 @@
                     text-4xl
                     justify-center
                   "
-                  :class="deploymentTimescaleColor"
+                  :class="deploymentFreqColorComputed"
                 >
-                  Current Rating: {{ deploymentTimescale }}
+                  Current Rating: {{ deployments.deployment_frequency }}
                 </div>
+                <div v-else>Loading Data...</div>
               </div>
             </div>
             <!-- /End replace -->
@@ -227,7 +220,7 @@
 /* ----------------------------------------------
                   IMPORTS
 ---------------------------------------------- */
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch, onBeforeMount } from "vue";
 import { deploymentItem, projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import VueApexCharts from "vue3-apexcharts";
@@ -255,30 +248,17 @@ import { sortByMonth } from "../utils";
                      CONSTANTS
 // ---------------------------------------------- */
 
-const timescaleChoices = ["All Time", "Monthly", "Weekly", "Daily"];
-const dataLoaded = ref(false);
-
 /* ----------------------------------------------
                   VARIABLES
 ---------------------------------------------- */
-const deploymentTimescale = ref("Monthly");
-const deploymentTimescaleColor = ref("");
+
 const sidebarOpen = ref(false);
 const selectedProject = ref("All");
-const selectedTimescale = ref(timescaleChoices[1]);
+const dataLoaded = ref(false);
+const deploymentFreqColor = ref("");
 
 const projects = ref<projectItem[]>([]); // holds all fetched projects
 const deployments = ref<deploymentItem>(); // holds currently fetched deployment data
-
-const dataHolder = getData();
-
-const series = ref([
-  {
-    name: "Daily Deployments",
-    color: "#10069f",
-    data: dataHolder,
-  },
-]);
 
 const chartOptions = ref({
   chart: {
@@ -288,14 +268,20 @@ const chartOptions = ref({
   dataLabels: {
     enabled: false,
   },
-  stroke: {
-    curve: "smooth",
-  },
   title: {
-    text: "Successful Deployments",
+    text: "Daily Deployments",
   },
   xaxis: {
     type: "datetime",
+  },
+  yaxis: {
+    labels: {
+      formatter: (value) => {
+        return Math.trunc(value);
+      },
+    },
+    // tickAmount: ,
+    forceNiceScale: true,
   },
 });
 
@@ -311,27 +297,55 @@ const projectDropdownChoices = computed(() => {
   return dropdownChoices;
 });
 
+const deploymentFreqColorComputed = computed(() => {
+  console.log("here is deployments val: ", deployments.value);
+  if (deployments.value) {
+    console.log("in if");
+    switch (deployments.value.deployment_frequency) {
+      case "Daily":
+        return "bg-bggreen";
+      case "Weekly":
+        return "bg-bgyellow";
+      case "Monthly":
+        return "bg-bgorange";
+      case "Yearly":
+        return "bg-red-600";
+    }
+  } else {
+    return "bg-white";
+  }
+});
+
+// Data used in deployments chart. Pairs of [unix timestamp, number of deployments on that day]
+const deploymentsData = computed(() => {
+  if (deployments.value) {
+    return [
+      {
+        name: "Daily Deployments",
+        color: "#10069f",
+        data: getData(), //This can be changed to the data from the endpoint once it is refactored
+      },
+    ];
+  } else {
+    return [];
+  }
+});
+
 /* ----------------------------------------------
                      WATCHERS
   ---------------------------------------------- */
 
-/* Demo watcher to track a changing variable... delete me later */
-watch(selectedTimescale, (val, oldVal) => {
-  console.log("Selected Timescale: ");
-  console.log("was: ", oldVal);
-  console.log("Is: ", val);
-});
-
 /* Watch to update data when changing selected project */
 watch(selectedProject, (val, oldVal) => {
-  if (oldVal) {
-    fetchDeployments();
-  }
+  fetchDeployments();
+  deploymentFreqColor.value = setDeploymentFreqColor();
 });
 
 /* ----------------------------------------------
                     FUNCTIONS
 ---------------------------------------------- */
+
+// Sample data for generating chart
 function getData() {
   let testDataPTS = [];
   let currCounter = 1609992559;
@@ -343,9 +357,30 @@ function getData() {
   return retval;
 }
 
+function setDeploymentFreqColor() {
+  if (deployments.value) {
+    if (deployments.value.deployment_frequency) {
+      console.log("in if");
+      switch (deployments.value.deployment_frequency) {
+        case "Daily":
+          return "bg-bggreen";
+        case "Weekly":
+          return "bg-bgyellow";
+        case "Monthly":
+          return "bg-bgorange";
+        case "Yearly":
+          return "bg-red-600";
+      }
+    }
+  } else {
+    return "bg-white";
+  }
+}
+
 function fetchDeployments() {
   //set url string
   let url = "";
+  console.log("here is selcted project val: ", selectedProject.value);
   if (selectedProject.value == "All") {
     url = "metrics/deployments?category=Deployment";
   } else {
@@ -353,20 +388,23 @@ function fetchDeployments() {
       "metrics/deployments?&project_name=" +
       encodeURIComponent(selectedProject.value);
   }
+  dataLoaded.value = false;
   // retrieve deployments
   axios
     .get(url, {
-      params: { all_deployments: false },
+      params: {
+        all_deployments: false,
+      },
       headers: {
         "Content-Type": "application/json",
       },
     })
     .then((response) => {
-      console.log("in then of fetchDeployments");
       deployments.value = response.data[0];
-      deploymentTimescale.value = setDeploymentTimescale(
-        response.data[0].deployment_frequency
-      );
+      // deploymentTimescale.value = setDeploymentTimescale(
+      //   response.data[0].deployment_frequency
+      // );
+      dataLoaded.value = true;
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);
@@ -375,7 +413,6 @@ function fetchDeployments() {
 
 /* GET request to /projects to retrieve array of projects. */
 const fetchProjects = () => {
-  console.log("fetch projects called");
   axios
     .get("projects", {
       params: { skip: 0, limit: 100 },
@@ -391,47 +428,46 @@ const fetchProjects = () => {
     });
 };
 
-function setDeploymentTimescale(str) {
-  let rating = "";
-  switch (str) {
-    case "Daily":
-      rating = "Elite";
-      deploymentTimescaleColor.value = "bg-bggreen";
-      break;
-    case "Weekly":
-      rating = "High";
-      deploymentTimescaleColor.value = "bg-bgyellow";
-      break;
-    case "Monthly":
-      rating = "Medium";
-      deploymentTimescaleColor.value = "bg-bgorange";
-      break;
-    case "Yearly":
-      rating = "Low";
-      deploymentTimescaleColor.value = "bg-red-600";
-      break;
-    default:
-      rating = "No data";
-  }
-  return rating;
-}
+// function setDeploymentTimescale(str) {
+//   let rating = '';
+//   switch (str) {
+//     case 'Daily':
+//       rating = 'Elite';
+//       deploymentTimescaleColor.value = 'bg-bggreen';
+//       break;
+//     case 'Weekly':
+//       rating = 'High';
+//       deploymentTimescaleColor.value = 'bg-bgyellow';
+//       break;
+//     case 'Monthly':
+//       rating = 'Medium';
+//       deploymentTimescaleColor.value = 'bg-bgorange';
+//       break;
+//     case 'Yearly':
+//       rating = 'Low';
+//       deploymentTimescaleColor.value = 'bg-red-600';
+//       break;
+//     default:
+//       rating = 'No data';
+//   }
+//   return rating;
+// }
 
 /* Manage changes from project dropdown  */
 function changeProject(val: string) {
   selectedProject.value = val;
 }
 
-/* Manage changes from timescale dropdown */
-function changeTimescale(val: string) {
-  selectedTimescale.value = val;
-}
-
 /* ----------------------------------------------
                VUE BUILT-IN FUNCTIONS
   ---------------------------------------------- */
 onMounted(() => {
-  fetchDeployments();
+  console.log("on mounted started");
   fetchProjects();
+  console.log("fetch deployments about to be called");
+  fetchDeployments();
+  console.log("fetch deployments finished calling on mounted");
   dataLoaded.value = true;
+  const dataHolder2 = deploymentsData.value;
 });
 </script>
