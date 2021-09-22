@@ -189,10 +189,10 @@
               <div class="rounded-lg h-96">
                 <div v-if="dataLoaded" class="shadow-xl p-4" id="chart">
                   <apexchart
-                    ref="realtimeChart"
+                    type="line"
                     height="350"
                     :options="chartOptions"
-                    :series="deploymentsData"
+                    :series="series"
                   ></apexchart>
                 </div>
                 <div v-else>Loading Data...</div>
@@ -274,8 +274,8 @@ const months = [
 
 const dataLoaded = ref(false);
 
-let testDataPTS = [];
-let testDataPTSAverage = [];
+// let testDataPTS = [];
+// let testDataPTSAverage = [];
 
 /* ----------------------------------------------
                   VARIABLES
@@ -290,15 +290,18 @@ const projects = ref<projectItem[]>([]); // holds all fetched projects
 const deployments = ref<deploymentItem>(); // holds currently fetched deployment data
 
 const series = ref([
+  { name: "Daily Deployments", type: "column", data: getData()[0] },
   {
-    name: "Successful Deployments",
-    data: [],
+    name: "Rolling Average",
+    type: "line",
+    color: "#10069f",
+    data: getData()[1],
   },
 ]);
 
 // const chartOptions = ref({
 //   chart: {
-//     // type: 'line',
+//     type: 'line',
 //     // type: 'bar',
 //     height: 350,
 //   },
@@ -373,45 +376,31 @@ const chartOptions = ref({
     type: "line",
   },
   stroke: {
-    width: [0, 4],
+    width: [0, 10],
+    curve: "smooth",
   },
   title: {
     text: "Traffic Sources",
   },
-  dataLabels: {
-    enabled: true,
-    enabledOnSeries: [1],
+  plotOptions: {
+    bar: {
+      columnWidth: "10%",
+    },
   },
-  labels: [
-    "01 Jan 2001",
-    "02 Jan 2001",
-    "03 Jan 2001",
-    "04 Jan 2001",
-    "05 Jan 2001",
-    "06 Jan 2001",
-    "07 Jan 2001",
-    "08 Jan 2001",
-    "09 Jan 2001",
-    "10 Jan 2001",
-    "11 Jan 2001",
-    "12 Jan 2001",
-  ],
+  color: "#10069f",
+
   xaxis: {
     type: "datetime",
+    // tickAmount: 10,
   },
-  yaxis: [
-    {
-      title: {
-        text: "Website Blog",
-      },
+  yaxis: {
+    formatter: (val) => {
+      return val.toFixed(2);
     },
-    {
-      opposite: true,
-      title: {
-        text: "Social Media",
-      },
-    },
-  ],
+    tickAmount: 4,
+    max: 4,
+    decimalsInFloat: 0,
+  },
 });
 
 /* ----------------------------------------------
@@ -423,59 +412,8 @@ const projectDropdownChoices = computed(() => {
   let dropdownChoices = projects.value.map((a) => a.name);
   dropdownChoices.unshift("All");
   selectedProject.value = dropdownChoices[0]; //set initial value
+  // console.log(dropdownChoices);
   return dropdownChoices;
-});
-
-// Deployments Data that goes in chart
-const deploymentsData = computed(() => {
-  if (deployments.value) {
-    let sortedData = sortByMonth(deployments.value.deployment_dates);
-
-    let currCounter = 1609992559;
-    for (let i = 0; i < 200; i++) {
-      testDataPTS.push([currCounter, Math.floor(4 * Math.random())]);
-      currCounter += 86400;
-    }
-    for (let i = 6; i < 200; i += 7) {
-      let sum = 0;
-      sum =
-        testDataPTS[i][1] +
-        testDataPTS[i - 1][1] +
-        testDataPTS[i - 2][1] +
-        testDataPTS[i - 3][1] +
-        testDataPTS[i - 4][1] +
-        testDataPTS[i - 5][1] +
-        testDataPTS[i - 6][1];
-      testDataPTSAverage.push([testDataPTS[i][0], sum / 7]);
-    }
-    console.log(
-      "here is bar data: ",
-      testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]])
-    );
-    return [
-      {
-        name: "Successful Deployments Rolling Average",
-        type: "line",
-        // fill: false,
-        color: "#10069f",
-        data: testDataPTSAverage.map((a) => [new Date(a[0] * 1000), a[1]]),
-      },
-      {
-        name: "Successful Deployments Daily",
-        type: "bar",
-        data: testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]),
-        color: "#4f98ff",
-        fill: {
-          opacity: 0.1,
-        },
-        // columnWidth: '1%',
-        // data: testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]),
-      },
-    ];
-    return sortedData;
-  } else {
-    return {};
-  }
 });
 
 /* ----------------------------------------------
@@ -492,7 +430,7 @@ watch(selectedTimescale, (val, oldVal) => {
 /* Watch to update data when changing selected project */
 watch(selectedProject, (val, oldVal) => {
   if (oldVal) {
-    console.log(deploymentsData.value);
+    // console.log(deploymentsData.value);
     fetchDeployments();
   }
 });
@@ -500,6 +438,31 @@ watch(selectedProject, (val, oldVal) => {
 /* ----------------------------------------------
                     FUNCTIONS
 ---------------------------------------------- */
+function getData() {
+  let testDataPTS = [];
+  let testDataPTSAverage = [];
+  let currCounter = 1609992559;
+  for (let i = 0; i < 200; i++) {
+    testDataPTS.push([currCounter, Math.floor(4 * Math.random())]);
+    currCounter += 86400;
+  }
+  for (let i = 6; i < 200; i += 7) {
+    let sum = 0;
+    sum =
+      testDataPTS[i][1] +
+      testDataPTS[i - 1][1] +
+      testDataPTS[i - 2][1] +
+      testDataPTS[i - 3][1] +
+      testDataPTS[i - 4][1] +
+      testDataPTS[i - 5][1] +
+      testDataPTS[i - 6][1];
+    testDataPTSAverage.push([testDataPTS[i][0], sum / 7]);
+  }
+  let retval1 = testDataPTSAverage.map((a) => [new Date(a[0] * 1000), a[1]]);
+  let retval2 = testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]);
+  return [retval2, retval1];
+  // return sortedData;
+}
 
 function fetchDeployments() {
   console.log("fetch deployments called");
@@ -527,6 +490,8 @@ function fetchDeployments() {
       deploymentTimescale.value = setDeploymentTimescale(
         response.data[0].deployment_frequency
       );
+      console.log("here is series value before: ", series.value);
+      console.log("here is series value: ", series.value);
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);
