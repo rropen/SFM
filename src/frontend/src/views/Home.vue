@@ -187,7 +187,7 @@
             <!-- Replace with your content -->
             <div class="py-4">
               <div class="rounded-lg h-96">
-                <div v-if="deploymentsData" class="shadow-xl p-4" id="chart">
+                <div v-if="dataLoaded" class="shadow-xl p-4" id="chart">
                   <apexchart
                     ref="realtimeChart"
                     height="350"
@@ -272,7 +272,7 @@ const months = [
   "December",
 ];
 
-let dataLoaded = false;
+const dataLoaded = ref(false);
 
 let testDataPTS = [];
 let testDataPTSAverage = [];
@@ -296,50 +296,122 @@ const series = ref([
   },
 ]);
 
+// const chartOptions = ref({
+//   chart: {
+//     // type: 'line',
+//     // type: 'bar',
+//     height: 350,
+//   },
+//   dataLabels: {
+//     enabled: false,
+//   },
+//   plotOptions: {
+//     bar: {
+//       fill: {
+//         type: 'gradient',
+//         gradient: {
+//           shade: 'dark',
+//           type: 'horizontal',
+//           shadeIntensity: 0.5,
+//           gradientToColors: undefined,
+//           inverseColors: true,
+//           opacityFrom: 0.2,
+//           opacityTo: 1,
+//           stops: [0, 50, 100],
+//           colorStops: [],
+//         },
+//       },
+//       columnWidth: '50%',
+//       // distributed: true,
+//       // width: '10%'
+//       // color: "#4f98ff",
+//       colors: {
+//         ranges: [
+//           {
+//             color: '#4f98ff',
+//           },
+//         ],
+//         backgroundBarOpacity: 0.5,
+//       },
+//     },
+//   },
+//   // dataLabels: {},
+//   // fill: false,
+//   // area: {
+//   //   fill: false
+//   // }
+//   // },
+//   // columnWidth: '15%',
+//   xaxis: {
+//     type: 'datetime',
+//     tickAmount: 12,
+//   },
+//   yaxis: {
+//     formatter: (val) => {
+//       return val.toFixed(2);
+//     },
+//     tickAmount: 4,
+//     max: 4,
+//     decimalsInFloat: 0,
+//   },
+//   tooltip: {
+//     shared: true,
+//     intersect: false,
+//     x: {
+//       format: 'dd MMM yyyy',
+//     },
+//   },
+//   stroke: {
+//     curve: 'smooth',
+//     // width: '10%'
+//   },
+// });
+
 const chartOptions = ref({
   chart: {
-    // type: 'line',
-    // type: 'bar',
     height: 350,
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  plotOptions: {
-    bar: {
-      // columnWidth: '10%',
-      // distributed: true,
-      // width: '10%'
-      color: "#4f98ff",
-    },
-  },
-  // fill: false,
-  // area: {
-  //   fill: false
-  // }
-  // },
-  // columnWidth: '15%',
-  xaxis: {
-    type: "datetime",
-    tickAmount: 12,
-  },
-  yaxis: {
-    formatter: (val) => {
-      return val.toFixed(2);
-    },
-    tickAmount: 4,
-    max: 4,
-    decimalsInFloat: 0,
-  },
-  tooltip: {
-    x: {
-      format: "dd MMM yyyy",
-    },
+    type: "line",
   },
   stroke: {
-    curve: "smooth",
-    // width: '10%'
+    width: [0, 4],
   },
+  title: {
+    text: "Traffic Sources",
+  },
+  dataLabels: {
+    enabled: true,
+    enabledOnSeries: [1],
+  },
+  labels: [
+    "01 Jan 2001",
+    "02 Jan 2001",
+    "03 Jan 2001",
+    "04 Jan 2001",
+    "05 Jan 2001",
+    "06 Jan 2001",
+    "07 Jan 2001",
+    "08 Jan 2001",
+    "09 Jan 2001",
+    "10 Jan 2001",
+    "11 Jan 2001",
+    "12 Jan 2001",
+  ],
+  xaxis: {
+    type: "datetime",
+  },
+  yaxis: [
+    {
+      title: {
+        text: "Website Blog",
+      },
+    },
+    {
+      opposite: true,
+      title: {
+        text: "Social Media",
+      },
+    },
+  ],
 });
 
 /* ----------------------------------------------
@@ -376,20 +448,28 @@ const deploymentsData = computed(() => {
         testDataPTS[i - 6][1];
       testDataPTSAverage.push([testDataPTS[i][0], sum / 7]);
     }
+    console.log(
+      "here is bar data: ",
+      testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]])
+    );
     return [
-      {
-        name: "Successful Deployments Daily",
-        type: "bar",
-        color: "#4f98ff",
-        // columnWidth: '1%',
-        data: testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]),
-      },
       {
         name: "Successful Deployments Rolling Average",
         type: "line",
         // fill: false,
         color: "#10069f",
         data: testDataPTSAverage.map((a) => [new Date(a[0] * 1000), a[1]]),
+      },
+      {
+        name: "Successful Deployments Daily",
+        type: "bar",
+        data: testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]),
+        color: "#4f98ff",
+        fill: {
+          opacity: 0.1,
+        },
+        // columnWidth: '1%',
+        // data: testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]),
       },
     ];
     return sortedData;
@@ -512,6 +592,6 @@ function changeTimescale(val: string) {
 onMounted(() => {
   fetchDeployments();
   fetchProjects();
-  dataLoaded = true;
+  dataLoaded.value = true;
 });
 </script>
