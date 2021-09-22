@@ -165,3 +165,4 @@ src/backend/*.db
 .npmrc
 .yarnrc
 *.local
+*.vscode
