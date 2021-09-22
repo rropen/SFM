@@ -135,12 +135,12 @@
                 :selected="selectedProject"
                 @updatedChoice="changeProject"
               />
-              <rrDropdown
+              <!-- <rrDropdown
                 label="Timescale"
                 :choices="timescaleChoices"
                 :selected="selectedTimescale"
                 @updatedChoice="changeTimescale"
-              />
+              /> -->
             </nav>
           </div>
         </div>
@@ -186,7 +186,17 @@
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
-              <div class="rounded-lg h-96 w-5/12">
+              <div
+                class="
+                  grid grid-flow-col grid-cols-1 grid-rows-4
+                  xl:grid-cols-2 xl:grid-rows-2
+                  gap-4
+                  xl:gap-6
+                "
+              >
+                <deploymentChart :projectName="selectedProject" />
+              </div>
+              <!-- <div class="rounded-lg h-96 w-5/12">
                 <div class="shadow-xl p-4" id="chart">
                   <apexchart
                     ref="realtimeChart"
@@ -213,7 +223,7 @@
                 >
                   Current Rating: {{ deploymentTimescale }}
                 </div>
-              </div>
+              </div> -->
             </div>
             <!-- /End replace -->
           </div>
@@ -230,7 +240,7 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
-import VueApexCharts from "vue3-apexcharts";
+// import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
 import {
   Dialog,
@@ -248,6 +258,7 @@ import {
   UsersIcon,
   XIcon,
 } from "@heroicons/vue/outline";
+import deploymentChart from "../components/charts/deploymentChart.vue";
 import { setMapStoreSuffix } from "pinia";
 import { sortByMonth } from "../utils";
 
