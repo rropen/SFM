@@ -14,6 +14,8 @@ def get_all(
     project_name: str = None,
 ):
     """Get all the WorkItems and return them."""
+    print("SESSION: ", __name__, db)
+    print("SESSION: ", __name__, db.identity_map)
     project = None
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
