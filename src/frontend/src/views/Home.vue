@@ -183,7 +183,7 @@
                 "
               >
                 <deploymentChart :projectName="selectedProject" />
-                <deploymentChart :projectName="selectedProject" />
+                <leadTimeChart :projectName="selectedProject" />
                 <deploymentChart :projectName="selectedProject" />
                 <deploymentChart :projectName="selectedProject" />
               </div>
@@ -201,7 +201,7 @@
                   IMPORTS
 ---------------------------------------------- */
 import { ref, onMounted, computed, watch, onBeforeMount } from "vue";
-import { deploymentItem, projectItem } from "../types";
+import { projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import axios from "axios";
 import {
@@ -221,6 +221,7 @@ import {
   XIcon,
 } from "@heroicons/vue/outline";
 import deploymentChart from "../components/charts/deploymentChart.vue";
+import leadTimeChart from "../components/charts/leadTimeChart.vue";
 
 /* ----------------------------------------------
                      CONSTANTS

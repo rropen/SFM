@@ -18,3 +18,11 @@ export interface deploymentItem {
   deployment_frequency: string;
   project_name: string;
 }
+
+export interface leadTimeItem {
+  lead_time: number;
+  time_units: string;
+  performance: string;
+  lead_time_description: string;
+  performance_description: string;
+}

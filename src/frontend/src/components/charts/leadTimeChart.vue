@@ -1,10 +1,9 @@
 <template>
   <apexchart
-    ref="realtimeChart"
-    type="bar"
+    type="line"
     height="350"
     :options="chartOptions"
-    :series="deploymentsData"
+    :series="leadTimeData"
   ></apexchart>
 </template>
 
@@ -15,7 +14,7 @@
 
 import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-import { deploymentItem } from "../../types";
+import { leadTimeItem } from "../../types";
 
 /* ----------------------------------------------
                   PROPS
@@ -33,14 +32,14 @@ const props = defineProps({
                   VARIABLES
 ---------------------------------------------- */
 
-const deployments = ref<deploymentItem>(); // holds currently fetched deployment data
+const leadTime = ref<leadTimeItem>(); // holds currently fetched deployment data
 
 // Sample data for generating chart. Will be deleted when endpoint is working
 function getData() {
   let testDataPTS = [];
-  let currCounter = 1609992559;
+  let currCounter = 1659992559;
   for (let i = 0; i < 200; i++) {
-    testDataPTS.push([currCounter, Math.floor(4 * Math.random())]);
+    testDataPTS.push([currCounter, Math.floor(100 * Math.random())]);
     currCounter += 86400;
   }
   let retval = testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]);
@@ -50,24 +49,18 @@ function getData() {
 const chartOptions = ref({
   chart: {
     height: 350,
-    type: "bar",
+    type: "line",
   },
   dataLabels: {
     enabled: false,
   },
   title: {
-    text: "Daily Deployments",
+    text: "Daily Median Lead Time to Change",
   },
   xaxis: {
     type: "datetime",
   },
   yaxis: {
-    labels: {
-      formatter: (value) => {
-        return Math.trunc(value);
-      },
-    },
-    // tickAmount: ,
     forceNiceScale: true,
   },
 });
@@ -76,51 +69,30 @@ const chartOptions = ref({
                     FUNCTIONS
 ---------------------------------------------- */
 
-function setDeploymentFreqColor() {
-  if (deployments.value) {
-    if (deployments.value.deployment_frequency) {
-      switch (deployments.value.deployment_frequency) {
-        case "Daily":
-          return "bg-bggreen";
-        case "Weekly":
-          return "bg-bgyellow";
-        case "Monthly":
-          return "bg-bgorange";
-        case "Yearly":
-          return "bg-red-600";
-      }
-    }
-  } else {
-    return "bg-white";
-  }
-}
-
 /* GET request to /metrics/deployments to retrieve array of deployments. */
-function fetchDeployments() {
+function fetchLeadTime() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/deployments";
+    url = "metrics/LeadTimeToChange";
   } else {
     url =
-      "metrics/deployments?&project_name=" +
+      "metrics/LeadTimeToChange?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments
   axios
     .get(url, {
-      params: {
-        all_deployments: false,
-      },
+      params: {},
       headers: {
         "Content-Type": "application/json",
       },
     })
     .then((response) => {
-      deployments.value = response.data[0];
+      leadTime.value = response.data;
     })
     .catch((error) => {
-      console.error("GET Deployments Error: ", error);
+      console.error("GET Lead Time Error: ", error);
     });
 }
 
@@ -128,29 +100,12 @@ function fetchDeployments() {
                       COMPUTED
   ---------------------------------------------- */
 
-const deploymentFreqColorComputed = computed(() => {
-  if (deployments.value) {
-    switch (deployments.value.deployment_frequency) {
-      case "Daily":
-        return "bg-bggreen";
-      case "Weekly":
-        return "bg-bgyellow";
-      case "Monthly":
-        return "bg-bgorange";
-      case "Yearly":
-        return "bg-red-600";
-    }
-  } else {
-    return "bg-white";
-  }
-});
-
 // Data used in deployments chart. Pairs of [unix timestamp, number of deployments on that day]
-const deploymentsData = computed(() => {
-  if (deployments.value) {
+const leadTimeData = computed(() => {
+  if (leadTime.value) {
     return [
       {
-        name: "Daily Deployments",
+        name: "Time to Change (minutes)",
         color: "#10069f",
         data: getData(), //This can be changed to the data from the endpoint once it is refactored
       },
@@ -168,7 +123,7 @@ const deploymentsData = computed(() => {
 watch(
   () => props.projectName,
   (val, oldVal) => {
-    fetchDeployments();
+    fetchLeadTime();
   }
 );
 
@@ -177,6 +132,6 @@ watch(
   ---------------------------------------------- */
 
 onMounted(() => {
-  fetchDeployments();
+  fetchLeadTime();
 });
 </script>
