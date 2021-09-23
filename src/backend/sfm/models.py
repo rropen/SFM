@@ -6,19 +6,19 @@ from sqlmodel import Field, SQLModel, Relationship
 
 class ProjectBase(SQLModel):
     name: str
-    lead_name: Optional[str] = None
-    lead_email: Optional[str] = None
+    leadName: Optional[str] = None
+    leadEmail: Optional[str] = None
     description: Optional[str] = None
     location: str
-    repo_url: str
-    on_prem: bool
+    repoUrl: str
+    onPrem: bool
 
 
 class Project(ProjectBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    project_auth_token_hashed: str
+    projectAuthTokenHashed: str
 
-    work_items: List["WorkItem"] = Relationship(back_populates="project")
+    workItems: List["WorkItem"] = Relationship(back_populates="project")
 
 
 class ProjectRead(ProjectBase):
@@ -31,35 +31,35 @@ class ProjectCreate(ProjectBase):
 
 class ProjectUpdate(SQLModel):
     name: Optional[str] = None
-    lead_name: Optional[str] = None
-    lead_email: Optional[str] = None
+    leadName: Optional[str] = None
+    leadEmail: Optional[str] = None
     description: Optional[str] = None
     location: Optional[str] = None
-    repo_url: Optional[str] = None
-    on_prem: Optional[bool] = None
+    repoUrl: Optional[str] = None
+    onPrem: Optional[bool] = None
 
 
 class WorkItemCategory(str, Enum):
     deployment = "Deployment"
     issue = "Issue"
-    pull_request = "Pull Request"
+    pullRequest = "Pull Request"
 
 
 class WorkItemBase(SQLModel):
     category: WorkItemCategory
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    duration_open: Optional[timedelta] = None
+    startTime: Optional[datetime] = None
+    endTime: Optional[datetime] = None
+    durationOpen: Optional[timedelta] = None
     comments: Optional[str] = None
 
-    project_id: Optional[int] = Field(default=None, foreign_key="project.id")
+    projectId: Optional[int] = Field(default=None, foreign_key="project.id")
 
 
 class WorkItem(WorkItemBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
-    project: Optional[Project] = Relationship(back_populates="work_items")
-    commits: Optional["Commit"] = Relationship(back_populates="work_item")
+    project: Optional[Project] = Relationship(back_populates="workItems")
+    commits: Optional["Commit"] = Relationship(back_populates="workItem")
 
 
 class WorkItemRead(WorkItemBase):
@@ -72,26 +72,32 @@ class WorkItemCreate(WorkItemBase):
 
 class WorkItemUpdate(SQLModel):
     category: Optional[str] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    startTime: Optional[datetime] = None
+    endTime: Optional[datetime] = None
     # duration_open not needed as it can be calculated and stored if given start and end
     comments: Optional[str] = None
 
-    project_id: Optional[int] = None
+    projectId: Optional[int] = None
 
 
 class MetricData(SQLModel):
-    project_name: str
-    deployment_dates: Optional[List]
-    deployment_frequency: str
+    projectName: str
+    deploymentDates: List
+    performance: str
+    deploymentDatesDescription: str
+    performanceDescription: str
 
 
 class LeadTimeData(SQLModel):
-    lead_time: int
-    time_units: str
+    leadTime: int
+    timeUnits: str
     performance: str
-    lead_time_description: str
-    performance_description: str
+    dailyCommits: List
+    dailyLeadTimes: List
+    leadTimeDescription: str
+    performanceDescription: str
+    dailyCommitsDescription: str
+    dailyLeadTimesDescription: str
 
 
 class CommitBase(SQLModel):
@@ -99,12 +105,12 @@ class CommitBase(SQLModel):
     date: Optional[datetime] = None
     message: Optional[str] = None
     author: Optional[str] = None
-    work_item_id: Optional[int] = Field(default=None, foreign_key="workitem.id")
+    workItemId: Optional[int] = Field(default=None, foreign_key="workitem.id")
 
 
 class Commit(CommitBase, table=True):
-    work_item: Optional[WorkItem] = Relationship(back_populates="commits")
-    time_to_pull: int
+    workItem: Optional[WorkItem] = Relationship(back_populates="commits")
+    timeToPull: int
 
 
 class CommitRead(CommitBase):

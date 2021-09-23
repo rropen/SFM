@@ -32,7 +32,7 @@ def create_project(db: Session, project_data, admin_key):
         project_temp = project_data.dict()
         token = create_project_auth_token()
         hashed_token = hash_project_auth_token(token)
-        project_temp.update({"project_auth_token_hashed": hashed_token})
+        project_temp.update({"projectAuthTokenHashed": hashed_token})
         project_db = Project(**project_temp)
         db.add(project_db)
         db.commit()
@@ -56,7 +56,7 @@ def delete_project(db: Session, project_id, admin_key):
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
 
-        for item in project.work_items:
+        for item in project.workItems:
             db.delete(item)
         db.delete(project)
         db.commit()
@@ -82,14 +82,14 @@ def refresh_project_key(db: Session, project_id, admin_key):
             )
         new_token = create_project_auth_token()
         hashed_token = hash_project_auth_token(new_token)
-        project_db.project_auth_token_hashed = hashed_token
+        project_db.projectAuthTokenHashed = hashed_token
         db.add(project_db)
         db.commit()
     else:
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     check = db.exec(
-        select(Project).where(Project.project_auth_token_hashed == hashed_token)
+        select(Project).where(Project.projectAuthTokenHashed == hashed_token)
     )
     if check:
         return new_token

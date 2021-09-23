@@ -1,19 +1,15 @@
-# This Pipeline runs on a commit to every branch except dev and main
+# This Pipeline runs on every commit except to ci/cd
 
 name: Commits Pipeline
 
 # Controls when the workflow will run
-on:  workflow_dispatch
-# on:
-#   push: 
-#     branches: 
-#         - '**' 
-#         - '!main`
-#         - '!dev'
-# branches-ignore:
-#       - master
+# on:  workflow_dispatch
+on:
+  push: 
+    branches-ignore: [ci/cd]
 
 jobs:
+
 # Runs Unit Tests w/ pytest
   Unit-Tests:
     runs-on: ubuntu-latest

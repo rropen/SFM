@@ -166,7 +166,7 @@ def test_delete_work_item(init_database):
         response = crud.delete_work_item(
             init_database, 2, project_auth_token="Catalyst"
         )
-        assert ex.value.message == "Issue not found"
+        assert ex.value.message == "Item not found"
 
     # Test exception thrown when project auth token does not match work item's project
     with pytest.raises(Exception) as ex:
