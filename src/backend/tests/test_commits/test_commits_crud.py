@@ -32,8 +32,8 @@ def test_get_all(init_database):
     assert commit.date == datetime.datetime(2021, 9, 10, 9, 43, 8, 41351)
     assert commit.message == "feat(test): test commit message for testing commit"
     assert commit.author == "Spider-boy"
-    assert commit.work_item_id == 1
-    assert commit.time_to_pull == int(
+    assert commit.workItemId == 1
+    assert commit.timeToPull == int(
         (datetime.timedelta(days=12, seconds=86049, microseconds=52958)).total_seconds()
     )
 
@@ -42,9 +42,9 @@ def test_get_all(init_database):
     assert len(response) == 1
     assert type(response) == list
     print(response)
-    work_item_id = response[0].work_item_id
+    work_item_id = response[0].workItemId
     work_item = init_database.get(WorkItem, work_item_id)
-    assert work_item.project_id == 1
+    assert work_item.projectId == 1
 
     # Test giving project name returns the correct project work items
     response = crud.get_all(
@@ -53,9 +53,9 @@ def test_get_all(init_database):
     assert len(response) == 1
     assert type(response) == list
     print(response)
-    work_item_id = response[0].work_item_id
+    work_item_id = response[0].workItemId
     work_item = init_database.get(WorkItem, work_item_id)
-    assert work_item.project_id == 1
+    assert work_item.projectId == 1
 
     # Test giving project name AND project id returns the correct project work items
     response = crud.get_all(
@@ -64,9 +64,9 @@ def test_get_all(init_database):
     assert len(response) == 1
     assert type(response) == list
     print(response)
-    work_item_id = response[0].work_item_id
+    work_item_id = response[0].workItemId
     work_item = init_database.get(WorkItem, work_item_id)
-    assert work_item.project_id == 1
+    assert work_item.projectId == 1
 
     # Test giving mismatching project name AND project id alerts user
     with pytest.raises(Exception) as ex:
@@ -102,8 +102,8 @@ def test_get_by_sha(init_database):
     assert commit.date == datetime.datetime(2021, 9, 10, 9, 43, 8, 41351)
     assert commit.message == "feat(test): test commit message for testing commit"
     assert commit.author == "Spider-boy"
-    assert commit.work_item_id == 1
-    assert commit.time_to_pull == int(
+    assert commit.workItemId == 1
+    assert commit.timeToPull == int(
         (datetime.timedelta(days=12, seconds=86049, microseconds=52958)).total_seconds()
     )
 
@@ -121,7 +121,7 @@ def test_create_commit(init_database):
             "date": datetime.datetime(2021, 8, 11, 9, 43, 8, 41351),
             "message": "feat(test): a new commit message",
             "author": "Spider-girl",
-            "work_item_id": 1,
+            "workItemId": 1,
         }
     )
     response = crud.create_commit(
@@ -134,8 +134,8 @@ def test_create_commit(init_database):
     assert commit.date == datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
     assert commit.message == "feat(test): a new commit message"
     assert commit.author == "Spider-girl"
-    assert commit.work_item_id == 1
-    assert commit.time_to_pull == int(
+    assert commit.workItemId == 1
+    assert commit.timeToPull == int(
         (
             datetime.datetime(2021, 9, 23, 9, 37, 17, 94309)
             - datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
@@ -150,7 +150,7 @@ def test_create_commit(init_database):
         assert ex.value.message == "Credentials are incorrect"
 
     # Test that wrong project ID throws exception
-    commit_data = WorkItemCreate(**{"category": "Issue", "project_id": 2})
+    commit_data = WorkItemCreate(**{"category": "Issue", "projectId": 2})
 
     with pytest.raises(Exception) as ex:
         response = crud.create_commit(
@@ -160,7 +160,7 @@ def test_create_commit(init_database):
 
     # Test that category not in the enum throws exception
     with pytest.raises(Exception) as ex:
-        commit_data = WorkItemCreate(**{"category": "WrongCategory", "project_id": 1})
+        commit_data = WorkItemCreate(**{"category": "WrongCategory", "projectId": 1})
         response = crud.create_commit(
             init_database, commit_data, project_auth_token="Catalyst"
         )
@@ -217,8 +217,8 @@ def test_update_commit(init_database):
     assert commit.date == datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
     assert commit.message == "feat(test): a new commit message"
     assert commit.author == "Spider-girl"
-    assert commit.work_item_id == 1
-    assert commit.time_to_pull == int(
+    assert commit.workItemId == 1
+    assert commit.timeToPull == int(
         (
             datetime.datetime(2021, 9, 23, 9, 37, 17, 94309)
             - datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
@@ -240,8 +240,8 @@ def test_update_commit(init_database):
     assert commit.date == datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
     assert commit.message == "update message"
     assert commit.author == "new author"
-    assert commit.work_item_id == 1
-    assert commit.time_to_pull == int(
+    assert commit.workItemId == 1
+    assert commit.timeToPull == int(
         (
             datetime.datetime(2021, 9, 23, 9, 37, 17, 94309)
             - datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
