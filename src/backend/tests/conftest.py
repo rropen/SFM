@@ -2,6 +2,7 @@ from typing import AsyncIterable
 import pytest
 import os
 import datetime
+from passlib.context import CryptContext
 from sqlmodel import SQLModel, create_engine, Session
 from starlette.testclient import TestClient
 
@@ -34,6 +35,11 @@ def db(test_app, request):
     yield _db
 
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+token = "Catalyst"
+hashed_token = pwd_context.hash(token)
+
+
 @pytest.fixture(scope="function")
 def init_database():
 
@@ -44,11 +50,6 @@ def init_database():
     """
     Add document types to the database
     """
-    from passlib.context import CryptContext
-
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    token = "Catalyst"
-    hashed_token = pwd_context.hash(token)
 
     # [create project here]
     proj1 = Project(

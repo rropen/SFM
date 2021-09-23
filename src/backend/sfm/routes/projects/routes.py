@@ -58,8 +58,6 @@ def get_projects(params: CustomGetParams = Depends(), db: Session = Depends(get_
 
     """
     projects = crud.get_all(db, skip=params.skip, limit=params.limit)
-    if not projects:
-        raise HTTPException(status_code=404, detail="Projects not found")
     return projects
 
 
@@ -78,8 +76,6 @@ def get_project_by_id(project_id: int, db: Session = Depends(get_db)):
 
     """
     project = crud.get_by_id(db, project_id=project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
     return project
 
 

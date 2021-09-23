@@ -14,7 +14,21 @@ export interface projectItem {
 }
 
 export interface deploymentItem {
-  deployment_dates: Array<number>;
+  deployment_dates: number[];
   deployment_frequency: string;
   project_name: string;
+}
+
+export interface infoForStatusItem {
+  deployments: {
+    Daily: {
+      info: string;
+    };
+    Weekly: {
+      info: string;
+    };
+    Monthly: {
+      info: string;
+    };
+  };
 }
