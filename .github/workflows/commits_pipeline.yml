@@ -1,6 +1,6 @@
 # This Pipeline runs on a commit to every branch except dev and main
 
-name: Commits Pipeline
+name: Commits Pipelineeeee
 
 # Controls when the workflow will run
 on:  workflow_dispatch
