@@ -29,7 +29,7 @@ jobs:
       with:
         node-version: "14"
     - name: Setup nprmrc
-      run: echo "https://npm.pkg.github.com//npm.pkg.github.com/:_authToken=${{ secrets.VUE_COBALT_PAT }}" > .npmrc
+      run: echo "https://npm.pkg.github.com//npm.pkg.github.com/:_authToken=${{ secrets.TEST }}" > .npmrc
 
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
