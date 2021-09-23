@@ -97,6 +97,7 @@ function setDeploymentFreqColor() {
   }
 }
 
+/* GET request to /metrics/deployments to retrieve array of deployments. */
 function fetchDeployments() {
   //set url string
   let url = "";
