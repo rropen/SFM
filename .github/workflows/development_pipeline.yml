@@ -1,13 +1,12 @@
 # Pipeline runs on all pull request and pushes to dev
 name: Development Pipeline
-
+on:
 #   push:
 #     branches: [ dev ]
 #   pull_request:
 #     branches: [ dev ]
-
-
 on:  workflow_dispatch
+
 jobs:
 #     Runs Integration Tests w/ Cypress
   Integration-Tests:
@@ -45,7 +44,7 @@ jobs:
     - name: Install Dependencies
       working-directory: src/frontend
       run: yarn --prefer-offline
-#       env: :_authToken=${{ VUE_COBALT_PAT }}
+      env: :_authToken=${{ VUE_COBALT_PAT }}
         
 
     - name: Cypress Integration Tests
