@@ -26,6 +26,11 @@ jobs:
         with:
           python-version: 3.9
           
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
+    
       - name: Install dependencies
         working-directory: src/backend
         run: |
