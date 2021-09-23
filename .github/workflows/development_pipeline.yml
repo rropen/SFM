@@ -1,4 +1,4 @@
-# Pipeline runs on all pull request and pushes to dev
+# Pipeline runs on all pull request and pushes to dev.
 name: Development Pipeline
 # on:
 #   push:
