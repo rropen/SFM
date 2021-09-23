@@ -174,38 +174,18 @@
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
-              <div class="rounded-lg h-96">
-                <div
-                  v-if="dataLoaded === true"
-                  class="shadow-xl p-4"
-                  id="chart"
-                >
-                  <apexchart
-                    type="bar"
-                    height="350"
-                    :options="chartOptions"
-                    :series="deploymentsData"
-                  ></apexchart>
-                </div>
-                <div
-                  v-if="dataLoaded"
-                  class="
-                    flex
-                    box-content
-                    h-12
-                    w-5/12
-                    p-4
-                    my-6
-                    mx-auto
-                    rounded-full
-                    text-4xl
-                    justify-center
-                  "
-                  :class="deploymentFreqColorComputed"
-                >
-                  Current Rating: {{ deployments.deployment_frequency }}
-                </div>
-                <div v-else>Loading Data...</div>
+              <div
+                class="
+                  grid grid-flow-col grid-cols-1 grid-rows-4
+                  xl:grid-cols-2 xl:grid-rows-2
+                  gap-4
+                  xl:gap-6
+                "
+              >
+                <deploymentChart :projectName="selectedProject" />
+                <deploymentChart :projectName="selectedProject" />
+                <deploymentChart :projectName="selectedProject" />
+                <deploymentChart :projectName="selectedProject" />
               </div>
             </div>
             <!-- /End replace -->
@@ -223,7 +203,6 @@
 import { ref, onMounted, computed, watch, onBeforeMount } from "vue";
 import { deploymentItem, projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
-import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
 import {
   Dialog,
@@ -241,8 +220,7 @@ import {
   UsersIcon,
   XIcon,
 } from "@heroicons/vue/outline";
-import { setMapStoreSuffix } from "pinia";
-import { sortByMonth } from "../utils";
+import deploymentChart from "../components/charts/deploymentChart.vue";
 
 /* ----------------------------------------------
                      CONSTANTS
@@ -255,35 +233,8 @@ import { sortByMonth } from "../utils";
 const sidebarOpen = ref(false);
 const selectedProject = ref("All");
 const dataLoaded = ref(false);
-const deploymentFreqColor = ref("");
 
 const projects = ref<projectItem[]>([]); // holds all fetched projects
-const deployments = ref<deploymentItem>(); // holds currently fetched deployment data
-
-const chartOptions = ref({
-  chart: {
-    height: 350,
-    type: "bar",
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  title: {
-    text: "Daily Deployments",
-  },
-  xaxis: {
-    type: "datetime",
-  },
-  yaxis: {
-    labels: {
-      formatter: (value) => {
-        return Math.trunc(value);
-      },
-    },
-    // tickAmount: ,
-    forceNiceScale: true,
-  },
-});
 
 /* ----------------------------------------------
                       COMPUTED
@@ -297,119 +248,13 @@ const projectDropdownChoices = computed(() => {
   return dropdownChoices;
 });
 
-const deploymentFreqColorComputed = computed(() => {
-  console.log("here is deployments val: ", deployments.value);
-  if (deployments.value) {
-    console.log("in if");
-    switch (deployments.value.deployment_frequency) {
-      case "Daily":
-        return "bg-bggreen";
-      case "Weekly":
-        return "bg-bgyellow";
-      case "Monthly":
-        return "bg-bgorange";
-      case "Yearly":
-        return "bg-red-600";
-    }
-  } else {
-    return "bg-white";
-  }
-});
-
-// Data used in deployments chart. Pairs of [unix timestamp, number of deployments on that day]
-const deploymentsData = computed(() => {
-  if (deployments.value) {
-    return [
-      {
-        name: "Daily Deployments",
-        color: "#10069f",
-        data: getData(), //This can be changed to the data from the endpoint once it is refactored
-      },
-    ];
-  } else {
-    return [];
-  }
-});
-
 /* ----------------------------------------------
                      WATCHERS
   ---------------------------------------------- */
 
-/* Watch to update data when changing selected project */
-watch(selectedProject, (val, oldVal) => {
-  fetchDeployments();
-  deploymentFreqColor.value = setDeploymentFreqColor();
-});
-
 /* ----------------------------------------------
                     FUNCTIONS
 ---------------------------------------------- */
-
-// Sample data for generating chart
-function getData() {
-  let testDataPTS = [];
-  let currCounter = 1609992559;
-  for (let i = 0; i < 200; i++) {
-    testDataPTS.push([currCounter, Math.floor(4 * Math.random())]);
-    currCounter += 86400;
-  }
-  let retval = testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]);
-  return retval;
-}
-
-function setDeploymentFreqColor() {
-  if (deployments.value) {
-    if (deployments.value.deployment_frequency) {
-      console.log("in if");
-      switch (deployments.value.deployment_frequency) {
-        case "Daily":
-          return "bg-bggreen";
-        case "Weekly":
-          return "bg-bgyellow";
-        case "Monthly":
-          return "bg-bgorange";
-        case "Yearly":
-          return "bg-red-600";
-      }
-    }
-  } else {
-    return "bg-white";
-  }
-}
-
-function fetchDeployments() {
-  //set url string
-  let url = "";
-  console.log("here is selcted project val: ", selectedProject.value);
-  if (selectedProject.value == "All") {
-    url = "metrics/deployments?category=Deployment";
-  } else {
-    url =
-      "metrics/deployments?&project_name=" +
-      encodeURIComponent(selectedProject.value);
-  }
-  dataLoaded.value = false;
-  // retrieve deployments
-  axios
-    .get(url, {
-      params: {
-        all_deployments: false,
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => {
-      deployments.value = response.data[0];
-      // deploymentTimescale.value = setDeploymentTimescale(
-      //   response.data[0].deployment_frequency
-      // );
-      dataLoaded.value = true;
-    })
-    .catch((error) => {
-      console.error("GET Deployments Error: ", error);
-    });
-}
 
 /* GET request to /projects to retrieve array of projects. */
 const fetchProjects = () => {
@@ -428,31 +273,6 @@ const fetchProjects = () => {
     });
 };
 
-// function setDeploymentTimescale(str) {
-//   let rating = '';
-//   switch (str) {
-//     case 'Daily':
-//       rating = 'Elite';
-//       deploymentTimescaleColor.value = 'bg-bggreen';
-//       break;
-//     case 'Weekly':
-//       rating = 'High';
-//       deploymentTimescaleColor.value = 'bg-bgyellow';
-//       break;
-//     case 'Monthly':
-//       rating = 'Medium';
-//       deploymentTimescaleColor.value = 'bg-bgorange';
-//       break;
-//     case 'Yearly':
-//       rating = 'Low';
-//       deploymentTimescaleColor.value = 'bg-red-600';
-//       break;
-//     default:
-//       rating = 'No data';
-//   }
-//   return rating;
-// }
-
 /* Manage changes from project dropdown  */
 function changeProject(val: string) {
   selectedProject.value = val;
@@ -462,12 +282,7 @@ function changeProject(val: string) {
                VUE BUILT-IN FUNCTIONS
   ---------------------------------------------- */
 onMounted(() => {
-  console.log("on mounted started");
   fetchProjects();
-  console.log("fetch deployments about to be called");
-  fetchDeployments();
-  console.log("fetch deployments finished calling on mounted");
   dataLoaded.value = true;
-  const dataHolder2 = deploymentsData.value;
 });
 </script>
