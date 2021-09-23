@@ -3,15 +3,14 @@
 
 name: Production Pipeline
 
-on: workflow_dispatch
-#   pull_request:
-#     branches: [ main ]
-#   schedule:
-#     - cron: '39 8 * * 2'
+on: 
+  pull_request:
+    branches: [ main ]
+# on: workflow_dispatch
 
 jobs:
-  analyze:
-    name: Analyze
+  Code-QL:
+    name: Code QL
     runs-on: ubuntu-latest
     permissions:
       actions: read
