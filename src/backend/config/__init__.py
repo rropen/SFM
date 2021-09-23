@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# DATABASE_URL = "sqlite:///./test.db"
 DATABASE_URL = "sqlite:///./issues.db"
 UI_URL = "http://localhost:3000"
 SECRET_KEY = "secret_key"
