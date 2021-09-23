@@ -1,12 +1,13 @@
 # Pipeline runs on all pull request and pushes to dev
 name: Development Pipeline
 
-on:  workflow_dispatch
 #   push:
 #     branches: [ dev ]
 #   pull_request:
 #     branches: [ dev ]
 
+
+on:  workflow_dispatch
 jobs:
 #     Runs Integration Tests w/ Cypress
   Integration-Tests:
