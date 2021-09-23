@@ -177,15 +177,38 @@
               <div
                 class="
                   grid grid-flow-col grid-cols-1 grid-rows-4
-                  xl:grid-cols-2 xl:grid-rows-2
+                  2xl:grid-cols-2 2xl:grid-rows-2
                   gap-4
-                  xl:gap-6
+                  2xl:gap-6
                 "
               >
-                <deploymentChart :projectName="selectedProject" />
-                <leadTimeChart :projectName="selectedProject" />
-                <deploymentChart :projectName="selectedProject" />
-                <deploymentChart :projectName="selectedProject" />
+                <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Deployments
+                  </h1>
+                  <deploymentChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
+                </div>
+                <!-- <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Deployments
+                  </h1>
+                  <deploymentChart :projectName="selectedProject" />
+                </div>
+                <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Deployments
+                  </h1>
+                  <deploymentChart :projectName="selectedProject" />
+                </div>
+                <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Deployments
+                  </h1>
+                  <deploymentChart :projectName="selectedProject" />
+                </div> -->
               </div>
             </div>
             <!-- /End replace -->
@@ -201,7 +224,7 @@
                   IMPORTS
 ---------------------------------------------- */
 import { ref, onMounted, computed, watch, onBeforeMount } from "vue";
-import { projectItem } from "../types";
+import { deploymentItem, infoForStatusItem, projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import axios from "axios";
 import {
@@ -236,6 +259,19 @@ const selectedProject = ref("All");
 const dataLoaded = ref(false);
 
 const projects = ref<projectItem[]>([]); // holds all fetched projects
+const infoForStatus: infoForStatusItem = {
+  deployments: {
+    Daily: {
+      info: 'Daily Info Here <ul class="list-disc"><li class="ml-8">First Item</li></ul>',
+    },
+    Weekly: {
+      info: "Weekly Info Here",
+    },
+    Monthly: {
+      info: "Monthly Info Here",
+    },
+  },
+};
 
 /* ----------------------------------------------
                       COMPUTED

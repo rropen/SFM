@@ -14,10 +14,11 @@ export interface projectItem {
 }
 
 export interface deploymentItem {
-  deployment_dates: Array<number>;
+  deployment_dates: number[];
   deployment_frequency: string;
   project_name: string;
 }
+
 
 export interface leadTimeItem {
   lead_time: number;
@@ -25,4 +26,18 @@ export interface leadTimeItem {
   performance: string;
   lead_time_description: string;
   performance_description: string;
+}
+
+export interface infoForStatusItem {
+  deployments: {
+    Daily: {
+      info: string;
+    };
+    Weekly: {
+      info: string;
+    };
+    Monthly: {
+      info: string;
+    };
+  };
 }
