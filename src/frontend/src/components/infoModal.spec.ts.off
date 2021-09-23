@@ -1,0 +1,15 @@
+/// <reference types="cypress" />
+import { mount } from "@cypress/vue";
+import infoModal from "./infoModal.vue";
+import "../index.css";
+
+describe("Info Modal Testing", () => {
+  it("Header is visible", () => {
+    mount(Header);
+    cy.get(".flex").should("be.visible");
+  });
+  it("Logo is visible", () => {
+    mount(Header);
+    cy.get(".w-8").should("be.visible");
+  });
+});
