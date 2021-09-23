@@ -15,7 +15,7 @@ jobs:
       backend:
         image: ghcr.io/rropen/sfm_backend:latest
         credentials:
-          username: ${{ github.repository_owner }}
+          username: jdhaines
           password: ${{ secrets.ITM007_CONTAINER_PAT }}
         ports: 
           - 8181:8181   
