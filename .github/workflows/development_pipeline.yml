@@ -45,7 +45,8 @@ jobs:
     - name: Install Dependencies
       working-directory: src/frontend
       run: yarn --prefer-offline
-      env: authToken=${{ secrets.VUE_COBALT_PAT }}
+      env: 
+        authToken: ${{ secrets.VUE_COBALT_PAT }}
         
 
     - name: Cypress Integration Tests
