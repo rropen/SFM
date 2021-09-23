@@ -1,11 +1,11 @@
 # Pipeline runs on all pull request and pushes to dev.
 name: Development Pipeline
-on:
-  push:
-    branches: [ dev ]
-  pull_request:
-    branches: [ dev ]
-# on:  workflow_dispatch
+# on:
+#   push:
+#     branches: [ dev ]
+#   pull_request:
+#     branches: [ dev ]
+on:  workflow_dispatch
 
 jobs:
 #     Runs Integration Tests w/ Cypress
@@ -28,6 +28,7 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: "14"
+        registry-url: 'https://npm.pkg.github.com//npm.pkg.github.com/'
 
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
@@ -44,7 +45,7 @@ jobs:
     - name: Install Dependencies
       working-directory: src/frontend
       run: yarn --prefer-offline
-      env: :_authToken=${{ secrets.VUE_COBALT_PAT }}
+      env: authToken=${{ secrets.VUE_COBALT_PAT }}
         
 
     - name: Cypress Integration Tests
