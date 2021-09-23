@@ -20,8 +20,8 @@ def get_db():
 def deployment_processor(db, deployment, project_db, project_auth_token):
     deployment_dict = {
         "category": "Deployment",
-        "end_time": deployment.get("updated_at"),
-        "project_id": project_db.id,
+        "endTime": deployment.get("updatedAt"),
+        "projectId": project_db.id,
     }
 
     work_item_data = WorkItemCreate(**deployment_dict)
@@ -32,9 +32,9 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
 
     pull_request_dict = {
         "category": "Pull Request",
-        "project_id": project_db.id,
-        "start_time": pull_request.get("created_at"),
-        "end_time": pull_request.get("merged_at"),
+        "projectId": project_db.id,
+        "startTime": pull_request.get("createdAt"),
+        "endTime": pull_request.get("mergedAt"),
     }
 
     work_item_data = WorkItemCreate(**pull_request_dict)
@@ -53,7 +53,7 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
 
         # pass work item id in dictionary to create commit
         commit_dict = {
-            "work_item_id": work_item_id,
+            "workItemId": work_item_id,
             "sha": commit_data["sha"],
             "date": date,
             "message": commit_data["commit"]["message"],
