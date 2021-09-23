@@ -1,6 +1,6 @@
 # Pipeline runs on all pull request and pushes to dev
 name: Development Pipeline
-on:
+# on:
 #   push:
 #     branches: [ dev ]
 #   pull_request:
