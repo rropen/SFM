@@ -16,4 +16,4 @@ RUN pip install -r requirements.txt
 # RUN pdm install --prod
 COPY . .
 # CMD ["pdm", "run", "uvicorn","mec.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181", "--reload"]
-CMD ["uvicorn","mec.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181", "--reload"]
+CMD ["uvicorn","sfm.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181", "--reload"]
