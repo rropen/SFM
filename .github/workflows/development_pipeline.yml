@@ -28,8 +28,9 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: "14"
-    - name: Setup nprmrc
-      run: echo "https://npm.pkg.github.com/:_authToken=${{ secrets.TEST }}" > .npmrc
+        registry-url: 'https://npm.pkg.github.com//npm.pkg.github.com/'
+        scope: '@rrglobal'
+
 
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
@@ -47,6 +48,8 @@ jobs:
     - name: Install Dependencies
       working-directory: src/frontend
       run: yarn --prefer-offline
+      env:
+          NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT}}
 
     - name: Cypress Integration Tests
       working-directory: src/frontend
