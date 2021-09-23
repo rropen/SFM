@@ -89,12 +89,6 @@
                   :selected="selectedProject"
                   @updatedChoice="changeProject"
                 />
-                <rrDropdown
-                  label="Timescale"
-                  :choices="timescaleChoices"
-                  :selected="selectedTimescale"
-                  @updatedChoice="changeTimescale"
-                />
               </nav>
             </div>
           </div>
@@ -206,8 +200,8 @@
 /* ----------------------------------------------
                   IMPORTS
 ---------------------------------------------- */
-import { ref, onMounted, computed, watch } from "vue";
-import { projectItem } from "../types";
+import { ref, onMounted, computed, watch, onBeforeMount } from "vue";
+import { deploymentItem, projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
 import axios from "axios";
 import {
@@ -229,30 +223,22 @@ import {
 import deploymentChart from "../components/charts/deploymentChart.vue";
 
 /* ----------------------------------------------
+                     CONSTANTS
+// ---------------------------------------------- */
+
+/* ----------------------------------------------
                   VARIABLES
 ---------------------------------------------- */
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-const deploymentTimescaleColor = ref("");
+
 const sidebarOpen = ref(false);
+const selectedProject = ref("All");
+const dataLoaded = ref(false);
 
-onMounted(() => {
-  fetchProjects();
-});
+const projects = ref<projectItem[]>([]); // holds all fetched projects
 
-const selectedProject = ref("");
+/* ----------------------------------------------
+                      COMPUTED
+  ---------------------------------------------- */
 
 /* List of Strings including "All" then all fetched project names */
 const projectDropdownChoices = computed(() => {
@@ -262,7 +248,13 @@ const projectDropdownChoices = computed(() => {
   return dropdownChoices;
 });
 
-const projects = ref<projectItem[]>([]); // holds all fetched projects
+/* ----------------------------------------------
+                     WATCHERS
+  ---------------------------------------------- */
+
+/* ----------------------------------------------
+                    FUNCTIONS
+---------------------------------------------- */
 
 /* GET request to /projects to retrieve array of projects. */
 const fetchProjects = () => {
@@ -286,18 +278,11 @@ function changeProject(val: string) {
   selectedProject.value = val;
 }
 
-const timescaleChoices = ["All Time", "Monthly", "Weekly", "Daily"];
-const selectedTimescale = ref(timescaleChoices[1]);
-
-/* Manage changes from timescale dropdown  */
-function changeTimescale(val: string) {
-  selectedTimescale.value = val;
-}
-
-/* Demo watcher to track a changing variable... delete me later */
-watch(selectedTimescale, (val, oldVal) => {
-  console.log("Selected Timescale: ");
-  console.log("was: ", oldVal);
-  console.log("Is: ", val);
+/* ----------------------------------------------
+               VUE BUILT-IN FUNCTIONS
+  ---------------------------------------------- */
+onMounted(() => {
+  fetchProjects();
+  dataLoaded.value = true;
 });
 </script>
