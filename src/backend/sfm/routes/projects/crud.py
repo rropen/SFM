@@ -12,6 +12,8 @@ from sfm.utils import (
 def get_all(db: Session, skip: int = None, limit: int = None):
     """Get all the projects and return them."""
     projects = db.exec(select(Project).offset(skip).limit(limit)).all()
+    if not projects:
+        raise HTTPException(status_code=404, detail="Projects not found")
     return projects
 
 

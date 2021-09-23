@@ -1,32 +1,36 @@
-from typing import AsyncIterable
+from enum import auto
 import pytest
 import os
 import datetime
 from passlib.context import CryptContext
 from sqlmodel import SQLModel, create_engine, Session
+from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
 
 from sfm.main import app
-from sfm.routes.utilities import routes as utilities
+from sfm.routes.projects.routes import get_db
 
 from sfm.models import WorkItem, Project, Commit
 
+
 DATABASE_URL = "sqlite:///./test.db"
-# DATABASE_URL = "sqlite:///:memory"
 connect_args = {"check_same_thread": False}
 engine = create_engine(DATABASE_URL, connect_args=connect_args)
 # engine = create_engine(DATABASE_URL)
 
 
-@pytest.fixture(scope="session")
-def test_app():
+@pytest.fixture(scope="function")
+def test_app(init_database):
+    app.dependency_overrides[get_db] = init_database
     client = TestClient(app)
-    os.remove("issues.db")
+    print(os.listdir("."))
+    if "issues.db" in os.listdir("."):
+        os.remove("issues.db")
     yield client
 
 
 @pytest.fixture(scope="session")
-def db(test_app, request):
+def db():
     """Session-wide test database"""
 
     SQLModel.metadata.create_all(engine)
@@ -45,7 +49,7 @@ def init_database():
 
     SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
-    _db = Session(engine)
+    _db = Session(autocommit=False, autoflush=False, bind=engine)
 
     """
     Add document types to the database
