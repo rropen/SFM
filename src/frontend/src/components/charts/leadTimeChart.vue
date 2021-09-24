@@ -34,18 +34,6 @@ const props = defineProps({
 
 const leadTime = ref<leadTimeItem>(); // holds currently fetched deployment data
 
-// Sample data for generating chart. Will be deleted when endpoint is working
-function getData() {
-  let testDataPTS = [];
-  let currCounter = 1659992559;
-  for (let i = 0; i < 200; i++) {
-    testDataPTS.push([currCounter, Math.floor(100 * Math.random())]);
-    currCounter += 86400;
-  }
-  let retval = testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]);
-  return retval;
-}
-
 const chartOptions = ref({
   chart: {
     height: 350,
@@ -53,9 +41,6 @@ const chartOptions = ref({
   },
   dataLabels: {
     enabled: false,
-  },
-  title: {
-    text: "Daily Median Lead Time to Change",
   },
   xaxis: {
     type: "datetime",
@@ -107,7 +92,10 @@ const leadTimeData = computed(() => {
       {
         name: "Time to Change (minutes)",
         color: "#10069f",
-        data: getData(), //This can be changed to the data from the endpoint once it is refactored
+        data: leadTime.value.daily_lead_times.map((a) => [
+          new Date(a[0] * 1000),
+          a[1],
+        ]), //getData(), //This can be changed to the data from the endpoint once it is refactored
       },
     ];
   } else {

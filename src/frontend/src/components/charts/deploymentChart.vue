@@ -128,7 +128,7 @@ const chartOptions = ref({
   },
   yaxis: {
     labels: {
-      formatter: (value) => {
+      formatter: (value: any) => {
         return Math.trunc(value);
       },
     },
@@ -173,39 +173,31 @@ function fetchDeployments() {
                       COMPUTED
   ---------------------------------------------- */
 
-const deploymentFreqColorComputed = computed(() => {
-  if (deployments.value) {
-    switch (deployments.value.performance) {
-      case "Daily":
-        return "bg-bggreen";
-      case "Weekly":
-        return "bg-bgyellow";
-      case "Monthly":
-        return "bg-bgorange";
-      case "Yearly":
-        return "bg-red-600";
-    }
-  } else {
-    return "bg-white";
-  }
-});
+// const deploymentFreqColorComputed = computed(() => {
+//   if (deployments.value) {
+//     switch (deployments.value.performance) {
+//       case "Daily":
+//         return "bg-bggreen";
+//       case "Weekly":
+//         return "bg-bgyellow";
+//       case "Monthly":
+//         return "bg-bgorange";
+//       case "Yearly":
+//         return "bg-red-600";
+//     }
+//   } else {
+//     return "bg-white";
+//   }
+// });
 
 // Data used in deployments chart. Pairs of [unix timestamp, number of deployments on that day]
 const deploymentsData = computed(() => {
   if (deployments.value) {
-    console.log(deployments.value);
-    console.log(
-      "dep data: ",
-      deployments.value.deploymentDates.map((a) => [
-        new Date(a[0] * 1000),
-        a[1],
-      ])
-    );
     return [
       {
         name: "Daily Deployments",
         color: "#10069f",
-        data: deployments.value.deploymentDates.map((a) => [
+        data: deployments.value.deployment_dates.map((a) => [
           new Date(a[0] * 1000),
           a[1],
         ]), // getData(), //This can be changed to the data from the endpoint once it is refactored

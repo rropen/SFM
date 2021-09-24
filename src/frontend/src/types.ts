@@ -14,11 +14,11 @@ export interface projectItem {
 }
 
 export interface deploymentItem {
-  deploymentDates: number[];
+  deployment_dates: number[];
   performance: string;
-  projectName: string;
-  deploymentDatesDescription: string;
-  performanceDescription: string;
+  project_name: string;
+  deployment_dates_description: string;
+  performance_description: string;
 }
 
 export interface leadTimeItem {
@@ -27,6 +27,8 @@ export interface leadTimeItem {
   performance: string;
   lead_time_description: string;
   performance_description: string;
+  daily_commits: number[];
+  daily_lead_times: number[];
 }
 
 export interface infoForStatusItem {
