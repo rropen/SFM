@@ -164,7 +164,6 @@ const chartOptions = ref({
 function fetchDeployments() {
   //set url string
   let url = "";
-  console.log("here is selcted project val: ", props.projectName);
   if (props.projectName == "All") {
     url = "metrics/deployments?category=Deployment";
   } else {

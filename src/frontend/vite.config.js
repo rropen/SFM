@@ -8,7 +8,7 @@ export default {
       include: "src/*",
       exclude: ["node_modules", "test/"],
       extension: [".js", ".ts", ".vue"],
-      requireEnv: false,
+      cypress: true,
     }),
   ],
   define: {

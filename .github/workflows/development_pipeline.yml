@@ -1,15 +1,44 @@
 # Pipeline runs on all pull request and pushes to dev.
 name: Development Pipeline
-# on:
-#   push:
-#     branches: [ dev ]
-#   pull_request:
-#     branches: [ dev ]
-on:  workflow_dispatch
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+# on:  workflow_dispatch
 
 jobs:
+# Runs Unit Tests w/ pytest
+  Unit-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+          
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
+    
+      - name: Install dependencies
+        working-directory: src/backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Pytest Unit Tests
+        run: |
+          pytest
+            
 #     Runs Integration Tests w/ Cypress
   Integration-Tests:
+#     needs: Unit-Tests
     runs-on: ubuntu-latest
     services:
       backend:
@@ -23,12 +52,12 @@ jobs:
   
     - name: Checkout Code
       uses: actions/checkout@v2
-
-    - name: Setup Node
-      uses: actions/setup-node@v2
+      
+    - uses: actions/setup-node@v2
       with:
         node-version: "14"
-        registry-url: 'https://npm.pkg.github.com//npm.pkg.github.com/'
+        registry-url: 'https://npm.pkg.github.com/'
+        scope: '@rrglobal'
 
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
@@ -45,9 +74,13 @@ jobs:
     - name: Install Dependencies
       working-directory: src/frontend
       run: yarn --prefer-offline
-      env: authToken=${{ secrets.VUE_COBALT_PAT }}
-        
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
 
+    - name: Cypress Component Tests
+      working-directory: src/frontend
+      run: yarn cy-ct
+      
     - name: Cypress Integration Tests
       working-directory: src/frontend
       run: yarn cy
