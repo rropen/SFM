@@ -120,7 +120,7 @@ def test_create_commit(db):
             "work_item_id": 1,
         }
     )
-    response = crud.create_commit(db, commit_data, project_auth_token="Catalyst")
+    response = crud.create_commit(db, commit_data, project_auth_token="Catalyst1")
     assert isinstance(response, str)
     assert response == "faslkuvczberwe2975jinvcui"
     commit = db.get(Commit, response)
@@ -145,13 +145,13 @@ def test_create_commit(db):
     commit_data = WorkItemCreate(**{"category": "Issue", "project_id": 2})
 
     with pytest.raises(Exception) as ex:
-        response = crud.create_commit(db, commit_data, project_auth_token="Catalyst")
+        response = crud.create_commit(db, commit_data, project_auth_token="Catalyst1")
         assert ex.value.message == "Credentials are incorrect"
 
     # Test that category not in the enum throws exception
     with pytest.raises(Exception) as ex:
         commit_data = WorkItemCreate(**{"category": "WrongCategory", "project_id": 1})
-        response = crud.create_commit(db, commit_data, project_auth_token="Catalyst")
+        response = crud.create_commit(db, commit_data, project_auth_token="Catalyst1")
         assert "value is not a valid enumeration member" in ex.value.message
 
 
@@ -160,7 +160,7 @@ def test_delete_commit(db):
     # Test exception thrown for non-existant commit
     with pytest.raises(Exception) as ex:
         response = crud.delete_commit(
-            db, "akdfjlaqeworuoifa123", project_auth_token="Catalyst"
+            db, "akdfjlaqeworuoifa123", project_auth_token="Catalyst1"
         )
         assert ex.value.message == "Item not found"
 
@@ -177,7 +177,7 @@ def test_delete_commit(db):
     response = crud.delete_commit(
         db,
         "daffasdfsjfoie3039j33j882ji2jhsdaf",
-        project_auth_token="Catalyst",
+        project_auth_token="Catalyst1",
     )
     assert response is True
     assert db.get(Commit, "daffasdfsjfoie3039j33j882ji2jhsdaf") is None
@@ -197,7 +197,7 @@ def test_update_commit(db):
         db,
         "daffasdfsjfoie3039j33j882ji2jhsdaf",
         commit_data,
-        project_auth_token="Catalyst",
+        project_auth_token="Catalyst1",
     )
     assert type(response) == Commit
     assert response.sha == "daffasdfsjfoie3039j33j882ji2jhsdaf"
@@ -220,7 +220,7 @@ def test_update_commit(db):
         db,
         "daffasdfsjfoie3039j33j882ji2jhsdaf",
         commit_data,
-        project_auth_token="Catalyst",
+        project_auth_token="Catalyst1",
     )
 
     assert type(response) == Commit
@@ -242,7 +242,7 @@ def test_update_commit(db):
             db,
             "oiauydfebvauioeq",
             commit_data,
-            project_auth_token="Catalyst",
+            project_auth_token="Catalyst1",
         )
         assert ex.value.message == "Item not found"
 

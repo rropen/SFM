@@ -40,8 +40,10 @@ def client_fixture(session: Session):
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-token = "Catalyst"
-hashed_token = pwd_context.hash(token)
+token1 = "Catalyst1"
+token2 = "Catalyst2"
+hashed_token1 = pwd_context.hash(token1)
+hashed_token2 = pwd_context.hash(token2)
 
 
 @pytest.fixture(scope="function", name="db")
@@ -61,11 +63,24 @@ def init_database(session):
             "location": "Strangeville",
             "repo_url": "github.com/starkEnterprises",
             "on_prem": False,
-            "project_auth_token_hashed": hashed_token,
+            "project_auth_token_hashed": hashed_token1,
+        }
+    )
+    proj2 = Project(
+        **{
+            "name": "Test Project 2",
+            "lead_name": "Sergio Garcia",
+            "lead_email": "team-europe@pga.com",
+            "description": "A second test project for testing",
+            "location": "Kohler",
+            "repo_url": "github.com/pgaGolf",
+            "on_prem": False,
+            "project_auth_token_hashed": hashed_token2,
         }
     )
 
     session.add(proj1)
+    session.add(proj2)
     session.commit()
 
     # [create work_items here]
@@ -81,6 +96,20 @@ def init_database(session):
     )
 
     session.add(work_item1)
+    session.commit()
+
+    work_item2 = WorkItem(
+        **{
+            "category": "Pull Request",
+            "start_time": datetime.datetime(2021, 7, 23, 9, 37, 17, 94309),
+            "end_time": datetime.datetime(2021, 8, 23, 9, 37, 17, 94309),
+            "duration_open": datetime.timedelta(days=31),
+            "comments": "new Test description for test work item in the database",
+            "project_id": 2,
+        }
+    )
+
+    session.add(work_item2)
     session.commit()
 
     # [Creat Commit model here]
