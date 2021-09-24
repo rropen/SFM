@@ -204,13 +204,19 @@
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Deployments
                   </h1>
-                  <deploymentChart :projectName="selectedProject" />
+                  <deploymentChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
                 </div>
                 <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Deployments
                   </h1>
-                  <deploymentChart :projectName="selectedProject" />
+                  <deploymentChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
                 </div>
               </div>
             </div>

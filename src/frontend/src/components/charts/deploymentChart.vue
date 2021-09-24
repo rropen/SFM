@@ -162,7 +162,7 @@ function fetchDeployments() {
     })
     .then((response) => {
       deployments.value = response.data[0];
-      deploymentMetricStatus.value = response.data[0].deployment_frequency;
+      deploymentMetricStatus.value = response.data[0].performance;
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);
@@ -197,7 +197,7 @@ const deploymentsData = computed(() => {
       {
         name: "Daily Deployments",
         color: "#10069f",
-        data: deployments.value.deployment_dates.map((a) => [
+        data: deployments.value.deployment_dates.map((a: any) => [
           new Date(a[0] * 1000),
           a[1],
         ]), // getData(), //This can be changed to the data from the endpoint once it is refactored
