@@ -5,5 +5,5 @@
   "viewportHeight": 1000,
   "video": false,
   "componentFolder": "src",
-  "testFiles": ["**/*.spec.js", "**/*.spec.ts"]
+  "testFiles": ["**/*.spec.js", "**/*.spec.ts", "**/*.spec.ct.ts"]
 }

@@ -183,7 +183,7 @@
   </Disclosure>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {
   Disclosure,
   DisclosureButton,
@@ -194,19 +194,4 @@ import {
   MenuItems,
 } from "@headlessui/vue";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/vue/outline";
-
-export default {
-  components: {
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-    Menu,
-    MenuButton,
-    MenuItem,
-    MenuItems,
-    BellIcon,
-    MenuIcon,
-    XIcon,
-  },
-};
 </script>
