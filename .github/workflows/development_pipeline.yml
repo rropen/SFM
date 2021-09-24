@@ -24,15 +24,13 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v2
       
-    - name: Setup npmrc
-      run: echo "@rrglobal:registry=https://npm.pkg.github.com//npm.pkg.github.com/:_authToken=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" > .npmrc
-    - name: Setup Node
-      uses: actions/setup-node@v2
+   
+    - uses: actions/setup-node@v2
       with:
         always-auth: true
         node-version: "14"
-        scope: '@rrglobal'
-        registry-url: 'https://npm.pkg.github.com/npm.pkg.github.com/'
+        scope: '@rrglobal:'
+        registry-url: 'https://npm.pkg.github.com/npm.pkg.github.com/:'
       env:
         NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
 
