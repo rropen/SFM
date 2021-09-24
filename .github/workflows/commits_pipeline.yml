@@ -6,7 +6,7 @@ name: Commits Pipeline
 # on:  workflow_dispatch
 on:
   push: 
-    branches-ignore: [ci/cd]
+    branches-ignore: [dev]
 
 jobs:
 
