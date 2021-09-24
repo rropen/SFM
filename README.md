@@ -8,7 +8,7 @@
 <p>
  <a href="https://github.com/rropen/SFM"><img src="https://img.shields.io/badge/Rolls--Royce-Software%20Factory-10069f"></a>
  <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen?style=flat"></a>
- [![Cypress.io](https://img.shields.io/badge/tested%20with-Cypress-04C38E.svg?style=flat)](https://www.cypress.io/)
+  <a href="https://www.cypress.io/"><img src="https://img.shields.io/badge/tested%20with-Cypress-04C38E?style=flat"></a>
 
 </p>
 
