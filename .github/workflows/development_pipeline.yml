@@ -27,12 +27,8 @@ jobs:
 
     - uses: actions/setup-node@v2
       with:
-        always-auth: true
         node-version: "14"
-        registry-url: 'https://npm.pkg.github.com/npm.pkg.github.com/'
-        scope: '@rrglobal'
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
+        
 
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
@@ -51,6 +47,7 @@ jobs:
       working-directory: src/frontend
       run: yarn --prefer-offline
       env:
+        NPM_CONFIG_USERCONFIG: .npmrc.ci
         NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
 
     - name: Cypress Integration Tests
