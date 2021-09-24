@@ -1,6 +1,7 @@
 import json
 from sfm.routes.work_items import crud
 from sfm.routes.commits import crud as commit_crud
+from sfm.dependencies import get_db
 from sfm.models import WorkItemCreate, Project, CommitCreate
 from typing import List, Optional
 from sqlmodel import Session, select
@@ -11,16 +12,11 @@ import requests
 from datetime import datetime
 from statistics import median
 
-# Create a database connection we can use
-def get_db():
-    with Session(engine) as db:
-        yield db
-
 
 def deployment_processor(db, deployment, project_db, project_auth_token):
     deployment_dict = {
         "category": "Deployment",
-        "end_time": deployment.get("updated_at"),
+        "end_time": deployment.get("updatedAt"),
         "project_id": project_db.id,
     }
 
@@ -33,8 +29,8 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
     pull_request_dict = {
         "category": "Pull Request",
         "project_id": project_db.id,
-        "start_time": pull_request.get("created_at"),
-        "end_time": pull_request.get("merged_at"),
+        "start_time": pull_request.get("createdAt"),
+        "end_time": pull_request.get("mergedAt"),
     }
 
     work_item_data = WorkItemCreate(**pull_request_dict)

@@ -4,14 +4,7 @@ from sqlalchemy.sql.expression import false
 from sfm.models import WorkItem, Project, Commit
 from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
-from datetime import datetime, timedelta
-
-
-def calc_time_to_pull(db: Session, commit_data, pull_date):
-    commit_temp = commit_data.dict()
-    pull_date = db.get(WorkItem, commit_temp["work_item_id"]).end_time
-    time_to_pull = pull_date - commit_temp["date"]
-    return time_to_pull
+from datetime import datetime, time, timedelta
 
 
 def get_all(
@@ -26,11 +19,11 @@ def get_all(
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
-            return False
+            raise HTTPException(status_code=404, detail="Project not found")
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
-            return False
+            raise HTTPException(status_code=404, detail="Project not found")
     elif project_id and project_name:
         project = db.exec(
             select(Project).where(
@@ -38,10 +31,14 @@ def get_all(
             )
         ).first()
         if not project:
-            return False
+            raise HTTPException(status_code=404, detail="Project not found")
 
     if project:
-        return project.commits
+        workitems = project.work_items
+        project_commits = []
+        for item in workitems:
+            project_commits.extend(item.commits)
+        return project_commits
 
     return db.exec(select(Commit).offset(skip).limit(limit)).all()
 
@@ -75,14 +72,16 @@ def create_commit(db: Session, commit_data, project_auth_token):
     if commit_db:
         return commit_db.sha  # successfully created record
     else:
-        return False  # didn't store correctly
+        raise HTTPException(
+            status_code=404, detail="Item did not store correctly"
+        )  # didn't store correctly
 
 
 def delete_commit(db: Session, commit_sha, project_auth_token):
     """Take a commit and remove the row from the database."""
     commit = db.get(Commit, commit_sha)
     if not commit:
-        raise HTTPException(status_code=404, detail="Issue not found")
+        raise HTTPException(status_code=404, detail="Item not found")
     intended_project = db.get(Project, commit.work_item.project.id)
     if not intended_project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -98,7 +97,9 @@ def delete_commit(db: Session, commit_sha, project_auth_token):
     # Check our work
     row = db.get(Commit, commit_sha)
     if row:
-        return False  # Row didn't successfully delete or another one exists
+        raise HTTPException(
+            status_code=404, detail="Item did not delete correctly and still exists"
+        )  # Row didn't successfully delete or another one exists  # Row didn't successfully delete or another one exists
     else:
         return True  # We were successful
 
@@ -116,9 +117,14 @@ def update_commit(db: Session, commit_sha, commit_data, project_auth_token):
         project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
-        commit_newdata = commit_data.dict(exclude_unset=True)
+        commit_newdata = commit_data.dict(exclude_unset=True, exclude_defaults=True)
+
         for key, value in commit_newdata.items():
             setattr(commit, key, value)
+
+        time_to_pull = int((commit.work_item.end_time - commit.date).total_seconds())
+
+        setattr(commit, "time_to_pull", time_to_pull)
 
         db.add(commit)
         db.commit()
@@ -130,4 +136,4 @@ def update_commit(db: Session, commit_sha, commit_data, project_auth_token):
     if commit:
         return commit  # updated record
     else:
-        return False  # didn't store correctly
+        raise HTTPException(status_code=404, detail="Item did not store correctly")

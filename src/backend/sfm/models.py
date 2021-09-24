@@ -82,16 +82,22 @@ class WorkItemUpdate(SQLModel):
 
 class MetricData(SQLModel):
     project_name: str
-    deployment_dates: Optional[List]
-    deployment_frequency: str
+    deployment_dates: List
+    performance: str
+    deployment_dates_description: str
+    performance_description: str
 
 
 class LeadTimeData(SQLModel):
     lead_time: int
     time_units: str
     performance: str
+    daily_commits: List
+    daily_lead_times: List
     lead_time_description: str
     performance_description: str
+    daily_commits_description: str
+    daily_lead_times_description: str
 
 
 class CommitBase(SQLModel):

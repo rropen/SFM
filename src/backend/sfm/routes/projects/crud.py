@@ -1,4 +1,3 @@
-from os import stat
 from fastapi.exceptions import HTTPException
 from sfm.models import Project, WorkItem
 from sqlmodel import Session, select
@@ -12,12 +11,18 @@ from sfm.utils import (
 
 def get_all(db: Session, skip: int = None, limit: int = None):
     """Get all the projects and return them."""
-    return db.exec(select(Project).offset(skip).limit(limit)).all()
+    projects = db.exec(select(Project).offset(skip).limit(limit)).all()
+    if not projects:
+        raise HTTPException(status_code=404, detail="Projects not found")
+    return projects
 
 
 def get_by_id(db: Session, project_id: int):
     """Get the project with corresponding id and return it."""
-    return db.get(Project, project_id)
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
 
 
 def create_project(db: Session, project_data, admin_key):
@@ -71,6 +76,10 @@ def refresh_project_key(db: Session, project_id, admin_key):
 
     if verified_admin:
         project_db = db.get(Project, project_id)
+        if not project_db:
+            raise HTTPException(
+                status_code=404, detail="Project with matching id not found"
+            )
         new_token = create_project_auth_token()
         hashed_token = hash_project_auth_token(new_token)
         project_db.project_auth_token_hashed = hashed_token
@@ -97,7 +106,7 @@ def update_project(db: Session, project_id, project_data, admin_key):
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
 
-        project_newdata = project_data.dict(exclude_unset=True)
+        project_newdata = project_data.dict(exclude_unset=True, exclude_defaults=True)
         for key, value in project_newdata.items():
             setattr(project, key, value)
 

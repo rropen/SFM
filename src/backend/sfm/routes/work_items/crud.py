@@ -1,6 +1,4 @@
-from os import stat
 from fastapi.exceptions import HTTPException
-from sqlalchemy.sql.expression import false
 from sfm.models import WorkItem, Project
 from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
@@ -14,17 +12,15 @@ def get_all(
     project_name: str = None,
 ):
     """Get all the WorkItems and return them."""
-    print("SESSION: ", __name__, db)
-    print("SESSION: ", __name__, db.identity_map)
     project = None
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
-            return False
+            raise HTTPException(status_code=404, detail="Project not found")
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
-            return False
+            raise HTTPException(status_code=404, detail="Project not found")
     elif project_id and project_name:
         project = db.exec(
             select(Project).where(
@@ -32,7 +28,7 @@ def get_all(
             )
         ).first()
         if not project:
-            return False
+            raise HTTPException(status_code=404, detail="Project not found")
 
     if project:
         return project.work_items
@@ -42,7 +38,11 @@ def get_all(
 
 def get_by_id(db: Session, work_item_id):
     """Get a specified WorkItem and return it."""
-    return db.get(WorkItem, work_item_id)
+    workitem = db.get(WorkItem, work_item_id)
+    if workitem:
+        return workitem
+    if not workitem:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 
 def create_work_item(db: Session, work_item_data, project_auth_token):
@@ -65,14 +65,16 @@ def create_work_item(db: Session, work_item_data, project_auth_token):
     if work_item_db:
         return work_item_db.id  # successfully created record
     else:
-        return False  # didn't store correctly
+        raise HTTPException(
+            status_code=404, detail="Item did not store correctly"
+        )  # didn't store correctly
 
 
 def delete_work_item(db: Session, work_item_id, project_auth_token):
     """Take a issueTitle and remove the row from the database."""
     work_item = db.get(WorkItem, work_item_id)
     if not work_item:
-        raise HTTPException(status_code=404, detail="Issue not found")
+        raise HTTPException(status_code=404, detail="Item not found")
     intended_project = db.get(Project, work_item.project_id)
     if not intended_project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -88,7 +90,9 @@ def delete_work_item(db: Session, work_item_id, project_auth_token):
     # Check our work
     row = db.get(WorkItem, work_item_id)
     if row:
-        return False  # Row didn't successfully delete or another one exists
+        raise HTTPException(
+            status_code=404, detail="Item did not store correctly"
+        )  # Row didn't successfully delete or another one exists
     else:
         return True  # We were successful
 
@@ -106,7 +110,9 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
         project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
-        work_item_newdata = work_item_data.dict(exclude_unset=True)
+        work_item_newdata = work_item_data.dict(
+            exclude_unset=True, exclude_defaults=True
+        )
         for key, value in work_item_newdata.items():
             setattr(work_item, key, value)
 
@@ -120,4 +126,4 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
     if work_item:
         return work_item  # updated record
     else:
-        return False  # didn't store correctly
+        raise HTTPException(status_code=404, detail="Item did not store correctly")

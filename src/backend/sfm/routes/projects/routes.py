@@ -1,5 +1,6 @@
 from fastapi.param_functions import Header
 from sfm.routes.projects import crud
+from sfm.dependencies import get_db
 from sfm.models import (
     ProjectRead,
     ProjectCreate,
@@ -9,11 +10,6 @@ from typing import List, Optional
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Query
 from sfm.database import engine
-
-# Create a database connection we can use
-def get_db():
-    with Session(engine) as db:
-        yield db
 
 
 router = APIRouter()
@@ -58,8 +54,6 @@ def get_projects(params: CustomGetParams = Depends(), db: Session = Depends(get_
 
     """
     projects = crud.get_all(db, skip=params.skip, limit=params.limit)
-    if not projects:
-        raise HTTPException(status_code=404, detail="Projects not found")
     return projects
 
 
@@ -78,8 +72,6 @@ def get_project_by_id(project_id: int, db: Session = Depends(get_db)):
 
     """
     project = crud.get_by_id(db, project_id=project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
     return project
 
 
