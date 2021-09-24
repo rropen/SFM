@@ -1,36 +1,31 @@
-# This Pipeline runs on a commit to every branch except dev and main
+# This Pipeline runs on every commit except to ci/cd
 
 name: Commits Pipeline
 
 # Controls when the workflow will run
-on:  workflow_dispatch
-# on:
-#   push: 
-#     branches: 
-#         - '**' 
-#         - '!main`
-#         - '!dev'
-# branches-ignore:
-#       - master
+# on:  workflow_dispatch
+on:
+  push:
+    branches-ignore: [ci/cd]
 
 jobs:
-# Runs Unit Tests w/ pytest
+  # Runs Unit Tests w/ pytest
   Unit-Tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-        
+
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-          
+
       - uses: actions/cache@v2
         with:
           path: ${{ env.pythonLocation }}
           key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
-    
+
       - name: Install dependencies
         working-directory: src/backend
         run: |

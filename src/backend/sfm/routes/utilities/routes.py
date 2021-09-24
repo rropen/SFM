@@ -45,11 +45,11 @@ def populate_db(
     # fIRST PROJECT: Create project to file deployments under:
     project_dict = {
         "name": "Project for Deployments Testing",
-        "lead_name": "Gabe",
+        "leadName": "Gabe",
         "description": "Project to hold deployment frequency data for local testing",
         "location": "Indianapolis",
-        "repo_url": "a_sample_url",
-        "on_prem": False,
+        "repoUrl": "a_sample_url",
+        "onPrem": False,
     }
 
     proj_data = ProjectCreate(**project_dict)
@@ -97,9 +97,9 @@ def populate_db(
     for date in dates:
         deployment_dict = {
             "category": "Deployment",
-            "end_time": date
+            "endTime": date
             + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
-            "project_id": project.id,
+            "projectId": project.id,
         }
 
         work_item_data = WorkItemCreate(**deployment_dict)
@@ -108,11 +108,11 @@ def populate_db(
     # SECOND PROJECT
     project_dict2 = {
         "name": "2nd Project for testing",
-        "lead_name": "Gabe",
+        "leadName": "Gabe",
         "description": "Second project",
         "location": "Indianapolis",
-        "repo_url": "a_different_sample_url",
-        "on_prem": False,
+        "repoUrl": "a_different_sample_url",
+        "onPrem": False,
     }
 
     proj_data2 = ProjectCreate(**project_dict2)
@@ -133,9 +133,9 @@ def populate_db(
     for date in dates2:
         deployment_dict = {
             "category": "Deployment",
-            "end_time": date
+            "endTime": date
             + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
-            "project_id": project2.id,
+            "projectId": project2.id,
         }
 
         work_item_data = WorkItemCreate(**deployment_dict)
@@ -156,9 +156,9 @@ def populate_db(
     for date in pull_dates:
         pull_dict = {
             "category": "Pull Request",
-            "end_time": date
+            "endTime": date
             + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
-            "project_id": project_ids[proj_iter],
+            "projectId": project_ids[proj_iter],
         }
         work_item_data = WorkItemCreate(**pull_dict)
         work_item_id = crud.create_work_item(
@@ -184,7 +184,7 @@ def populate_db(
                 ),  # used for random string generation (not actually a proj auth token)
                 "date": date + time_shift,
                 "author": "Gabe Geiger",
-                "work_item_id": item_id,
+                "workItemId": item_id,
             }
 
             commit_data = CommitCreate(**commit_dict)

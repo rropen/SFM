@@ -14,11 +14,12 @@ export interface projectItem {
 }
 
 export interface deploymentItem {
-  deployment_dates: number[];
-  deployment_frequency: string;
-  project_name: string;
+  deploymentDates: number[];
+  performance: string;
+  projectName: string;
+  deploymentDatesDescription: string;
+  performanceDescription: string;
 }
-
 
 export interface leadTimeItem {
   lead_time: number;

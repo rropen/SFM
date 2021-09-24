@@ -1,3 +1,4 @@
+import itertools
 from datetime import datetime, timedelta
 from time import mktime
 from statistics import median
@@ -24,12 +25,10 @@ def calc_frequency(
 ):  # generates the DORA metric based on only deployments in the last 3 months
     three_months_ago = datetime.now() - timedelta(days=84)
     recent_deploy_dates = [
-        deployment.end_time
+        deployment.endTime
         for deployment in deployments
-        if (deployment.end_time >= three_months_ago)
+        if (deployment.endTime >= three_months_ago)
     ]
-
-    deploy_frequency = "Yearly"  # for now
 
     days_deployed = (
         []
@@ -78,19 +77,19 @@ def calc_frequency(
     #    print(i + 1, "th Week had:", week, "deploys")
 
     if median(days_deployed) >= 3:
-        deploy_frequency = "Daily"
+        performance = "Daily"
     elif median(weekly_deployed) >= 1:
-        deploy_frequency = "Weekly"
+        performance = "Weekly"
     elif median(monthly_deploys) >= 1:
-        deploy_frequency = "Monthly"
+        performance = "Monthly"
     else:
-        deploy_frequency = "Yearly"
+        performance = "Yearly"
 
     # print("DEPLOYMENT FREQUENCY VALUE:", median(days_deployed))
 
     # print("DEPLOYMENT FREQUENCY:", deploy_frequency)
 
-    return deploy_frequency
+    return performance
 
     # Google Pseudocode:
     # 1. Grab deployments from the past 3 months from today's date.
@@ -106,6 +105,57 @@ def calc_frequency(
     # deployInWeek = deployments.split(weeks or weekdays)
     # deployFreq = average(deployInWeek)
     # jsonData.append({"week-range": deployFreq})
+
+
+def combine_deploys(deployment_dates):  # [date, date, date]
+    initial_date = min(deployment_dates)  # date
+    total_days = (datetime.now().date() - initial_date).days  # number of days
+    grouped_deploys = []
+    for iter_day in range(0, total_days):  # loops through every day
+        day = initial_date + timedelta(days=iter_day)  # date
+        if day in deployment_dates:
+            grouped_deploys.append(
+                [mktime(day.timetuple()), deployment_dates.count(day)]
+            )  # counts number dates that repeat in list and puts it with UNIX
+            # [[date, num], [date, num]]
+        else:
+            grouped_deploys.append(
+                [mktime(day.timetuple()), 0]
+            )  # if not in list then deployment must not have happened on this day, add 0
+
+    return grouped_deploys
+
+
+def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
+    initial_date = min(commit_dates)  # date
+
+    total_days = (datetime.now().date() - initial_date).days  # number of days
+    daily_commits = []
+    daily_lead_times = []
+
+    for iter_day in range(0, total_days):  # loops through every day
+        day = initial_date + timedelta(days=iter_day)  # date
+
+        indicies = [i for i, date in enumerate(commit_dates) if date == day]
+
+        day_lead_times = []
+        for index in indicies:
+            day_lead_times.append(lead_times[index])
+
+        if day in commit_dates:
+            daily_commits.append(
+                [mktime(day.timetuple()), commit_dates.count(day)]
+            )  # counts number dates that repeat in list and puts it with UNIX
+            daily_lead_times.append(
+                [mktime(day.timetuple()), (median(day_lead_times)) / 60]
+            )  # convert seconds in db to minutes for return
+        else:
+            daily_commits.append(
+                [mktime(day.timetuple()), 0]
+            )  # if not in list then deployment must not have happened on this day, add 0
+            daily_lead_times.append([mktime(day.timetuple()), 0])
+
+    return daily_commits, daily_lead_times
 
 
 @router.get("/deployments", response_model=List[MetricData])
@@ -161,18 +211,20 @@ def get_deployments(
         # return specific project deployment frequency json object
         project_name = project.name
         deployments = [
-            item for item in project.work_items if (item.category == "Deployment")
+            item for item in project.workItems if (item.category == "Deployment")
         ]
-        deployment_dates = [
-            mktime(deploy.end_time.date().timetuple()) for deploy in deployments
-        ]
-        deploy_frequency = calc_frequency(deployments)
+
+        deployment_dates = [deploy.endTime.date() for deploy in deployments]
+        grouped_deploys = combine_deploys(deployment_dates)
+        performance = calc_frequency(deployments)
 
         deployment_data = [
             {
-                "project_name": project_name,
-                "deployment_dates": deployment_dates,
-                "deployment_frequency": deploy_frequency,
+                "projectName": project_name,
+                "deploymentDates": grouped_deploys,
+                "performance": performance,
+                "deploymentDatesDescription": "",
+                "performanceDescription": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
             }
         ]
 
@@ -185,19 +237,20 @@ def get_deployments(
             project_name = project.name
             deployments = []
             deployment_dates = []
-            for work_item in project.work_items:
+            for work_item in project.workItems:
                 if work_item.category == "Deployment":
                     deployments.append(work_item)
-                    deployment_dates.append(
-                        mktime(work_item.end_time.date().timetuple())
-                    )
+                    deployment_dates.append(work_item.endTime.date())
 
-            deploy_frequency = calc_frequency(deployments)
+            grouped_deploys = combine_deploys(deployment_dates)
+            performance = calc_frequency(deployments)
             group_deployments.append(
                 {
-                    "project_name": project_name,
-                    "deployment_dates": deployment_dates,
-                    "deployment_frequency": deploy_frequency,
+                    "projectName": project_name,
+                    "deploymentDates": grouped_deploys,
+                    "performance": performance,
+                    "deploymentDatesDescription": "",
+                    "performanceDescription": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
                 }
             )
 
@@ -207,16 +260,18 @@ def get_deployments(
         all_items = crud.get_all(db)
         deployments = [item for item in all_items if (item.category == "Deployment")]
         project_name = "org"
-        deployment_dates = [
-            mktime(deploy.end_time.date().timetuple()) for deploy in deployments
-        ]
-        deploy_frequency = calc_frequency(deployments)
+        deployment_dates = [deploy.endTime.date() for deploy in deployments]
+
+        grouped_deploys = combine_deploys(deployment_dates)
+        performance = calc_frequency(deployments)
 
         deployment_data = [
             {
-                "project_name": project_name,
-                "deployment_dates": deployment_dates,
-                "deployment_frequency": deploy_frequency,
+                "projectName": project_name,
+                "deploymentDates": grouped_deploys,
+                "performance": performance,
+                "deploymentDatesDescription": "",
+                "performanceDescription": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
             }
         ]
 
@@ -271,7 +326,7 @@ def get_Lead_Time_To_Change(
 
     if project:
         pullRequests = [
-            item for item in project.work_items if (item.category == "Pull Request")
+            item for item in project.workItems if (item.category == "Pull Request")
         ]
         if not pullRequests:
             raise HTTPException(
@@ -289,33 +344,41 @@ def get_Lead_Time_To_Change(
             )
 
     lead_times = []
+    commit_dates = []
     for request in pullRequests:
         for commit in request.commits:
-            lead_times.append(commit.time_to_pull)
+            lead_times.append(commit.timeToPull)
+            commit_dates.append(commit.date.date())
+
+    daily_commits, daily_lead_times = lead_times_per_day(commit_dates, lead_times)
 
     # calculate median time in minutes
     print(median(lead_times))
     median_time_to_deploy = int(median(lead_times) / 60)
 
     if median_time_to_deploy < (24 * 60):  # Less than one day
-        performance = "Elite"
+        performance = "One Day"
     elif (median_time_to_deploy >= (24 * 60)) and (
         median_time_to_deploy < (7 * 24 * 60)
     ):  # between one day and one week
-        performance = "High"
+        performance = "One Week"
     elif (median_time_to_deploy >= (7 * 24 * 60)) and (
         median_time_to_deploy < (7 * 24 * 60 * 4)
     ):  # between one week and one month
-        performance = "Medium"
+        performance = "One Month"
     elif median_time_to_deploy >= (7 * 24 * 60 * 4):  # greater than one month
-        performance = "Low"
+        performance = "Greater than One Month"
 
     LeadTime_dict = {
-        "lead_time": median_time_to_deploy,
-        "time_units": "minutes",
+        "leadTime": median_time_to_deploy,
+        "timeUnits": "minutes",
         "performance": performance,
-        "lead_time_description": "median lead time for a commit to get pulled to main branch in minutes",
-        "performance_description": "Elite = less than one day, High = between one day and one week, Medium = bewtween one week and one month, Low = greater than one month",
+        "dailyCommits": daily_commits,
+        "dailyLeadTimes": daily_lead_times,
+        "leadTimeDescription": "median lead time for a commit to get pulled to main branch in minutes",
+        "performanceDescription": "Elite = less than one day, High = between one day and one week, Medium = bewtween one week and one month, Low = greater than one month",
+        "dailyCommitsDescription": "List of lists, where each sublist consits of [unix date, number of commits on that date]",
+        "dailyLeadTimesDescription": "List of lists, where each sublist consits of [unix date, median lead time to deploy for commits occuring on that date]",
     }
 
     return LeadTime_dict
