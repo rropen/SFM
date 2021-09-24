@@ -48,6 +48,8 @@ jobs:
     - name: Install Dependencies
       working-directory: src/frontend
       run: yarn --prefer-offline
+      env:
+        NPM_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
 
     - name: Cypress Integration Tests
       working-directory: src/frontend
