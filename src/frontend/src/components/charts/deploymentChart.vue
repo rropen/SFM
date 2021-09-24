@@ -166,7 +166,8 @@ function fetchDeployments() {
   let url = "";
   console.log("here is selcted project val: ", props.projectName);
   if (props.projectName == "All") {
-    url = "metrics/deployments?category=Deployment";
+    console.log("here");
+    url = "metrics/deployments";
   } else {
     url =
       "metrics/deployments?&project_name=" +
@@ -175,9 +176,7 @@ function fetchDeployments() {
   // retrieve deployments
   axios
     .get(url, {
-      params: {
-        all_deployments: false,
-      },
+      params: {},
       headers: {
         "Content-Type": "application/json",
       },
@@ -197,7 +196,7 @@ function fetchDeployments() {
 
 const deploymentFreqColorComputed = computed(() => {
   if (deployments.value) {
-    switch (deployments.value.deployment_frequency) {
+    switch (deployments.value.performance) {
       case "Daily":
         return "bg-bggreen";
       case "Weekly":
@@ -215,11 +214,22 @@ const deploymentFreqColorComputed = computed(() => {
 // Data used in deployments chart. Pairs of [unix timestamp, number of deployments on that day]
 const deploymentsData = computed(() => {
   if (deployments.value) {
+    console.log(deployments.value);
+    console.log(
+      "dep data: ",
+      deployments.value.deploymentDates.map((a) => [
+        new Date(a[0] * 1000),
+        a[1],
+      ])
+    );
     return [
       {
         name: "Daily Deployments",
         color: "#10069f",
-        data: getData(), //This can be changed to the data from the endpoint once it is refactored
+        data: deployments.value.deploymentDates.map((a) => [
+          new Date(a[0] * 1000),
+          a[1],
+        ]), // getData(), //This can be changed to the data from the endpoint once it is refactored
       },
     ];
   } else {
