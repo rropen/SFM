@@ -31,6 +31,7 @@ jobs:
       with:
         always-auth: true
         node-version: "14"
+        scope: '@rrglobal'
         registry-url: 'https://npm.pkg.github.com/npm.pkg.github.com/'
 
     - name: Get yarn cache directory path
