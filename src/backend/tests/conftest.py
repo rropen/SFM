@@ -55,13 +55,13 @@ def init_database(session):
     proj1 = Project(
         **{
             "name": "Test Project 1",
-            "leadName": "Peter Parker",
-            "leadEmail": "spider-person@stark.com",
+            "lead_name": "Peter Parker",
+            "lead_email": "spider-person@stark.com",
             "description": "A test project for testing",
             "location": "Strangeville",
-            "repoUrl": "github.com/starkEnterprises",
-            "onPrem": False,
-            "projectAuthTokenHashed": hashed_token,
+            "repo_url": "github.com/starkEnterprises",
+            "on_prem": False,
+            "project_auth_token_hashed": hashed_token,
         }
     )
 
@@ -72,11 +72,11 @@ def init_database(session):
     work_item1 = WorkItem(
         **{
             "category": "Deployment",
-            "startTime": datetime.datetime(2021, 8, 23, 9, 37, 17, 94309),
-            "endTime": datetime.datetime(2021, 9, 23, 9, 37, 17, 94309),
-            "durationOpen": datetime.timedelta(days=31),
+            "start_time": datetime.datetime(2021, 8, 23, 9, 37, 17, 94309),
+            "end_time": datetime.datetime(2021, 9, 23, 9, 37, 17, 94309),
+            "duration_open": datetime.timedelta(days=31),
             "comments": "Test description for test work item in the database",
-            "projectId": 1,
+            "project_id": 1,
         }
     )
 
@@ -90,8 +90,8 @@ def init_database(session):
             "date": datetime.datetime(2021, 9, 10, 9, 43, 8, 41351),
             "message": "feat(test): test commit message for testing commit",
             "author": "Spider-boy",
-            "workItemId": 1,
-            "timeToPull": int(
+            "work_item_id": 1,
+            "time_to_pull": int(
                 (
                     datetime.timedelta(days=12, seconds=86049, microseconds=52958)
                 ).total_seconds()

@@ -16,8 +16,8 @@ from statistics import median
 def deployment_processor(db, deployment, project_db, project_auth_token):
     deployment_dict = {
         "category": "Deployment",
-        "endTime": deployment.get("updatedAt"),
-        "projectId": project_db.id,
+        "end_time": deployment.get("updatedAt"),
+        "project_id": project_db.id,
     }
 
     work_item_data = WorkItemCreate(**deployment_dict)
@@ -28,9 +28,9 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
 
     pull_request_dict = {
         "category": "Pull Request",
-        "projectId": project_db.id,
-        "startTime": pull_request.get("createdAt"),
-        "endTime": pull_request.get("mergedAt"),
+        "project_id": project_db.id,
+        "start_time": pull_request.get("createdAt"),
+        "end_time": pull_request.get("mergedAt"),
     }
 
     work_item_data = WorkItemCreate(**pull_request_dict)
@@ -49,7 +49,7 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
 
         # pass work item id in dictionary to create commit
         commit_dict = {
-            "workItemId": work_item_id,
+            "work_item_id": work_item_id,
             "sha": commit_data["sha"],
             "date": date,
             "message": commit_data["commit"]["message"],

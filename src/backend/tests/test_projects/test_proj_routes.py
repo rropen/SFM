@@ -9,12 +9,12 @@ def test_get_all_endpoint(client: TestClient, db: Session):
     assert response.json() == [
         {
             "name": "Test Project 1",
-            "leadName": "Peter Parker",
-            "leadEmail": "spider-person@stark.com",
+            "lead_name": "Peter Parker",
+            "lead_email": "spider-person@stark.com",
             "description": "A test project for testing",
             "location": "Strangeville",
-            "repoUrl": "github.com/starkEnterprises",
-            "onPrem": False,
+            "repo_url": "github.com/starkEnterprises",
+            "on_prem": False,
             "id": 1,
         }
     ]

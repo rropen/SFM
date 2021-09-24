@@ -14,13 +14,13 @@ def test_get_all(db, session: Session):
     response = crud.get_all(db)
     assert response is not None
     assert response[0].name == "Test Project 1"
-    assert response[0].leadName == "Peter Parker"
-    assert response[0].leadEmail == "spider-person@stark.com"
+    assert response[0].lead_name == "Peter Parker"
+    assert response[0].lead_email == "spider-person@stark.com"
     assert response[0].description == "A test project for testing"
     assert response[0].location == "Strangeville"
-    assert response[0].repoUrl == "github.com/starkEnterprises"
-    assert response[0].onPrem is False
-    assert response[0].projectAuthTokenHashed == hashed_token
+    assert response[0].repo_url == "github.com/starkEnterprises"
+    assert response[0].on_prem is False
+    assert response[0].project_auth_token_hashed == hashed_token
 
     """
     Test that the function raises an error when there are
@@ -40,13 +40,13 @@ def test_get_by_id(db):
     response = crud.get_by_id(db, project_id=1)
     assert response is not None
     assert response.name == "Test Project 1"
-    assert response.leadName == "Peter Parker"
-    assert response.leadEmail == "spider-person@stark.com"
+    assert response.lead_name == "Peter Parker"
+    assert response.lead_email == "spider-person@stark.com"
     assert response.description == "A test project for testing"
     assert response.location == "Strangeville"
-    assert response.repoUrl == "github.com/starkEnterprises"
-    assert response.onPrem is False
-    assert response.projectAuthTokenHashed == hashed_token
+    assert response.repo_url == "github.com/starkEnterprises"
+    assert response.on_prem is False
+    assert response.project_auth_token_hashed == hashed_token
 
     """
     Testing that the crud function raises exception when the project
@@ -63,12 +63,12 @@ def test_create(db):
     project_data = ProjectCreate(
         **{
             "name": "Test Project 2",
-            "leadName": "Patrick Stark",
-            "leadEmail": "starfish-person@stark.com",
+            "lead_name": "Patrick Stark",
+            "lead_email": "starfish-person@stark.com",
             "description": "A test project for testing creation",
             "location": "Bikini Gotham",
-            "repoUrl": "github.com/crustyEnterprises",
-            "onPrem": True,
+            "repo_url": "github.com/crustyEnterprises",
+            "on_prem": True,
         }
     )
 
@@ -76,14 +76,13 @@ def test_create(db):
 
     assert len(response) == 2
     assert response[0].name == "Test Project 2"
-    assert response[0].name == "Test Project 2"
-    assert response[0].leadName == "Patrick Stark"
-    assert response[0].leadEmail == "starfish-person@stark.com"
+    assert response[0].lead_name == "Patrick Stark"
+    assert response[0].lead_email == "starfish-person@stark.com"
     assert response[0].description == "A test project for testing creation"
     assert response[0].location == "Bikini Gotham"
-    assert response[0].repoUrl == "github.com/crustyEnterprises"
-    assert response[0].onPrem is True
-    assert response[0].projectAuthTokenHashed is not None
+    assert response[0].repo_url == "github.com/crustyEnterprises"
+    assert response[0].on_prem is True
+    assert response[0].project_auth_token_hashed is not None
 
     """
     Testing that the project raises an exception when the admin_key
@@ -130,12 +129,12 @@ def test_refresh_project_key(db):
     # testing that refreshing key did not change project details
     project_test = db.get(Project, 1)
     assert project_test.name == "Test Project 1"
-    assert project_test.leadName == "Peter Parker"
-    assert project_test.leadEmail == "spider-person@stark.com"
+    assert project_test.lead_name == "Peter Parker"
+    assert project_test.lead_email == "spider-person@stark.com"
     assert project_test.description == "A test project for testing"
     assert project_test.location == "Strangeville"
-    assert project_test.repoUrl == "github.com/starkEnterprises"
-    assert project_test.onPrem is False
+    assert project_test.repo_url == "github.com/starkEnterprises"
+    assert project_test.on_prem is False
 
     """
     Testing that the crud function raises an exception when the project
@@ -159,8 +158,8 @@ def test_update_project(db):
     """Testing that the project works as expected"""
     update_dict = {
         "name": "New Test Project 1",
-        "leadName": "Strong Squid",
-        "repoUrl": "github.com/SquidEnterprises",
+        "lead_name": "Strong Squid",
+        "repo_url": "github.com/SquidEnterprises",
     }
     # vvv causes unset params to become default (exclude_unset didnt help)
     updated_project = ProjectUpdate(**update_dict)
@@ -170,13 +169,13 @@ def test_update_project(db):
 
     assert response is not None
     assert response.name == "New Test Project 1"
-    assert response.leadName == "Strong Squid"
-    assert response.leadEmail == "spider-person@stark.com"
+    assert response.lead_name == "Strong Squid"
+    assert response.lead_email == "spider-person@stark.com"
     assert response.description == "A test project for testing"
     assert response.location == "Strangeville"
-    assert response.repoUrl == "github.com/SquidEnterprises"
-    assert response.onPrem is False
-    assert response.projectAuthTokenHashed == hashed_token
+    assert response.repo_url == "github.com/SquidEnterprises"
+    assert response.on_prem is False
+    assert response.project_auth_token_hashed == hashed_token
 
     """
     Testing that the crud function raises an exception when the
