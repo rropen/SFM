@@ -1,17 +1,17 @@
 from fastapi.exceptions import HTTPException
 import pytest
-from sqlmodel import select
+from sqlmodel import select, Session
 from sqlmodel.main import SQLModel
 from sfm.routes.projects import crud
-from tests.conftest import hashed_token, engine
+from tests.conftest import hashed_token
 
 from sfm.models import Project, ProjectCreate, ProjectUpdate
 
 
 # get_all
-def test_get_all(init_database):
+def test_get_all(db, session: Session):
     """test that the crud function works as expected"""
-    response = crud.get_all(init_database)
+    response = crud.get_all(db)
     assert response is not None
     assert response[0].name == "Test Project 1"
     assert response[0].leadName == "Peter Parker"
@@ -26,16 +26,18 @@ def test_get_all(init_database):
     Test that the function raises an error when there are
     no projects in the table
     """
-    SQLModel.metadata.drop_all(engine)
+    session.delete(session.get(Project, 1))
+    session.commit()
+    # SQLModel.metadata.drop_all(engine)
     with pytest.raises(Exception) as ex:
-        crud.get_all(init_database)
+        crud.get_all(db)
         assert ex.value.message == "Projects not found"
 
 
 # get_by_id
-def test_get_by_id(init_database):
+def test_get_by_id(db):
     """test that the crud function works as expected"""
-    response = crud.get_by_id(init_database, project_id=1)
+    response = crud.get_by_id(db, project_id=1)
     assert response is not None
     assert response.name == "Test Project 1"
     assert response.leadName == "Peter Parker"
@@ -51,12 +53,12 @@ def test_get_by_id(init_database):
     does with matching id does not exist in DB
     """
     with pytest.raises(Exception) as ex:
-        crud.get_by_id(init_database, project_id=15)
+        crud.get_by_id(db, project_id=15)
         assert ex.value.message == "Project not found"
 
 
 # create_project
-def test_create(init_database):
+def test_create(db):
     """Testing that the project works as expected"""
     project_data = ProjectCreate(
         **{
@@ -70,7 +72,7 @@ def test_create(init_database):
         }
     )
 
-    response = crud.create_project(init_database, project_data, admin_key="admin_key")
+    response = crud.create_project(db, project_data, admin_key="admin_key")
 
     assert len(response) == 2
     assert response[0].name == "Test Project 2"
@@ -88,16 +90,16 @@ def test_create(init_database):
     is incorrect
     """
     with pytest.raises(Exception) as ex:
-        crud.create_project(init_database, project_data, admin_key="Shmadmin_key")
+        crud.create_project(db, project_data, admin_key="Shmadmin_key")
         assert ex.value.message == "Credentials are incorrect"
 
 
 # delete_project
-def test_delete_project(init_database):
+def test_delete_project(db):
     """Testing that the crud function works as expected"""
-    response = crud.delete_project(init_database, project_id=1, admin_key="admin_key")
+    response = crud.delete_project(db, project_id=1, admin_key="admin_key")
     assert response is True
-    projects = init_database.exec(select(Project)).all()
+    projects = db.exec(select(Project)).all()
     for project in projects:
         assert project.id != 1
 
@@ -106,7 +108,7 @@ def test_delete_project(init_database):
     with matching id does not exist in the database
     """
     with pytest.raises(Exception) as ex:
-        crud.delete_project(init_database, project_id=15, admin_key="admin_key")
+        crud.delete_project(db, project_id=15, admin_key="admin_key")
         assert ex.value.message == "Project not found"
 
     """
@@ -114,21 +116,19 @@ def test_delete_project(init_database):
     is incorrect
     """
     with pytest.raises(Exception) as ex:
-        crud.delete_project(init_database, project_id=1, admin_key="Shmadmin_key")
+        crud.delete_project(db, project_id=1, admin_key="Shmadmin_key")
         assert ex.value.message == "Credentials are incorrect"
 
 
 # refresh_project_key
-def test_refresh_project_key(init_database):
+def test_refresh_project_key(db):
     """Testing that the crud function works as expected"""
-    response = crud.refresh_project_key(
-        init_database, project_id=1, admin_key="admin_key"
-    )
+    response = crud.refresh_project_key(db, project_id=1, admin_key="admin_key")
     assert response is not False
     assert response != "Catalyst"
 
     # testing that refreshing key did not change project details
-    project_test = init_database.get(Project, 1)
+    project_test = db.get(Project, 1)
     assert project_test.name == "Test Project 1"
     assert project_test.leadName == "Peter Parker"
     assert project_test.leadEmail == "spider-person@stark.com"
@@ -142,7 +142,7 @@ def test_refresh_project_key(init_database):
     with matching id does not exist in the database
     """
     with pytest.raises(Exception) as ex:
-        crud.refresh_project_key(init_database, project_id=15, admin_key="admin_key")
+        crud.refresh_project_key(db, project_id=15, admin_key="admin_key")
         assert ex.value.message == "Project not found"
 
     """
@@ -150,12 +150,12 @@ def test_refresh_project_key(init_database):
     is incorrect
     """
     with pytest.raises(Exception) as ex:
-        crud.refresh_project_key(init_database, project_id=1, admin_key="Shmadmin_key")
+        crud.refresh_project_key(db, project_id=1, admin_key="Shmadmin_key")
         assert ex.value.message == "Credentials are incorrect"
 
 
 # update_project
-def test_update_project(init_database):
+def test_update_project(db):
     """Testing that the project works as expected"""
     update_dict = {
         "name": "New Test Project 1",
@@ -165,7 +165,7 @@ def test_update_project(init_database):
     # vvv causes unset params to become default (exclude_unset didnt help)
     updated_project = ProjectUpdate(**update_dict)
     response = crud.update_project(
-        init_database, project_id=1, project_data=updated_project, admin_key="admin_key"
+        db, project_id=1, project_data=updated_project, admin_key="admin_key"
     )
 
     assert response is not None
@@ -184,7 +184,7 @@ def test_update_project(init_database):
     """
     with pytest.raises(Exception) as ex:
         crud.update_project(
-            init_database,
+            db,
             project_id=15,
             project_data="placeholder",
             admin_key="admin_key",
@@ -197,7 +197,7 @@ def test_update_project(init_database):
     """
     with pytest.raises(Exception) as ex:
         crud.update_project(
-            init_database,
+            db,
             project_id=1,
             project_data="placeholder",
             admin_key="Shmadmin_key",

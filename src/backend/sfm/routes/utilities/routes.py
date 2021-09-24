@@ -3,6 +3,7 @@ from sqlalchemy.sql.expression import false
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
 from sfm.routes.commits import crud as commit_crud
+from sfm.dependencies import get_db
 from sfm.models import WorkItemCreate, ProjectCreate, CommitCreate
 from typing import List, Optional
 from sqlmodel import SQLModel, Session
@@ -13,20 +14,15 @@ from sfm.utils import create_project_auth_token
 import string
 import random
 
-# Create a database connection we can use
-def get_db():
-    with Session(engine) as db:
-        yield db
-
-
-router = APIRouter()
-
 
 def random_sha(seed):
     N = 20
     random.seed(a=seed)
     res = "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
     return res
+
+
+router = APIRouter()
 
 
 @router.post("/populate_mock_data")

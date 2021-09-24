@@ -89,15 +89,15 @@ class MetricData(SQLModel):
 
 
 class LeadTimeData(SQLModel):
-    leadTime: int
-    timeUnits: str
+    lead_time: int
+    time_units: str
     performance: str
-    dailyCommits: List
-    dailyLeadTimes: List
-    leadTimeDescription: str
-    performanceDescription: str
-    dailyCommitsDescription: str
-    dailyLeadTimesDescription: str
+    daily_commits: List
+    daily_lead_times: List
+    lead_time_description: str
+    performance_description: str
+    daily_commits_description: str
+    daily_lead_times_description: str
 
 
 class CommitBase(SQLModel):

@@ -1,6 +1,7 @@
 # CD to backend > source env/Scripts/activate > pip install -r requirements.txt  > uvicron main:app --reload
 # UI http://127.0.0.1:8000/docs http://127.0.0.1:8000/openapi.json
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlmodel import Session
 from starlette.middleware.cors import CORSMiddleware
 from sfm.database import create_db_and_tables, engine
 import os

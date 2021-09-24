@@ -10,20 +10,15 @@ import datetime
 import sqlalchemy
 
 
-def test_work_item_not_DB(init_database):
+def test_work_item_not_DB(db):
     with pytest.raises(Exception) as ex:
-        crud.get_by_id(init_database, 2)
+        crud.get_by_id(db, 2)
         assert ex.value.message == "Item not found"
 
 
-def test_issues_not_in_file(init_database):
-    files = os.listdir(".")
-    assert "issues.db" not in files
-
-
-def test_get_all(init_database):
+def test_get_all(db):
     # Test no project specification returns all items
-    response = crud.get_all(init_database, skip=0, limit=10)
+    response = crud.get_all(db, skip=0, limit=10)
     assert len(response) == 1
     assert type(response) == list
     workitem = response[0]
@@ -37,16 +32,14 @@ def test_get_all(init_database):
     assert workitem.id == 1
 
     # Test giving project id returns the correct project work items
-    response = crud.get_all(init_database, skip=0, limit=10, project_id=1)
+    response = crud.get_all(db, skip=0, limit=10, project_id=1)
     assert len(response) == 1
     assert type(response) == sqlalchemy.orm.collections.InstrumentedList
     workitem = response[0]
     assert workitem.projectId == 1
 
     # Test giving project name returns the correct project work items
-    response = crud.get_all(
-        init_database, skip=0, limit=10, project_name="Test Project 1"
-    )
+    response = crud.get_all(db, skip=0, limit=10, project_name="Test Project 1")
     assert len(response) == 1
     assert type(response) == sqlalchemy.orm.collections.InstrumentedList
     workitem = response[0]
@@ -54,7 +47,7 @@ def test_get_all(init_database):
 
     # Test giving project name AND project id returns the correct project work items
     response = crud.get_all(
-        init_database, skip=0, limit=10, project_name="Test Project 1", project_id=1
+        db, skip=0, limit=10, project_name="Test Project 1", project_id=1
     )
     assert len(response) == 1
     assert type(response) == sqlalchemy.orm.collections.InstrumentedList
@@ -64,7 +57,7 @@ def test_get_all(init_database):
     # Test giving mismatching project name AND project id alerts user
     with pytest.raises(Exception) as ex:
         response = crud.get_all(
-            init_database,
+            db,
             skip=0,
             limit=10,
             project_name="Test Project 1",
@@ -74,20 +67,18 @@ def test_get_all(init_database):
 
     # Test giving non-existant project name alerts user
     with pytest.raises(Exception) as ex:
-        response = crud.get_all(
-            init_database, skip=0, limit=10, project_name="Wrong Project"
-        )
+        response = crud.get_all(db, skip=0, limit=10, project_name="Wrong Project")
         assert ex.value.message == "Project not found"
 
     # Test giving non-existant project id alerts user
     with pytest.raises(Exception) as ex:
-        response = crud.get_all(init_database, skip=0, limit=10, project_id=20)
+        response = crud.get_all(db, skip=0, limit=10, project_id=20)
         assert ex.value.message == "Project not found"
 
 
-def test_get_by_id(init_database):
+def test_get_by_id(db):
     # Test calling existing work item returns expected data
-    response = crud.get_by_id(init_database, 1)
+    response = crud.get_by_id(db, 1)
     assert response is not None
     assert type(response) is WorkItem
     workitem = response
@@ -102,11 +93,11 @@ def test_get_by_id(init_database):
 
     # Test calling non-existant work item
     with pytest.raises(Exception) as ex:
-        response = crud.get_by_id(init_database, 2)
+        response = crud.get_by_id(db, 2)
         assert ex.value.message == "Item not found"
 
 
-def test_create_work_item(init_database):
+def test_create_work_item(db):
     # Test creating a work item returns all data inputted
     work_item_data = WorkItemCreate(
         **{
@@ -118,12 +109,10 @@ def test_create_work_item(init_database):
             "projectId": 1,
         }
     )
-    response = crud.create_work_item(
-        init_database, work_item_data, project_auth_token="Catalyst"
-    )
+    response = crud.create_work_item(db, work_item_data, project_auth_token="Catalyst")
     assert isinstance(response, int)
     assert response == 2
-    workitem = init_database.get(WorkItem, response)
+    workitem = db.get(WorkItem, response)
     assert workitem.category == "Issue"
     assert workitem.startTime == datetime.datetime(2021, 8, 11, 10, 15, 16, 94309)
     assert workitem.endTime == datetime.datetime(2021, 8, 13, 10, 15, 16, 94309)
@@ -135,7 +124,7 @@ def test_create_work_item(init_database):
     # Test that wrong project token throws exception
     with pytest.raises(Exception) as ex:
         response = crud.create_work_item(
-            init_database, work_item_data, project_auth_token="WrongToken"
+            db, work_item_data, project_auth_token="WrongToken"
         )
         assert ex.value.message == "Credentials are incorrect"
 
@@ -144,7 +133,7 @@ def test_create_work_item(init_database):
 
     with pytest.raises(Exception) as ex:
         response = crud.create_work_item(
-            init_database, work_item_data, project_auth_token="Catalyst"
+            db, work_item_data, project_auth_token="Catalyst"
         )
         assert ex.value.message == "Credentials are incorrect"
 
@@ -152,35 +141,31 @@ def test_create_work_item(init_database):
     with pytest.raises(Exception) as ex:
         work_item_data = WorkItemCreate(**{"category": "WrongCategory", "projectId": 1})
         response = crud.create_work_item(
-            init_database, work_item_data, project_auth_token="Catalyst"
+            db, work_item_data, project_auth_token="Catalyst"
         )
         assert "value is not a valid enumeration member" in ex.value.message
 
 
 # Test delete_work_item
-def test_delete_work_item(init_database):
+def test_delete_work_item(db):
     # Test exception thrown for non-existant work item
     with pytest.raises(Exception) as ex:
-        response = crud.delete_work_item(
-            init_database, 2, project_auth_token="Catalyst"
-        )
+        response = crud.delete_work_item(db, 2, project_auth_token="Catalyst")
         assert ex.value.message == "Item not found"
 
     # Test exception thrown when project auth token does not match work item's project
     with pytest.raises(Exception) as ex:
-        response = crud.delete_work_item(
-            init_database, 1, project_auth_token="WrongProject"
-        )
+        response = crud.delete_work_item(db, 1, project_auth_token="WrongProject")
         assert ex.value.message == "Project not found"
 
     # Test item is properly deleted
-    response = crud.delete_work_item(init_database, 1, project_auth_token="Catalyst")
+    response = crud.delete_work_item(db, 1, project_auth_token="Catalyst")
     assert response is True
-    assert init_database.get(WorkItem, 1) is None
+    assert db.get(WorkItem, 1) is None
 
 
 # Test update_work_item
-def test_update_work_item(init_database):
+def test_update_work_item(db):
     # Test updates get tracked in db
     work_item_data = WorkItemUpdate(
         **{
@@ -192,7 +177,7 @@ def test_update_work_item(init_database):
         }
     )
     response = crud.update_work_item(
-        init_database, 1, work_item_data, project_auth_token="Catalyst"
+        db, 1, work_item_data, project_auth_token="Catalyst"
     )
     assert type(response) == WorkItem
     workitem = response
@@ -209,7 +194,7 @@ def test_update_work_item(init_database):
     )
 
     response = crud.update_work_item(
-        init_database, 1, work_item_data, project_auth_token="Catalyst"
+        db, 1, work_item_data, project_auth_token="Catalyst"
     )
 
     assert type(response) == WorkItem
@@ -222,17 +207,17 @@ def test_update_work_item(init_database):
     assert workitem.project.name == "Test Project 1"
 
     response = crud.update_work_item(
-        init_database, 1, work_item_data, project_auth_token="Catalyst"
+        db, 1, work_item_data, project_auth_token="Catalyst"
     )
 
     with pytest.raises(Exception) as ex:
         response = crud.update_work_item(
-            init_database, 20, work_item_data, project_auth_token="Catalyst"
+            db, 20, work_item_data, project_auth_token="Catalyst"
         )
         assert ex.value.message == "Item not found"
 
     with pytest.raises(Exception) as ex:
         response = crud.update_work_item(
-            init_database, 1, work_item_data, project_auth_token="WrongProject"
+            db, 1, work_item_data, project_auth_token="WrongProject"
         )
         assert ex.value.message == "Credentials are incorrect"
