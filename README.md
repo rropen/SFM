@@ -8,8 +8,11 @@
 <p>
  <a href="https://github.com/rropen/SFM"><img src="https://img.shields.io/badge/Rolls--Royce-Software%20Factory-10069f"></a>
  <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen?style=flat"></a>
-  <a href="https://www.cypress.io/"><img src="https://img.shields.io/badge/tested%20with-Cypress-04C38E?style=flat"></a>
-
+  <a href="https://www.cypress.io/"><img src="https://img.shields.io/badge/tested%20with-Cypress-04C38E?style=flat">
+    <a href="https://github.com/rropen/SFM/actions/workflows/commits_pipeline.yml"><img src="https://github.com/rropen/SFM/actions/workflows/commits_pipeline.yml/badge.svg?branch=dev"></a><br><br>
+      <a href="https://v3.vuejs.org/"><img src="https://img.shields.io/badge/vuejs-%2335495e.svg?style=flat&logo=vuedotjs&logoColor=%234FC08D"></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=flat&logo=tailwind-css&logoColor=white"></a>
+    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat&logo=typescript&logoColor=white"></a>
 </p>
 
 ---
