@@ -1,11 +1,11 @@
 # Pipeline runs on all pull request and pushes to dev.
 name: Development Pipeline
-# on:
-#   push:
-#     branches: [ dev ]
-#   pull_request:
-#     branches: [ dev ]
-on:  workflow_dispatch
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+# on:  workflow_dispatch
 
 jobs:
 # Runs Unit Tests w/ pytest
