@@ -3,6 +3,7 @@ from sqlalchemy.sql.expression import false
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
 from sfm.routes.commits import crud as commit_crud
+from sfm.dependencies import get_db
 from sfm.models import WorkItemCreate, ProjectCreate, CommitCreate
 from typing import List, Optional
 from sqlmodel import SQLModel, Session
@@ -13,20 +14,15 @@ from sfm.utils import create_project_auth_token
 import string
 import random
 
-# Create a database connection we can use
-def get_db():
-    with Session(engine) as db:
-        yield db
-
-
-router = APIRouter()
-
 
 def random_sha(seed):
     N = 20
     random.seed(a=seed)
     res = "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
     return res
+
+
+router = APIRouter()
 
 
 @router.post("/populate_mock_data")
@@ -45,11 +41,11 @@ def populate_db(
     # fIRST PROJECT: Create project to file deployments under:
     project_dict = {
         "name": "Project for Deployments Testing",
-        "leadName": "Gabe",
+        "lead_name": "Gabe",
         "description": "Project to hold deployment frequency data for local testing",
         "location": "Indianapolis",
-        "repoUrl": "a_sample_url",
-        "onPrem": False,
+        "repo_url": "a_sample_url",
+        "on_prem": False,
     }
 
     proj_data = ProjectCreate(**project_dict)
@@ -97,9 +93,9 @@ def populate_db(
     for date in dates:
         deployment_dict = {
             "category": "Deployment",
-            "endTime": date
+            "end_time": date
             + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
-            "projectId": project.id,
+            "project_id": project.id,
         }
 
         work_item_data = WorkItemCreate(**deployment_dict)
@@ -108,11 +104,11 @@ def populate_db(
     # SECOND PROJECT
     project_dict2 = {
         "name": "2nd Project for testing",
-        "leadName": "Gabe",
+        "lead_name": "Gabe",
         "description": "Second project",
         "location": "Indianapolis",
-        "repoUrl": "a_different_sample_url",
-        "onPrem": False,
+        "repo_url": "a_different_sample_url",
+        "on_prem": False,
     }
 
     proj_data2 = ProjectCreate(**project_dict2)
@@ -133,9 +129,9 @@ def populate_db(
     for date in dates2:
         deployment_dict = {
             "category": "Deployment",
-            "endTime": date
+            "end_time": date
             + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
-            "projectId": project2.id,
+            "project_id": project2.id,
         }
 
         work_item_data = WorkItemCreate(**deployment_dict)
@@ -156,9 +152,9 @@ def populate_db(
     for date in pull_dates:
         pull_dict = {
             "category": "Pull Request",
-            "endTime": date
+            "end_time": date
             + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
-            "projectId": project_ids[proj_iter],
+            "project_id": project_ids[proj_iter],
         }
         work_item_data = WorkItemCreate(**pull_dict)
         work_item_id = crud.create_work_item(
@@ -184,7 +180,7 @@ def populate_db(
                 ),  # used for random string generation (not actually a proj auth token)
                 "date": date + time_shift,
                 "author": "Gabe Geiger",
-                "workItemId": item_id,
+                "work_item_id": item_id,
             }
 
             commit_data = CommitCreate(**commit_dict)

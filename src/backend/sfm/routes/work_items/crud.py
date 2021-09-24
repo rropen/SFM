@@ -1,6 +1,4 @@
-from os import stat
 from fastapi.exceptions import HTTPException
-from sqlalchemy.sql.expression import false
 from sfm.models import WorkItem, Project
 from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
@@ -33,7 +31,7 @@ def get_all(
             raise HTTPException(status_code=404, detail="Project not found")
 
     if project:
-        return project.workItems
+        return project.work_items
 
     return db.exec(select(WorkItem).offset(skip).limit(limit)).all()
 
@@ -49,11 +47,11 @@ def get_by_id(db: Session, work_item_id):
 
 def create_work_item(db: Session, work_item_data, project_auth_token):
     """Take data from request and create a new WorkItem in the database."""
-    intended_project = db.get(Project, work_item_data.projectId)
+    intended_project = db.get(Project, work_item_data.project_id)
     if not intended_project:
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
-        project_auth_token, intended_project.projectAuthTokenHashed
+        project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
         work_item_db = WorkItem.from_orm(work_item_data)
@@ -77,11 +75,11 @@ def delete_work_item(db: Session, work_item_id, project_auth_token):
     work_item = db.get(WorkItem, work_item_id)
     if not work_item:
         raise HTTPException(status_code=404, detail="Item not found")
-    intended_project = db.get(Project, work_item.projectId)
+    intended_project = db.get(Project, work_item.project_id)
     if not intended_project:
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
-        project_auth_token, intended_project.projectAuthTokenHashed
+        project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
         db.delete(work_item)
@@ -105,11 +103,11 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
     if not work_item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    intended_project = db.get(Project, work_item.projectId)
+    intended_project = db.get(Project, work_item.project_id)
     if not intended_project:
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
-        project_auth_token, intended_project.projectAuthTokenHashed
+        project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
         work_item_newdata = work_item_data.dict(

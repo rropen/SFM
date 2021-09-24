@@ -1,38 +1,42 @@
-from typing import AsyncIterable
+from enum import auto
 import pytest
 import os
 import datetime
 from passlib.context import CryptContext
+from sqlalchemy.sql.roles import StatementOptionRole
 from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel.pool import StaticPool
+from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
 
 from sfm.main import app
-from sfm.routes.utilities import routes as utilities
+from sfm.dependencies import get_db
 
 from sfm.models import WorkItem, Project, Commit
 
-DATABASE_URL = "sqlite:///./test.db"
-# DATABASE_URL = "sqlite:///:memory"
-connect_args = {"check_same_thread": False}
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
-# engine = create_engine(DATABASE_URL)
 
-
-@pytest.fixture(scope="session")
-def test_app():
-    client = TestClient(app)
-    os.remove("issues.db")
-    yield client
-
-
-@pytest.fixture(scope="session")
-def db(test_app, request):
-    """Session-wide test database"""
-
+@pytest.fixture(name="session")
+def session_fixture():
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     SQLModel.metadata.create_all(engine)
-    _db = Session(engine)
+    with Session(engine) as session:
+        yield session
 
-    yield _db
+
+@pytest.fixture(name="client")
+def client_fixture(session: Session):
+    def get_session_override():
+        return session
+
+    app.dependency_overrides[get_db] = get_session_override
+
+    client = TestClient(app)
+    yield client
+    app.dependency_overrides.clear()
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -40,12 +44,8 @@ token = "Catalyst"
 hashed_token = pwd_context.hash(token)
 
 
-@pytest.fixture(scope="function")
-def init_database():
-
-    SQLModel.metadata.drop_all(engine)
-    SQLModel.metadata.create_all(engine)
-    _db = Session(engine)
+@pytest.fixture(scope="function", name="db")
+def init_database(session):
 
     """
     Add document types to the database
@@ -65,8 +65,8 @@ def init_database():
         }
     )
 
-    _db.add(proj1)
-    _db.commit()
+    session.add(proj1)
+    session.commit()
 
     # [create work_items here]
     work_item1 = WorkItem(
@@ -80,8 +80,8 @@ def init_database():
         }
     )
 
-    _db.add(work_item1)
-    _db.commit()
+    session.add(work_item1)
+    session.commit()
 
     # [Creat Commit model here]
     commit1 = Commit(
@@ -99,7 +99,7 @@ def init_database():
         }
     )
 
-    _db.add(commit1)
-    _db.commit()
+    session.add(commit1)
+    session.commit()
 
-    yield _db
+    yield session

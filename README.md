@@ -8,6 +8,11 @@
 <p>
  <a href="https://github.com/rropen/SFM"><img src="https://img.shields.io/badge/Rolls--Royce-Software%20Factory-10069f"></a>
  <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen?style=flat"></a>
+  <a href="https://www.cypress.io/"><img src="https://img.shields.io/badge/tested%20with-Cypress-04C38E?style=flat">
+    <a href="https://github.com/rropen/SFM/actions/workflows/commits_pipeline.yml"><img src="https://github.com/rropen/SFM/actions/workflows/development_pipeline.yml/badge.svg?branch=dev"></a><br><br>
+      <a href="https://v3.vuejs.org/"><img src="https://img.shields.io/badge/vuejs-%2335495e.svg?style=flat&logo=vuedotjs&logoColor=%234FC08D"></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=flat&logo=tailwind-css&logoColor=white"></a>
+    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=flat&logo=typescript&logoColor=white"></a>
 </p>
 
 ---
@@ -36,4 +41,4 @@ TBD
 
 ## Visibility
 
-This project is meant to be in the open source - public facing region of the Rolls-Royce GitHub Enterprise instance. Any secrets or secure configuration information will be handled through the use of secure secrets and other cloud native ways. If any features or updates need to be added to this project that would push it out of the public facing organization, then it will be moved. Contact [Josh Haines](mailto:Josh.Haines@Rolls-Royce.com) if you have any questions..
+This project is meant to be in the open source - public facing region of the Rolls-Royce GitHub Enterprise instance. Any secrets or secure configuration information will be handled through the use of secure secrets and other cloud native ways. If any features or updates need to be added to this project that would push it out of the public facing organization, then it will be moved. Contact [Josh Haines](mailto:Josh.Haines@Rolls-Royce.com) if you have any questions.

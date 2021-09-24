@@ -1,8 +1,9 @@
 <template>
   <div
     @keyup.esc="onClose"
+    ref="infoModal"
     class="
-      modal-bg
+      modalbg
       flex
       items-center
       justify-center
@@ -19,6 +20,7 @@
   >
     <div
       class="
+        modalBox
         bg-white
         rounded-lg
         w-1/2
@@ -72,7 +74,7 @@
 <script setup lang="ts">
 import { rrButton } from "@rrglobal/vue-cobalt";
 import { infoForStatusItem } from "../types";
-import { PropType } from "vue";
+import { PropType, onMounted, ref } from "vue";
 
 const props = defineProps({
   status: {
@@ -85,6 +87,7 @@ const props = defineProps({
   },
 });
 const emits = defineEmits(["close"]);
+const infoModal = ref(null);
 
 // type StatusKeyItem = keyof typeof props.infoForStatus.deployments;
 // const statusKey: StatusKeyItem = props.status;
@@ -93,4 +96,8 @@ const emits = defineEmits(["close"]);
 const onClose = () => {
   emits("close");
 };
+
+onMounted(() => {
+  infoModal.value.focus();
+});
 </script>
