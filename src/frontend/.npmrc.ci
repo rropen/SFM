@@ -1,2 +1,2 @@
 @rrglobal:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${secrets.VUE_COBALT_PAT}
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
