@@ -54,7 +54,7 @@
             {{ status }}
           </h3>
           <p
-            v-html="infoForStatus.deployments[`${status}`].info"
+            v-html="infoForStatus[`${modalType}`][`${status}`].info"
             class="text-rrgrey-600 text-lg font-base mt-4"
           ></p>
         </header>
@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { rrButton } from "@rrglobal/vue-cobalt";
 import { infoForStatusItem } from "../types";
-import { PropType, onMounted, ref } from "vue";
+import { PropType, onMounted, ref, computed } from "vue";
 
 const props = defineProps({
   status: {
@@ -85,12 +85,15 @@ const props = defineProps({
     type: Object as PropType<infoForStatusItem>,
     required: true,
   },
+  modalType: {
+    type: String as PropType<string>,
+    required: true,
+    default: "Deployments",
+  },
 });
+
 const emits = defineEmits(["close"]);
 const infoModal = ref<null | { focus: () => null }>();
-
-// type StatusKeyItem = keyof typeof props.infoForStatus.deployments;
-// const statusKey: StatusKeyItem = props.status;
 
 // Close button is clicked
 const onClose = () => {

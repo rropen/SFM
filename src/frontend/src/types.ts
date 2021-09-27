@@ -15,8 +15,20 @@ export interface projectItem {
 
 export interface deploymentItem {
   deployment_dates: number[];
-  deployment_frequency: string;
+  performance: string;
   project_name: string;
+  deployment_dates_description: string;
+  performance_description: string;
+}
+
+export interface leadTimeItem {
+  lead_time: number;
+  time_units: string;
+  performance: string;
+  lead_time_description: string;
+  performance_description: string;
+  daily_commits: number[];
+  daily_lead_times: number[];
 }
 
 export interface infoForStatusItem {
@@ -28,6 +40,21 @@ export interface infoForStatusItem {
       info: string;
     };
     Monthly: {
+      info: string;
+    };
+  };
+
+  leadTime: {
+    "One Day": {
+      info: string;
+    };
+    "One Week": {
+      info: string;
+    };
+    "One Month": {
+      info: string;
+    };
+    "Greater Than One Month": {
       info: string;
     };
   };
