@@ -93,10 +93,14 @@ const props = defineProps({
 });
 
 const emits = defineEmits(["close"]);
-const infoModal = ref(null);
+const infoModal = ref<null | { focus: () => null }>();
 
 // Close button is clicked
 const onClose = () => {
   emits("close");
 };
+
+onMounted(() => {
+  infoModal.value?.focus();
+});
 </script>

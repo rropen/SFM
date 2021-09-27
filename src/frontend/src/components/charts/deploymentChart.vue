@@ -58,6 +58,15 @@
     </teleport>
   </div>
 </template>
+<script lang="ts">
+import { defineComponent } from "vue";
+import VueApexCharts from "vue3-apexcharts";
+export default {
+  components: {
+    apexchart: VueApexCharts,
+  },
+};
+</script>
 
 <script lang="ts" setup>
 /* ----------------------------------------------
@@ -69,7 +78,7 @@ import axios from "axios";
 
 import { sortByMonth } from "../../utils";
 import { deploymentItem, infoForStatusItem } from "../../types";
-import infoModal from "../infoModal.vue";
+import infoModal from "../InfoModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -115,7 +124,7 @@ const chartOptions = ref({
   },
   yaxis: {
     labels: {
-      formatter: (value: any) => {
+      formatter: (value: number) => {
         return Math.trunc(value);
       },
     },
