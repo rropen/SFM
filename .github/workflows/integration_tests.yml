@@ -1,43 +1,13 @@
-# Pipeline runs on all pull request and pushes to dev.
-name: Development Pipeline
+name: Integration Tests
 on:
-  push:
-    branches: [dev]
-  pull_request:
-    branches: [dev]
-# on:  workflow_dispatch
+  workflow_run:
+    workflows: ["Backend Unit Tests", "Frontend Unit Tests"]
+    branches: [main, dev]
+    types: [completed]
 
 jobs:
-  # Runs Unit Tests w/ pytest
-  Unit-Tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-
-      - uses: actions/cache@v2
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
-
-      - name: Install dependencies
-        working-directory: src/backend
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Pytest Unit Tests
-        run: |
-          pytest
-
-  #     Runs Integration Tests w/ Cypress
+  # Runs Integration Tests w/ Cypress
   Integration-Tests:
-    #     needs: Unit-Tests
     runs-on: ubuntu-latest
     services:
       backend:
@@ -74,10 +44,6 @@ jobs:
         run: yarn --prefer-offline
         env:
           NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
-
-      - name: Cypress Component Tests
-        working-directory: src/frontend
-        run: yarn cy-ct
 
       - name: Cypress Integration Tests
         working-directory: src/frontend
