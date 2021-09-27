@@ -75,7 +75,7 @@ export default {
 import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import { infoForStatusItem, leadTimeItem } from "../../types";
-import infoModal from "../infoModal.vue";
+import infoModal from "../InfoModal.vue";
 
 /* ----------------------------------------------
                   PROPS
