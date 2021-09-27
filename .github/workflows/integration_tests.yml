@@ -46,10 +46,6 @@ jobs:
       run: yarn --prefer-offline
       env:
         NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
-
-    - name: Cypress Component Tests
-      working-directory: src/frontend
-      run: yarn cy-ct
       
     - name: Cypress Integration Tests
       working-directory: src/frontend
