@@ -1,13 +1,13 @@
-# This Pipeline runs on every commit except to ci/cd
 
-name: Commits Pipeline
+
+name: Frontend Unit Tests
 
 # Controls when the workflow will run
-on:  workflow_dispatch
-# on:
-  # push: 
-    # branches-ignore: [dev]
-    #     Runs Component Tests w/ Cypress
+# on:  workflow_dispatch
+on: push 
+
+jobs:
+# Runs Componenet Tests w/ Cypress
   Component-Tests:
     runs-on: ubuntu-latest
     steps:
