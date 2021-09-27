@@ -59,7 +59,6 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import VueApexCharts from "vue3-apexcharts";
 export default {
   components: {
