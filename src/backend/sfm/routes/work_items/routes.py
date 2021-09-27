@@ -91,8 +91,6 @@ def create_work_item(
     - **project_id**: sets project the WorkItem belongs to
 
     """
-    if not work_item_data:
-        raise HTTPException(status_code=404, detail="WorkItem data not provided")
 
     # Creates the database row and stores it in the table
 
@@ -133,8 +131,6 @@ def delete_work_item(
 
     - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
     """
-    if not work_item_id:
-        raise HTTPException(status_code=404, detail="work_item_id not provided")
 
     response = crud.delete_work_item(db, work_item_id, project_auth_token)
 
@@ -186,17 +182,15 @@ def update_work_item(
     - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
     - **project_id**: sets project the WorkItem belongs to
     """
-    if not work_item_data:
-        raise HTTPException(status_code=404, detail="WorkItem data not provided")
 
-    update_work_item_success = crud.update_work_item(
+    updated_work_item = crud.update_work_item(
         db, work_item_id, work_item_data, project_auth_token
     )
 
-    if update_work_item_success:
+    if update_work_item:
         return {
             "code": "success",
-            "id": update_work_item_success,
+            "id": updated_work_item.id,
         }
     else:
         return {"code": "error", "message": "Row not updated"}

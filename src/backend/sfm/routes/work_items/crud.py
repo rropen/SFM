@@ -31,7 +31,12 @@ def get_all(
             raise HTTPException(status_code=404, detail="Project not found")
 
     if project:
-        return project.work_items
+        return db.exec(
+            select(WorkItem)
+            .where(WorkItem.project_id == project.id)
+            .offset(skip)
+            .limit(limit)
+        ).all()
 
     return db.exec(select(WorkItem).offset(skip).limit(limit)).all()
 

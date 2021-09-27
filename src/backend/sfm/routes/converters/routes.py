@@ -16,7 +16,7 @@ from statistics import median
 def deployment_processor(db, deployment, project_db, project_auth_token):
     deployment_dict = {
         "category": "Deployment",
-        "end_time": deployment.get("updatedAt"),
+        "end_time": deployment.get("updated_at"),
         "project_id": project_db.id,
     }
 
@@ -29,8 +29,8 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
     pull_request_dict = {
         "category": "Pull Request",
         "project_id": project_db.id,
-        "start_time": pull_request.get("createdAt"),
-        "end_time": pull_request.get("mergedAt"),
+        "start_time": pull_request.get("created_at"),
+        "end_time": pull_request.get("merged_at"),
     }
 
     work_item_data = WorkItemCreate(**pull_request_dict)
@@ -66,7 +66,8 @@ router = APIRouter()
 @router.post("/github_webhooks/")
 async def webhook_handler(
     request: Request,
-    # project_auth_token: str = Header(...),
+    project_auth_token: str = Header(...),
+    X_GitHub_Event: str = Header(...),  # DELETE ME WHEN DONE
     db: Session = Depends(get_db),
 ):
     """
@@ -79,8 +80,9 @@ async def webhook_handler(
     # handle events
     payload = await request.json()
     event_type = request.headers.get("X-Github-Event")
-    # secret_auth_key = request.headers.get("X-Hub-Signature-256")
 
+    # secret_auth_key = request.headers.get("X-Hub-Signature-256")
+    event_type = X_GitHub_Event
     print("THE EVENT TYPE:", event_type)
 
     # gather common payload object properties
@@ -91,6 +93,7 @@ async def webhook_handler(
         # organization = payload.get("organization")
         # installation = payload.get("installation")
 
+        print(repository)
     else:
         # TODO: pull in push event information
         pass
@@ -109,6 +112,7 @@ async def webhook_handler(
 
     elif event_type == "pull_request":
         pull_request = payload.get("pull_request")
+        print(pull_request)
         pull_request_processor(db, pull_request, project_db, project_auth_token)
 
-    return
+    return project_name, pull_request

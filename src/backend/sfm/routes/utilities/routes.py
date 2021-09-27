@@ -15,7 +15,7 @@ import string
 import random
 
 
-def random_sha(seed):
+def random_sha(seed):  # pragma: no cover
     N = 20
     random.seed(a=seed)
     res = "".join(random.choices(string.ascii_uppercase + string.digits, k=N))
@@ -25,8 +25,8 @@ def random_sha(seed):
 router = APIRouter()
 
 
-@router.post("/populate_mock_data")
-def populate_db(
+@router.post("/populate_mock_data")  # pragma: no cover
+def populate_db(  # pragma: no cover
     db: Session = Depends(get_db),
 ):
     """
@@ -209,8 +209,8 @@ def populate_db(
     )
 
 
-@router.delete("/clear_local_db")
-def clear_db():
+@router.delete("/clear_local_db")  # pragma: no cover
+def clear_db():  # pragma: no cover
 
     """
     ## Clear Local Database

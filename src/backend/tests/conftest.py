@@ -12,7 +12,7 @@ from starlette.testclient import TestClient
 from sfm.main import app
 from sfm.dependencies import get_db
 
-from sfm.models import WorkItem, Project, Commit
+from sfm.models import WorkItem, Project, Commit, ProjectCreate, WorkItemCreate
 
 
 @pytest.fixture(name="session")
@@ -129,6 +129,134 @@ def init_database(session):
     )
 
     session.add(commit1)
+    session.commit()
+
+    time_shift = datetime.timedelta(days=32)
+
+    # Creates the deployment items:
+    dates = [
+        datetime.datetime(2021, 5, 31),  # Week 1
+        datetime.datetime(2021, 6, 7),  # Week 2
+        datetime.datetime(2021, 6, 12),
+        datetime.datetime(2021, 6, 14),  # Week 3
+        datetime.datetime(2021, 6, 16),
+        datetime.datetime(2021, 6, 18),
+        datetime.datetime(2021, 6, 21),  # Week 4
+        datetime.datetime(2021, 6, 22),
+        datetime.datetime(2021, 6, 25),
+        datetime.datetime(2021, 6, 26),
+        datetime.datetime(2021, 6, 28),  # Week 5
+        datetime.datetime(2021, 6, 29),
+        datetime.datetime(2021, 6, 30),
+        datetime.datetime(2021, 7, 5),  # Week 6
+        datetime.datetime(2021, 7, 8),
+        datetime.datetime(2021, 7, 12),  # Week 7
+        datetime.datetime(2021, 7, 14),
+        datetime.datetime(2021, 7, 16),
+        datetime.datetime(2021, 7, 19),  # Week 8
+        datetime.datetime(2021, 7, 21),
+        datetime.datetime(2021, 7, 26),  # Week 9
+        datetime.datetime(2021, 7, 27),
+        datetime.datetime(2021, 7, 29),
+        datetime.datetime(2021, 7, 30),
+        datetime.datetime(2021, 8, 2),  # Week 10
+        datetime.datetime(2021, 8, 9),  # Week 11
+        datetime.datetime(2021, 8, 11),
+        datetime.datetime(2021, 8, 11),  # purposeful duplicate day
+        datetime.datetime(2021, 8, 12),
+        datetime.datetime(2021, 8, 13),
+        datetime.datetime(2021, 8, 16),  # Week 12
+        datetime.datetime(2021, 8, 18),
+        datetime.datetime(2021, 8, 19),
+    ]
+
+    for date in dates:
+        deployment_dict = {
+            "category": "Deployment",
+            "end_time": date
+            + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
+            "project_id": 1,
+        }
+
+        work_item_data = WorkItem(**deployment_dict)
+        session.add(work_item_data)
+    session.commit()
+
+    # Creates the deployment items:
+    dates2 = [
+        datetime.datetime(2021, 5, 31),  # Week 1
+        datetime.datetime(2021, 6, 7),  # Week 2
+        datetime.datetime(2021, 8, 4),  # Week 10
+        datetime.datetime(2021, 8, 10),  # Week 11
+        datetime.datetime(2021, 8, 11),
+        datetime.datetime(2021, 8, 16),  # Week 12
+    ]
+
+    for date in dates2:
+        deployment_dict = {
+            "category": "Deployment",
+            "end_time": date
+            + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
+            "project_id": 2,
+        }
+
+        work_item_data = WorkItem(**deployment_dict)
+        session.add(work_item_data)
+    session.commit()
+
+    # Create Pull Request Items
+    pull_dates = [
+        datetime.datetime(2021, 8, 11),
+        datetime.datetime(2021, 8, 19),
+    ]
+
+    pull_req_work_items = []
+    work_items = []
+    project_ids = [1, 2]
+    proj_iter = 0
+    for date in pull_dates:
+        pull_dict = {
+            "category": "Pull Request",
+            "end_time": date
+            + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
+            "project_id": project_ids[proj_iter],
+        }
+
+        work_item_data = WorkItem(**pull_dict)
+        work_items.append(work_item_data)
+        proj_iter += 1
+
+    session.add_all(work_items)
+    session.commit()
+    for work_item_sing in work_items:
+        session.refresh(work_item_sing)
+        pull_req_work_items.append(work_item_sing.id)
+
+    commit_dates = [
+        datetime.datetime(2021, 8, 8),
+        datetime.datetime(2021, 8, 9),
+        datetime.datetime(2021, 8, 10),
+        datetime.datetime(2021, 8, 11),
+    ]
+
+    i = 0
+    proj_iter = 0
+    for item_id in pull_req_work_items:
+        for date in commit_dates:
+            commit_dict = {
+                "sha": i,  # not representative of actual sha sting
+                "date": date + time_shift,
+                "author": "Gabe Geiger",
+                "work_item_id": item_id,
+                "time_to_pull": (proj_iter + i)
+                * 1000,  # not representative of acutal time to pull
+            }
+
+            commit_data = Commit(**commit_dict)
+            session.add(commit_data)
+            i += 1
+    proj_iter += 1
+
     session.commit()
 
     yield session

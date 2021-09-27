@@ -25,7 +25,7 @@ def test_commit_not_DB(db):
 def test_get_all(db):
     # Test no project specification returns all items
     response = crud.get_all(db, skip=0, limit=10)
-    assert len(response) == 1
+    assert len(response) == 9
     assert type(response) == list
     commit = response[0]
     assert commit.sha == "daffasdfsjfoie3039j33j882ji2jhsdaf"
@@ -39,7 +39,7 @@ def test_get_all(db):
 
     # Test giving project id returns the correct project commits
     response = crud.get_all(db, skip=0, limit=10, project_id=1)
-    assert len(response) == 1
+    assert len(response) == 5
     assert type(response) == list
     print(response)
     work_item_id = response[0].work_item_id
@@ -48,7 +48,7 @@ def test_get_all(db):
 
     # Test giving project name returns the correct project work items
     response = crud.get_all(db, skip=0, limit=10, project_name="Test Project 1")
-    assert len(response) == 1
+    assert len(response) == 5
     assert type(response) == list
     print(response)
     work_item_id = response[0].work_item_id
@@ -59,7 +59,7 @@ def test_get_all(db):
     response = crud.get_all(
         db, skip=0, limit=10, project_name="Test Project 1", project_id=1
     )
-    assert len(response) == 1
+    assert len(response) == 5
     assert type(response) == list
     print(response)
     work_item_id = response[0].work_item_id

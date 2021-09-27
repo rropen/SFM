@@ -18,8 +18,8 @@ def test_work_item_not_DB(db):
 
 def test_get_all(db):
     # Test no project specification returns all items
-    response = crud.get_all(db, skip=0, limit=10)
-    assert len(response) == 2
+    response = crud.get_all(db, skip=0, limit=1000)
+    assert len(response) == 43  # limited by limit
     assert type(response) == list
     workitem = response[0]
     assert workitem.category == "Deployment"
@@ -32,25 +32,25 @@ def test_get_all(db):
     assert workitem.id == 1
 
     # Test giving project id returns the correct project work items
-    response = crud.get_all(db, skip=0, limit=10, project_id=1)
-    assert len(response) == 1
-    assert type(response) == sqlalchemy.orm.collections.InstrumentedList
+    response = crud.get_all(db, skip=0, limit=1000, project_id=1)
+    assert len(response) == 35
+    assert type(response) == list
     workitem = response[0]
     assert workitem.project_id == 1
 
     # Test giving project name returns the correct project work items
-    response = crud.get_all(db, skip=0, limit=10, project_name="Test Project 1")
-    assert len(response) == 1
-    assert type(response) == sqlalchemy.orm.collections.InstrumentedList
+    response = crud.get_all(db, skip=0, limit=1000, project_name="Test Project 1")
+    assert len(response) == 35
+    assert type(response) == list
     workitem = response[0]
     assert workitem.project_id == 1
 
     # Test giving project name AND project id returns the correct project work items
     response = crud.get_all(
-        db, skip=0, limit=10, project_name="Test Project 1", project_id=1
+        db, skip=0, limit=1000, project_name="Test Project 1", project_id=1
     )
-    assert len(response) == 1
-    assert type(response) == sqlalchemy.orm.collections.InstrumentedList
+    assert len(response) == 35
+    assert type(response) == list
     workitem = response[0]
     assert workitem.project_id == 1
 
@@ -111,7 +111,7 @@ def test_create_work_item(db):
     )
     response = crud.create_work_item(db, work_item_data, project_auth_token="Catalyst1")
     assert isinstance(response, int)
-    assert response == 3
+    assert response == 44
     workitem = db.get(WorkItem, response)
     assert workitem.category == "Issue"
     assert workitem.start_time == datetime.datetime(2021, 8, 11, 10, 15, 16, 94309)

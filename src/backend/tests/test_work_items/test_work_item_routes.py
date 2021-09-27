@@ -1,8 +1,10 @@
 import pytest
 from typing import List
 from fastapi.testclient import TestClient
+from requests.sessions import HTTPAdapter
 from sqlmodel import Session
 from datetime import datetime, timedelta
+from fastapi import HTTPException
 
 # get at "/"
 def test_get_all_endpoint(client: TestClient, db: Session):
@@ -46,13 +48,13 @@ def test_get_all_endpoint(client: TestClient, db: Session):
     # Testing giving project id returns only data in that project
     response = client.get("/workItems/?project_id=1")
     print(response.json())
-    assert len(response.json()) == 1
+    assert len(response.json()) == 35
     work_item = response.json()[0]
     assert work_item["category"] == "Deployment"
 
     # Test giving project name returns only data in that project
     response = client.get("/workItems/?project_name=Test%20Project%202")
-    assert len(response.json()) == 1
+    assert len(response.json()) == 8
     work_item = response.json()[0]
     assert work_item["category"] == "Pull Request"
 
@@ -72,7 +74,7 @@ def test_work_item_id_endpoint(client: TestClient, db: Session):
 
     # Test getting a non-existant work item throws exception
     with pytest.raises(Exception) as ex:
-        response = client.get("/workItems/15")
+        response = client.get("/workItems/200")
         assert ex.value.message == "WorkItem not found"
 
 
@@ -96,23 +98,53 @@ def test_work_item_post(client: TestClient, db: Session):
     assert response.status_code == 200
     assert response.json() == {
         "code": "success",
-        "id": 3,
+        "id": 44,
     }
 
-    # Test getting a non-existant work item throws exception
+
+# delete at "/{work_item_id}"
+def test_work_item_delete(client: TestClient, db: Session):
+    # Test deleting an existing work item works
+    response = client.delete(
+        "/workItems/1", headers={"project-auth-token": "Catalyst1"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "code": "success",
+        "message": "WorkItem 1 Deleted",
+    }
+
+    # Test that trying to delete a non-existant work item returns correct response
     with pytest.raises(Exception) as ex:
-        response = client.get("/workItems/15")
-        assert ex.value.message == "WorkItem not found"
-
-    # ------------------------------------------------------------------
-    ############################ STOPPED HERE #########################
-    # ------------------------------------------------------------------
-
-
-# delete at "/{project_id}"
+        response = client.delete(
+            "/workItems/200", headers={"project-auth-token": "Catalyst1"}
+        )
+        assert response.status_code == 404
+        assert ex.value.message == "Item not found"
 
 
-# post at "/{project_id}"
+# patch at "/{work_item_id}"
+def test_work_item_patch(client: TestClient, db: Session):
+    # Test patching an existing work item works
+    work_item_data = {
+        "category": "Issue",
+        "comments": "Here's some comments",
+        "project_id": 1,
+    }
 
+    response = client.patch(
+        "/workItems/1", work_item_data, headers={"project-auth-token": "Catalyst1"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "code": "success",
+        "id": 1,
+    }
 
-# patch at "/{project_id}"
+    # Test that trying to patch a non-existant work item returns correct response
+    with pytest.raises(Exception) as ex:
+        response = client.patch(
+            "/workItems/200", headers={"project-auth-token": "Catalyst1"}
+        )
+        assert response.status_code == 404
+        assert ex.value.message == "Item not found"

@@ -149,7 +149,7 @@ def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
             )  # if not in list then deployment must not have happened on this day, add 0
             daily_lead_times.append([mktime(day.timetuple()), 0])
 
-    return daily_commits, daily_lead_times
+    return [daily_commits, daily_lead_times]
 
 
 @router.get("/deployments", response_model=List[MetricData])
@@ -344,7 +344,7 @@ def get_Lead_Time_To_Change(
             lead_times.append(commit.time_to_pull)
             commit_dates.append(commit.date.date())
 
-    daily_commits, daily_lead_times = lead_times_per_day(commit_dates, lead_times)
+    [daily_commits, daily_lead_times] = lead_times_per_day(commit_dates, lead_times)
 
     # calculate median time in minutes
     print(median(lead_times))
