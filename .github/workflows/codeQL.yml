@@ -1,11 +1,15 @@
-# Runs on every pull request to main
+# Runs on every pull request to main dev to push to dev
 # Runs CodeQL
 
-name: Production Pipeline
+name: CodeQL
 
 on: 
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
+    
+  push: 
+    branches: [dev]
+  
 # on: workflow_dispatch
 
 jobs:

@@ -58,7 +58,6 @@ def hash_project_auth_token(token: str, expires_delta: Optional[timedelta] = Non
 
 
 def verify_project_auth_token(attempt: str, target: str):
-    print(pwd_context.verify(attempt, target))
     return pwd_context.verify(attempt, target)
 
 
