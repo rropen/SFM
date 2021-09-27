@@ -58,6 +58,7 @@
     </teleport>
   </div>
 </template>
+
 <script lang="ts">
 import { defineComponent } from "vue";
 import VueApexCharts from "vue3-apexcharts";
@@ -75,7 +76,6 @@ export default {
 
 import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-
 import { sortByMonth } from "../../utils";
 import { deploymentItem, infoForStatusItem } from "../../types";
 import infoModal from "../InfoModal.vue";
