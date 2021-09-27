@@ -7,7 +7,7 @@ name: Commits Pipeline
 on:
   push: 
     branches-ignore: [dev]
-    #     Runs Componenet Tests w/ Cypress
+    #     Runs Component Tests w/ Cypress
   Component-Tests:
     runs-on: ubuntu-latest
     steps:
