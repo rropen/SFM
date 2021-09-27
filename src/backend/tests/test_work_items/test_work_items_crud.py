@@ -19,7 +19,7 @@ def test_work_item_not_DB(db):
 def test_get_all(db):
     # Test no project specification returns all items
     response = crud.get_all(db, skip=0, limit=10)
-    assert len(response) == 1
+    assert len(response) == 2
     assert type(response) == list
     workitem = response[0]
     assert workitem.category == "Deployment"
@@ -109,9 +109,9 @@ def test_create_work_item(db):
             "project_id": 1,
         }
     )
-    response = crud.create_work_item(db, work_item_data, project_auth_token="Catalyst")
+    response = crud.create_work_item(db, work_item_data, project_auth_token="Catalyst1")
     assert isinstance(response, int)
-    assert response == 2
+    assert response == 3
     workitem = db.get(WorkItem, response)
     assert workitem.category == "Issue"
     assert workitem.start_time == datetime.datetime(2021, 8, 11, 10, 15, 16, 94309)
@@ -129,7 +129,7 @@ def test_create_work_item(db):
         assert ex.value.message == "Credentials are incorrect"
 
     # Test that wrong project ID throws exception
-    work_item_data = WorkItemCreate(**{"category": "Issue", "project_id": 2})
+    work_item_data = WorkItemCreate(**{"category": "Issue", "project_id": 15})
 
     with pytest.raises(Exception) as ex:
         response = crud.create_work_item(
@@ -143,7 +143,7 @@ def test_create_work_item(db):
             **{"category": "WrongCategory", "project_id": 1}
         )
         response = crud.create_work_item(
-            db, work_item_data, project_auth_token="Catalyst"
+            db, work_item_data, project_auth_token="Catalyst1"
         )
         assert "value is not a valid enumeration member" in ex.value.message
 
@@ -152,7 +152,7 @@ def test_create_work_item(db):
 def test_delete_work_item(db):
     # Test exception thrown for non-existant work item
     with pytest.raises(Exception) as ex:
-        response = crud.delete_work_item(db, 2, project_auth_token="Catalyst")
+        response = crud.delete_work_item(db, 15, project_auth_token="Catalyst1")
         assert ex.value.message == "Item not found"
 
     # Test exception thrown when project auth token does not match work item's project
@@ -161,7 +161,7 @@ def test_delete_work_item(db):
         assert ex.value.message == "Project not found"
 
     # Test item is properly deleted
-    response = crud.delete_work_item(db, 1, project_auth_token="Catalyst")
+    response = crud.delete_work_item(db, 1, project_auth_token="Catalyst1")
     assert response is True
     assert db.get(WorkItem, 1) is None
 
@@ -179,7 +179,7 @@ def test_update_work_item(db):
         }
     )
     response = crud.update_work_item(
-        db, 1, work_item_data, project_auth_token="Catalyst"
+        db, 1, work_item_data, project_auth_token="Catalyst1"
     )
     assert type(response) == WorkItem
     workitem = response
@@ -196,7 +196,7 @@ def test_update_work_item(db):
     )
 
     response = crud.update_work_item(
-        db, 1, work_item_data, project_auth_token="Catalyst"
+        db, 1, work_item_data, project_auth_token="Catalyst1"
     )
 
     assert type(response) == WorkItem
@@ -209,12 +209,12 @@ def test_update_work_item(db):
     assert workitem.project.name == "Test Project 1"
 
     response = crud.update_work_item(
-        db, 1, work_item_data, project_auth_token="Catalyst"
+        db, 1, work_item_data, project_auth_token="Catalyst1"
     )
 
     with pytest.raises(Exception) as ex:
         response = crud.update_work_item(
-            db, 20, work_item_data, project_auth_token="Catalyst"
+            db, 15, work_item_data, project_auth_token="Catalyst1"
         )
         assert ex.value.message == "Item not found"
 

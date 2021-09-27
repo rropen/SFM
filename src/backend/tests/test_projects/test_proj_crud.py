@@ -3,7 +3,7 @@ import pytest
 from sqlmodel import select, Session
 from sqlmodel.main import SQLModel
 from sfm.routes.projects import crud
-from tests.conftest import hashed_token
+from tests.conftest import hashed_token1, hashed_token2
 
 from sfm.models import Project, ProjectCreate, ProjectUpdate
 
@@ -20,13 +20,23 @@ def test_get_all(db, session: Session):
     assert response[0].location == "Strangeville"
     assert response[0].repo_url == "github.com/starkEnterprises"
     assert response[0].on_prem is False
-    assert response[0].project_auth_token_hashed == hashed_token
+    assert response[0].project_auth_token_hashed == hashed_token1
+
+    assert response[1].name == "Test Project 2"
+    assert response[1].lead_name == "Sergio Garcia"
+    assert response[1].lead_email == "team-europe@pga.com"
+    assert response[1].description == "A second test project for testing"
+    assert response[1].location == "Kohler"
+    assert response[1].repo_url == "github.com/pgaGolf"
+    assert response[1].on_prem is False
+    assert response[1].project_auth_token_hashed == hashed_token2
 
     """
     Test that the function raises an error when there are
     no projects in the table
     """
     session.delete(session.get(Project, 1))
+    session.delete(session.get(Project, 2))
     session.commit()
     # SQLModel.metadata.drop_all(engine)
     with pytest.raises(Exception) as ex:
@@ -46,7 +56,7 @@ def test_get_by_id(db):
     assert response.location == "Strangeville"
     assert response.repo_url == "github.com/starkEnterprises"
     assert response.on_prem is False
-    assert response.project_auth_token_hashed == hashed_token
+    assert response.project_auth_token_hashed == hashed_token1
 
     """
     Testing that the crud function raises exception when the project
@@ -175,7 +185,7 @@ def test_update_project(db):
     assert response.location == "Strangeville"
     assert response.repo_url == "github.com/SquidEnterprises"
     assert response.on_prem is False
-    assert response.project_auth_token_hashed == hashed_token
+    assert response.project_auth_token_hashed == hashed_token1
 
     """
     Testing that the crud function raises an exception when the

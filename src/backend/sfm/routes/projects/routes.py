@@ -100,7 +100,7 @@ def create_project(
     - **lead_email**: Email of the person in charge of the project
     - **description**: Long string describing what the project/repo is about
     - **location**: Location of the owner's group. (E.g. Indianapolis, UK, Germany, etc.)
-    - **repo-url**: Github or Gitlab url to the corresponding project
+    - **repo_url**: Github or Gitlab url to the corresponding project
     - **on_prem**: Boolean describing if the repo is located on a "on-premises" server
     """
     if not project_data:
