@@ -176,8 +176,8 @@
             <div class="py-4">
               <div
                 class="
-                  grid grid-flow-col grid-cols-1 grid-rows-4
-                  2xl:grid-cols-2 2xl:grid-rows-2
+                  grid grid-flow-col grid-cols-1 grid-rows-2
+                  2xl:grid-cols-2 2xl:grid-rows-1
                   gap-4
                   2xl:gap-6
                 "
@@ -191,16 +191,25 @@
                     :infoForStatus="infoForStatus"
                   />
                 </div>
+                <!-- <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Deployments
+                  </h1>
+                  <deploymentChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
+                </div> -->
                 <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Lead Time to Change
                   </h1>
                   <leadTimeChart
                     :projectName="selectedProject"
-                    :infoforStatus="infoForStatus"
+                    :infoForStatus="infoForStatus"
                   />
                 </div>
-                <div class="m-4 xl:m-6 p-4">
+                <!-- <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Deployments
                   </h1>
@@ -208,16 +217,7 @@
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
-                </div>
-                <div class="m-4 xl:m-6 p-4">
-                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
-                    Deployments
-                  </h1>
-                  <deploymentChart
-                    :projectName="selectedProject"
-                    :infoForStatus="infoForStatus"
-                  />
-                </div>
+                </div> -->
               </div>
             </div>
             <!-- /End replace -->
@@ -278,6 +278,21 @@ const infoForStatus: infoForStatusItem = {
     },
     Monthly: {
       info: "Monthly Info Here",
+    },
+  },
+
+  leadTime: {
+    "One Day": {
+      info: "Less than One Day",
+    },
+    "One Week": {
+      info: "Less than One Week",
+    },
+    "One Month": {
+      info: "Less than One Month",
+    },
+    "Greater Than One Month": {
+      info: "Greater than One Month",
     },
   },
 };

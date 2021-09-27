@@ -51,6 +51,7 @@
         @close="showInfoModal = false"
         :infoForStatus="infoForStatus"
         :status="perfStatus"
+        :modalType="modalType"
       >
       </infoModal>
     </teleport>
@@ -65,6 +66,7 @@
 import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import { infoForStatusItem, leadTimeItem } from "../../types";
+import infoModal from "../infoModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -90,6 +92,7 @@ const leadTime = ref<leadTimeItem>(); // holds currently fetched deployment data
 
 const perfStatus = ref("One Day");
 const showInfoModal = ref(false);
+const modalType = ref("leadTime");
 const chartOptions = ref({
   chart: {
     height: 350,
@@ -131,7 +134,6 @@ function fetchLeadTime() {
     })
     .then((response) => {
       leadTime.value = response.data;
-      console.log("here is reponse", response.data);
       perfStatus.value = response.data.performance;
     })
     .catch((error) => {
@@ -153,7 +155,7 @@ const leadTimeData = computed(() => {
         data: leadTime.value.daily_lead_times.map((a: any) => [
           new Date(a[0] * 1000),
           a[1],
-        ]), //getData(), //This can be changed to the data from the endpoint once it is refactored
+        ]),
       },
     ];
   } else {

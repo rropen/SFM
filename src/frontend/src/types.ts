@@ -43,4 +43,19 @@ export interface infoForStatusItem {
       info: string;
     };
   };
+
+  leadTime: {
+    "One Day": {
+      info: string;
+    };
+    "One Week": {
+      info: string;
+    };
+    "One Month": {
+      info: string;
+    };
+    "Greater Than One Month": {
+      info: string;
+    };
+  };
 }

@@ -52,6 +52,7 @@
         @close="showInfoModal = false"
         :infoForStatus="infoForStatus"
         :status="deploymentMetricStatus"
+        :modalType="modalType"
       >
       </infoModal>
     </teleport>
@@ -90,20 +91,9 @@ const props = defineProps({
 ---------------------------------------------- */
 
 const deployments = ref<deploymentItem>(); // holds currently fetched deployment data
+const modalType = ref("deployments");
 const deploymentMetricStatus = ref("");
 const showInfoModal = ref(false);
-
-// Sample data for generating chart. Will be deleted when endpoint is working
-function getData() {
-  let testDataPTS = [];
-  let currCounter = 1609992559;
-  for (let i = 0; i < 200; i++) {
-    testDataPTS.push([currCounter, Math.floor(4 * Math.random())]);
-    currCounter += 86400;
-  }
-  let retval = testDataPTS.map((a) => [new Date(a[0] * 1000), a[1]]);
-  return retval;
-}
 
 const chartOptions = ref({
   chart: {
@@ -120,9 +110,6 @@ const chartOptions = ref({
   dataLabels: {
     enabled: false,
   },
-  // title: {
-  //   text: "Daily Deployments",
-  // },
   xaxis: {
     type: "datetime",
   },
@@ -173,23 +160,6 @@ function fetchDeployments() {
                       COMPUTED
   ---------------------------------------------- */
 
-// const deploymentFreqColorComputed = computed(() => {
-//   if (deployments.value) {
-//     switch (deployments.value.performance) {
-//       case "Daily":
-//         return "bg-bggreen";
-//       case "Weekly":
-//         return "bg-bgyellow";
-//       case "Monthly":
-//         return "bg-bgorange";
-//       case "Yearly":
-//         return "bg-red-600";
-//     }
-//   } else {
-//     return "bg-white";
-//   }
-// });
-
 // Data used in deployments chart. Pairs of [unix timestamp, number of deployments on that day]
 const deploymentsData = computed(() => {
   if (deployments.value) {
@@ -200,7 +170,7 @@ const deploymentsData = computed(() => {
         data: deployments.value.deployment_dates.map((a: any) => [
           new Date(a[0] * 1000),
           a[1],
-        ]), // getData(), //This can be changed to the data from the endpoint once it is refactored
+        ]),
       },
     ];
   } else {
