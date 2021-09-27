@@ -57,6 +57,15 @@
     </teleport>
   </div>
 </template>
+<script lang="ts">
+import { defineComponent } from "vue";
+import VueApexCharts from "vue3-apexcharts";
+export default {
+  components: {
+    apexchart: VueApexCharts,
+  },
+};
+</script>
 
 <script lang="ts" setup>
 /* ----------------------------------------------
@@ -67,7 +76,7 @@ import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import { sortByMonth } from "../../utils";
 import { deploymentItem, infoForStatusItem } from "../../types";
-import infoModal from "../infoModal.vue";
+import infoModal from "../InfoModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -127,7 +136,7 @@ const chartOptions = ref({
   },
   yaxis: {
     labels: {
-      formatter: (value) => {
+      formatter: (value: number) => {
         return Math.trunc(value);
       },
     },
@@ -139,26 +148,6 @@ const chartOptions = ref({
 /* ----------------------------------------------
                     FUNCTIONS
 ---------------------------------------------- */
-
-// function setDeploymentFreqColor() {
-//   if (deployments.value) {
-//     if (deployments.value.deployment_frequency) {
-//       console.log("in if");
-//       switch (deployments.value.deployment_frequency) {
-//         case "Daily":
-//           return "bg-bggreen";
-//         case "Weekly":
-//           return "bg-bgyellow";
-//         case "Monthly":
-//           return "bg-bgorange";
-//         case "Yearly":
-//           return "bg-red-600";
-//       }
-//     }
-//   } else {
-//     return "bg-white";
-//   }
-// }
 
 /* GET request to /metrics/deployments to retrieve array of deployments. */
 function fetchDeployments() {
@@ -193,23 +182,6 @@ function fetchDeployments() {
 /* ----------------------------------------------
                       COMPUTED
   ---------------------------------------------- */
-
-const deploymentFreqColorComputed = computed(() => {
-  if (deployments.value) {
-    switch (deployments.value.deployment_frequency) {
-      case "Daily":
-        return "bg-bggreen";
-      case "Weekly":
-        return "bg-bgyellow";
-      case "Monthly":
-        return "bg-bgorange";
-      case "Yearly":
-        return "bg-red-600";
-    }
-  } else {
-    return "bg-white";
-  }
-});
 
 // Data used in deployments chart. Pairs of [unix timestamp, number of deployments on that day]
 const deploymentsData = computed(() => {

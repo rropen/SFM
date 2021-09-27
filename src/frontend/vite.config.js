@@ -5,7 +5,7 @@ export default {
   plugins: [
     vue(),
     istanbul({
-      include: "src/*",
+      include: "src/**",
       exclude: ["node_modules", "test/"],
       extension: [".js", ".ts", ".vue"],
       cypress: true,

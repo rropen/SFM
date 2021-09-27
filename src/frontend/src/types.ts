@@ -21,7 +21,7 @@ export interface deploymentItem {
 
 export interface infoForStatusItem {
   deployments: {
-    Daily: {
+    [Daily: string]: {
       info: string;
     };
     Weekly: {

@@ -87,7 +87,7 @@ const props = defineProps({
   },
 });
 const emits = defineEmits(["close"]);
-const infoModal = ref(null);
+const infoModal = ref<null | { focus: () => null }>();
 
 // type StatusKeyItem = keyof typeof props.infoForStatus.deployments;
 // const statusKey: StatusKeyItem = props.status;
@@ -98,6 +98,6 @@ const onClose = () => {
 };
 
 onMounted(() => {
-  infoModal.value.focus();
+  infoModal.value?.focus();
 });
 </script>
