@@ -1,6 +1,5 @@
 <p>
-    <img alt="Rolls-Royce Logo" width="100" src="https://raw.githubusercontent.com/rropen/.github/main/img/logo.png">
-    <br>
+    <img alt="Rolls-Royce Logo" width="100" src="https://raw.githubusercontent.com/rropen/.github/main/img/logo.png"><br><br>
     Dashboard for Rolls-Royce Software Factory Metrics
 </p>
 
