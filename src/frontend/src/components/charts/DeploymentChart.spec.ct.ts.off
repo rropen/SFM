@@ -9,9 +9,12 @@ beforeEach(() => {
   cy.document().then((document) => {
     document.body.innerHTML += '<div id="modals"></div>';
   });
-  cy.intercept("GET", "/deployments*", { fixture: "deployments.json" });
 
-  const projectName = "Project1";
+  cy.intercept("GET", "**/metrics/**", {
+    fixture: "./deployments.json",
+  }).as("deployments");
+
+  const projectName = "org";
   const infoForStatusValue: infoForStatusItem = {
     deployments: {
       Daily: {
@@ -22,6 +25,20 @@ beforeEach(() => {
       },
       Monthly: {
         info: "Monthly Info Here",
+      },
+    },
+    leadTime: {
+      "One Day": {
+        info: "Less than One Day",
+      },
+      "One Week": {
+        info: "Less than One Week",
+      },
+      "One Month": {
+        info: "Less than One Month",
+      },
+      "Greater Than One Month": {
+        info: "Greater than One Month",
       },
     },
   };
@@ -35,6 +52,7 @@ beforeEach(() => {
 });
 
 it("Chart is Visible", () => {
+  cy.wait("@deployments");
   cy.get(".chartWrapper").should("be.visible");
 });
 

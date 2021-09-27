@@ -280,7 +280,6 @@ const infoForStatus: infoForStatusItem = {
       info: "Monthly Info Here",
     },
   },
-
   leadTime: {
     "One Day": {
       info: "Less than One Day",

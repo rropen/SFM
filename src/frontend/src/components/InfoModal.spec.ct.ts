@@ -5,7 +5,8 @@ import "../index.css";
 import { infoForStatusItem } from "../types";
 
 beforeEach(() => {
-  const status = "Daily";
+  const statusValue = "Daily";
+  const modalTypeValue = "deployments";
   const infoForStatusValue: infoForStatusItem = {
     deployments: {
       Daily: {
@@ -18,12 +19,27 @@ beforeEach(() => {
         info: "Monthly Info Here",
       },
     },
+    leadTime: {
+      "One Day": {
+        info: "Less than One Day",
+      },
+      "One Week": {
+        info: "Less than One Week",
+      },
+      "One Month": {
+        info: "Less than One Month",
+      },
+      "Greater Than One Month": {
+        info: "Greater than One Month",
+      },
+    },
   };
   //@ts-ignore
   mount(InfoModal, {
     propsData: {
-      status: status,
+      status: statusValue,
       infoForStatus: infoForStatusValue,
+      modalType: modalTypeValue,
     },
   });
 });
