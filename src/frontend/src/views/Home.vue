@@ -186,7 +186,7 @@
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Deployments
                   </h1>
-                  <deploymentChart
+                  <DeploymentChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
@@ -195,7 +195,7 @@
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Deployments
                   </h1>
-                  <deploymentChart
+                  <DeploymentChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
@@ -204,7 +204,7 @@
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Lead Time to Change
                   </h1>
-                  <leadTimeChart
+                  <LeadTimeChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
@@ -213,7 +213,7 @@
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Deployments
                   </h1>
-                  <deploymentChart
+                  <DeploymentChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
@@ -252,8 +252,8 @@ import {
   UsersIcon,
   XIcon,
 } from "@heroicons/vue/outline";
-import deploymentChart from "../components/charts/deploymentChart.vue";
-import leadTimeChart from "../components/charts/leadTimeChart.vue";
+import DeploymentChart from "../components/charts/DeploymentChart.vue";
+import LeadTimeChart from "../components/charts/LeadTimeChart.vue";
 
 /* ----------------------------------------------
                      CONSTANTS
