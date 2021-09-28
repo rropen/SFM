@@ -103,8 +103,6 @@ def create_project(
     - **repo_url**: Github or Gitlab url to the corresponding project
     - **on_prem**: Boolean describing if the repo is located on a "on-premises" server
     """
-    if not project_data:
-        raise HTTPException(status_code=404, detail="Project data not provided")
 
     # Creates the database row and stores it in the table
 
@@ -119,7 +117,7 @@ def create_project(
             "token": token,
         }
     else:
-        return {"code": "error", "message": "Row Not Created"}
+        return {"code": "error", "message": "Row Not Created"}  # pragma: no cover
 
 
 @router.delete("/{project_id}")
@@ -140,8 +138,6 @@ def delete_project(
     - **project_id**: Unique identifier that links to the object in the database to be deleted
 
     """
-    if not project_id:
-        raise HTTPException(status_code=404, detail="project_id not provided")
 
     response = crud.delete_project(db, project_id, admin_key)
 
@@ -150,7 +146,7 @@ def delete_project(
             "code": "success",
             "message": "Project {} and associated workItems deleted".format(project_id),
         }
-    else:
+    else:  # pragma: no cover
         return {
             "code": "error",
             "message": "Project not deleted or multiple projects with same project_id existed.",
@@ -191,7 +187,7 @@ def refresh_project_key(
             "token": refreshed_token,
         }
     else:
-        return {"code": "error", "message": "Token Not Refreshed"}
+        return {"code": "error", "message": "Token Not Refreshed"}  # pragma: no cover
 
 
 @router.patch("/{project_id}")
@@ -231,8 +227,6 @@ def update_project(
     - **on_prem**: Boolean describing if the repo is located on a "on-premises" server
 
     """
-    if not project_data:
-        raise HTTPException(status_code=404, detail="Project data not provided")
 
     update_project_success = crud.update_project(
         db, project_id, project_data, admin_key
@@ -244,4 +238,4 @@ def update_project(
             "id": update_project_success.id,
         }
     else:
-        return {"code": "error", "message": "Row not updated"}
+        return {"code": "error", "message": "Row not updated"}  # pragma: no cover

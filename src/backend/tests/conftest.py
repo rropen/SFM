@@ -78,9 +78,22 @@ def init_database(session):
             "project_auth_token_hashed": hashed_token2,
         }
     )
+    empty_proj = Project(
+        **{
+            "name": "Test Project with no WorkItems",
+            "lead_name": "Sergio Manuel",
+            "lead_email": "team-europe@pga.com",
+            "description": "A third test project for testing",
+            "location": "Kohler",
+            "repo_url": "github.com/pgaGolf",
+            "on_prem": False,
+            "project_auth_token_hashed": hashed_token2,
+        }
+    )
 
     session.add(proj1)
     session.add(proj2)
+    session.add(empty_proj)
     session.commit()
 
     # [create work_items here]

@@ -1,8 +1,9 @@
 import pytest
 from time import mktime
 from sfm.routes.metrics import routes
+from sfm.routes.utilities.routes import random_sha
 from sqlmodel import Session, select
-from sfm.models import Project, WorkItem
+from sfm.models import Project, WorkItem, Commit
 from tests.conftest import hashed_token1
 from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
@@ -36,7 +37,7 @@ def test_calc_frequency(db: Session):
     )
     month_proj = Project(
         **{
-            "name": "Test Project for Montly Deploys",
+            "name": "Test Project for Monthly Deploys",
             "lead_name": "Deploy Deployer",
             "lead_email": "commit-deploy@dora.com",
             "description": "A test project for testing",
@@ -262,6 +263,7 @@ def test_get_deployments(client: TestClient, db: Session):
     assert response4.status_code == 200
 
     result4 = response4.json()
+    result4[0]["deployment_dates"] = result4[0]["deployment_dates"][:6]
 
     expected_result4 = [
         {
@@ -273,87 +275,6 @@ def test_get_deployments(client: TestClient, db: Session):
                 [1625457600.0, 0],
                 [1625544000.0, 0],
                 [1625630400.0, 0],
-                [1625716800.0, 0],
-                [1625803200.0, 2],
-                [1625889600.0, 0],
-                [1625976000.0, 0],
-                [1626062400.0, 0],
-                [1626148800.0, 0],
-                [1626235200.0, 1],
-                [1626321600.0, 0],
-                [1626408000.0, 1],
-                [1626494400.0, 0],
-                [1626580800.0, 1],
-                [1626667200.0, 0],
-                [1626753600.0, 1],
-                [1626840000.0, 0],
-                [1626926400.0, 0],
-                [1627012800.0, 1],
-                [1627099200.0, 1],
-                [1627185600.0, 0],
-                [1627272000.0, 0],
-                [1627358400.0, 1],
-                [1627444800.0, 1],
-                [1627531200.0, 0],
-                [1627617600.0, 1],
-                [1627704000.0, 1],
-                [1627790400.0, 1],
-                [1627876800.0, 0],
-                [1627963200.0, 0],
-                [1628049600.0, 0],
-                [1628136000.0, 0],
-                [1628222400.0, 1],
-                [1628308800.0, 0],
-                [1628395200.0, 0],
-                [1628481600.0, 1],
-                [1628568000.0, 0],
-                [1628654400.0, 0],
-                [1628740800.0, 0],
-                [1628827200.0, 1],
-                [1628913600.0, 0],
-                [1629000000.0, 1],
-                [1629086400.0, 0],
-                [1629172800.0, 1],
-                [1629259200.0, 0],
-                [1629345600.0, 0],
-                [1629432000.0, 1],
-                [1629518400.0, 0],
-                [1629604800.0, 1],
-                [1629691200.0, 0],
-                [1629777600.0, 0],
-                [1629864000.0, 0],
-                [1629950400.0, 0],
-                [1630036800.0, 1],
-                [1630123200.0, 1],
-                [1630209600.0, 0],
-                [1630296000.0, 1],
-                [1630382400.0, 1],
-                [1630468800.0, 0],
-                [1630555200.0, 0],
-                [1630641600.0, 1],
-                [1630728000.0, 0],
-                [1630814400.0, 1],
-                [1630900800.0, 0],
-                [1630987200.0, 0],
-                [1631073600.0, 0],
-                [1631160000.0, 0],
-                [1631246400.0, 1],
-                [1631332800.0, 1],
-                [1631419200.0, 3],
-                [1631505600.0, 1],
-                [1631592000.0, 1],
-                [1631678400.0, 0],
-                [1631764800.0, 0],
-                [1631851200.0, 2],
-                [1631937600.0, 0],
-                [1632024000.0, 1],
-                [1632110400.0, 1],
-                [1632196800.0, 0],
-                [1632283200.0, 0],
-                [1632369600.0, 1],
-                [1632456000.0, 0],
-                [1632542400.0, 0],
-                [1632628800.0, 0],
             ],
             "performance": "Daily",
             "deployment_dates_description": "",
@@ -368,6 +289,10 @@ def test_get_deployments(client: TestClient, db: Session):
     assert response5.status_code == 200
 
     result5 = response5.json()
+    print(result5)
+    print(result5[:])
+    for i in range(0, len(result5)):
+        result5[i]["deployment_dates"] = result5[i]["deployment_dates"][:6]
 
     expected_result5 = [
         {
@@ -379,87 +304,6 @@ def test_get_deployments(client: TestClient, db: Session):
                 [1625457600.0, 0],
                 [1625544000.0, 0],
                 [1625630400.0, 0],
-                [1625716800.0, 0],
-                [1625803200.0, 1],
-                [1625889600.0, 0],
-                [1625976000.0, 0],
-                [1626062400.0, 0],
-                [1626148800.0, 0],
-                [1626235200.0, 1],
-                [1626321600.0, 0],
-                [1626408000.0, 1],
-                [1626494400.0, 0],
-                [1626580800.0, 1],
-                [1626667200.0, 0],
-                [1626753600.0, 1],
-                [1626840000.0, 0],
-                [1626926400.0, 0],
-                [1627012800.0, 1],
-                [1627099200.0, 1],
-                [1627185600.0, 0],
-                [1627272000.0, 0],
-                [1627358400.0, 1],
-                [1627444800.0, 1],
-                [1627531200.0, 0],
-                [1627617600.0, 1],
-                [1627704000.0, 1],
-                [1627790400.0, 1],
-                [1627876800.0, 0],
-                [1627963200.0, 0],
-                [1628049600.0, 0],
-                [1628136000.0, 0],
-                [1628222400.0, 1],
-                [1628308800.0, 0],
-                [1628395200.0, 0],
-                [1628481600.0, 1],
-                [1628568000.0, 0],
-                [1628654400.0, 0],
-                [1628740800.0, 0],
-                [1628827200.0, 1],
-                [1628913600.0, 0],
-                [1629000000.0, 1],
-                [1629086400.0, 0],
-                [1629172800.0, 1],
-                [1629259200.0, 0],
-                [1629345600.0, 0],
-                [1629432000.0, 1],
-                [1629518400.0, 0],
-                [1629604800.0, 1],
-                [1629691200.0, 0],
-                [1629777600.0, 0],
-                [1629864000.0, 0],
-                [1629950400.0, 0],
-                [1630036800.0, 1],
-                [1630123200.0, 1],
-                [1630209600.0, 0],
-                [1630296000.0, 1],
-                [1630382400.0, 1],
-                [1630468800.0, 0],
-                [1630555200.0, 0],
-                [1630641600.0, 1],
-                [1630728000.0, 0],
-                [1630814400.0, 0],
-                [1630900800.0, 0],
-                [1630987200.0, 0],
-                [1631073600.0, 0],
-                [1631160000.0, 0],
-                [1631246400.0, 1],
-                [1631332800.0, 0],
-                [1631419200.0, 2],
-                [1631505600.0, 1],
-                [1631592000.0, 1],
-                [1631678400.0, 0],
-                [1631764800.0, 0],
-                [1631851200.0, 1],
-                [1631937600.0, 0],
-                [1632024000.0, 1],
-                [1632110400.0, 1],
-                [1632196800.0, 0],
-                [1632283200.0, 0],
-                [1632369600.0, 1],
-                [1632456000.0, 0],
-                [1632542400.0, 0],
-                [1632628800.0, 0],
             ],
             "performance": "Daily",
             "deployment_dates_description": "",
@@ -474,95 +318,265 @@ def test_get_deployments(client: TestClient, db: Session):
                 [1625457600.0, 0],
                 [1625544000.0, 0],
                 [1625630400.0, 0],
-                [1625716800.0, 0],
-                [1625803200.0, 1],
-                [1625889600.0, 0],
-                [1625976000.0, 0],
-                [1626062400.0, 0],
-                [1626148800.0, 0],
-                [1626235200.0, 0],
-                [1626321600.0, 0],
-                [1626408000.0, 0],
-                [1626494400.0, 0],
-                [1626580800.0, 0],
-                [1626667200.0, 0],
-                [1626753600.0, 0],
-                [1626840000.0, 0],
-                [1626926400.0, 0],
-                [1627012800.0, 0],
-                [1627099200.0, 0],
-                [1627185600.0, 0],
-                [1627272000.0, 0],
-                [1627358400.0, 0],
-                [1627444800.0, 0],
-                [1627531200.0, 0],
-                [1627617600.0, 0],
-                [1627704000.0, 0],
-                [1627790400.0, 0],
-                [1627876800.0, 0],
-                [1627963200.0, 0],
-                [1628049600.0, 0],
-                [1628136000.0, 0],
-                [1628222400.0, 0],
-                [1628308800.0, 0],
-                [1628395200.0, 0],
-                [1628481600.0, 0],
-                [1628568000.0, 0],
-                [1628654400.0, 0],
-                [1628740800.0, 0],
-                [1628827200.0, 0],
-                [1628913600.0, 0],
-                [1629000000.0, 0],
-                [1629086400.0, 0],
-                [1629172800.0, 0],
-                [1629259200.0, 0],
-                [1629345600.0, 0],
-                [1629432000.0, 0],
-                [1629518400.0, 0],
-                [1629604800.0, 0],
-                [1629691200.0, 0],
-                [1629777600.0, 0],
-                [1629864000.0, 0],
-                [1629950400.0, 0],
-                [1630036800.0, 0],
-                [1630123200.0, 0],
-                [1630209600.0, 0],
-                [1630296000.0, 0],
-                [1630382400.0, 0],
-                [1630468800.0, 0],
-                [1630555200.0, 0],
-                [1630641600.0, 0],
-                [1630728000.0, 0],
-                [1630814400.0, 1],
-                [1630900800.0, 0],
-                [1630987200.0, 0],
-                [1631073600.0, 0],
-                [1631160000.0, 0],
-                [1631246400.0, 0],
-                [1631332800.0, 1],
-                [1631419200.0, 1],
-                [1631505600.0, 0],
-                [1631592000.0, 0],
-                [1631678400.0, 0],
-                [1631764800.0, 0],
-                [1631851200.0, 1],
-                [1631937600.0, 0],
-                [1632024000.0, 0],
-                [1632110400.0, 0],
-                [1632196800.0, 0],
-                [1632283200.0, 0],
-                [1632369600.0, 0],
-                [1632456000.0, 0],
-                [1632542400.0, 0],
-                [1632628800.0, 0],
             ],
             "performance": "Monthly",
             "deployment_dates_description": "",
             "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
         },
+        {
+            "project_name": "Test Project with no WorkItems",
+            "deployment_dates": [],
+            "performance": "Yearly",
+            "deployment_dates_description": "",
+            "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
+        },
     ]
-
+    print(result5)
     assert result5 == expected_result5
 
 
 # Test get "/LeadTimeToChange" endpoint
+def test_get_lead_time_endpoint(client: TestClient, db: Session):
+    response = client.get("/metrics/LeadTimeToChange")
+    assert response is not None
+    assert response.status_code == 200
+
+    day_proj = Project(
+        **{
+            "name": "Test Project for Commits",
+            "lead_name": "Deploy Deployer",
+            "lead_email": "commit-deploy@dora.com",
+            "description": "A test project for testing",
+            "location": "githubville",
+            "repo_url": "github.com/DoraEnterprises",
+            "on_prem": False,
+            "project_auth_token_hashed": hashed_token1,
+        }
+    )
+    week_proj = Project(
+        **{
+            "name": "Test Project for Commits",
+            "lead_name": "Deploy Deployer",
+            "lead_email": "commit-deploy@dora.com",
+            "description": "A test project for testing",
+            "location": "githubville",
+            "repo_url": "github.com/DoraEnterprises",
+            "on_prem": False,
+            "project_auth_token_hashed": hashed_token1,
+        }
+    )
+    month_proj = Project(
+        **{
+            "name": "Test Project for Commits",
+            "lead_name": "Deploy Deployer",
+            "lead_email": "commit-deploy@dora.com",
+            "description": "A test project for testing",
+            "location": "githubville",
+            "repo_url": "github.com/DoraEnterprises",
+            "on_prem": False,
+            "project_auth_token_hashed": hashed_token1,
+        }
+    )
+    gtmonth_proj = Project(
+        **{
+            "name": "Test Project for Commits",
+            "lead_name": "Deploy Deployer",
+            "lead_email": "commit-deploy@dora.com",
+            "description": "A test project for testing",
+            "location": "githubville",
+            "repo_url": "github.com/DoraEnterprises",
+            "on_prem": False,
+            "project_auth_token_hashed": hashed_token1,
+        }
+    )
+    db.add(day_proj)
+    db.add(week_proj)
+    db.add(month_proj)
+    db.add(gtmonth_proj)
+    db.commit()
+    db.refresh(day_proj)
+    db.refresh(week_proj)
+    db.refresh(month_proj)
+    db.refresh(gtmonth_proj)
+
+    day_work = WorkItem(
+        **{
+            "category": "Pull Request",
+            "end_time": datetime(2021, 6, 11),
+            "project_id": day_proj.id,
+        }
+    )
+    week_work = WorkItem(
+        **{
+            "category": "Pull Request",
+            "end_time": datetime(2021, 6, 11),
+            "project_id": week_proj.id,
+        }
+    )
+    month_work = WorkItem(
+        **{
+            "category": "Pull Request",
+            "end_time": datetime(2021, 6, 11),
+            "project_id": month_proj.id,
+        }
+    )
+    gtmonth_work = WorkItem(
+        **{
+            "category": "Pull Request",
+            "end_time": datetime(2021, 6, 11),
+            "project_id": gtmonth_proj.id,
+        }
+    )
+    db.add_all([day_work, week_work, month_work, gtmonth_work])
+    db.commit()
+    db.refresh(day_work)
+    db.refresh(week_work)
+    db.refresh(month_work)
+    db.refresh(gtmonth_work)
+
+    daily_commits = []
+    weekly_commits = []
+    monthly_commits = []
+    gtmonth_commits = []
+    end_date = datetime(2021, 6, 11)
+    for day in range(0, 40):
+        date = end_date - timedelta(days=day)
+        if day <= 1:
+            daily_commits.append(
+                Commit(
+                    **{
+                        "sha": random_sha(day),
+                        "date": date,
+                        "message": "Test commit message for testing commits in the database",
+                        "author": "Mr. Commiter",
+                        "work_item_id": day_work.id,
+                        "time_to_pull": int((day_work.end_time - date).total_seconds()),
+                    }
+                )
+            )
+        elif day > 1 and day <= 7:
+            weekly_commits.append(
+                Commit(
+                    **{
+                        "sha": random_sha(day),
+                        "date": date,
+                        "message": "Test commit message for testing commits in the database",
+                        "author": "Mr. Commiter",
+                        "work_item_id": week_work.id,
+                        "time_to_pull": int(
+                            (week_work.end_time - date).total_seconds()
+                        ),
+                    }
+                )
+            )
+        elif day > 7 and day <= 30:
+            monthly_commits.append(
+                Commit(
+                    **{
+                        "sha": random_sha(day),
+                        "date": date,
+                        "message": "Test commit message for testing commits in the database",
+                        "author": "Mr. Commiter",
+                        "work_item_id": month_work.id,
+                        "time_to_pull": int(
+                            (month_work.end_time - date).total_seconds()
+                        ),
+                    }
+                )
+            )
+    date = end_date - timedelta(days=day)
+    gtmonth_commits.append(
+        Commit(
+            **{
+                "sha": random_sha(day),
+                "date": date,
+                "message": "Test commit message for testing commits in the database",
+                "author": "Mr. Commiter",
+                "work_item_id": gtmonth_work.id,
+                "time_to_pull": int((gtmonth_work.end_time - date).total_seconds()),
+            }
+        )
+    )
+
+    db.add_all(daily_commits)
+    db.add_all(weekly_commits)
+    db.add_all(monthly_commits)
+    db.add_all(gtmonth_commits)
+    db.commit()
+
+    db.refresh(day_work)
+    db.refresh(week_work)
+    db.refresh(month_work)
+    db.refresh(gtmonth_work)
+
+    """Test Metrics Calculate correctly"""
+    day_response = client.get(
+        "/metrics/LeadTimeToChange", params={"project_id": f"{day_proj.id}"}
+    )
+    day_result = day_response.json()
+    assert day_result["performance"] == "One Day"
+
+    week_response = client.get(
+        "/metrics/LeadTimeToChange", params={"project_id": f"{week_proj.id}"}
+    )
+    week_result = week_response.json()
+    assert week_result["performance"] == "One Week"
+
+    month_response = client.get(
+        "/metrics/LeadTimeToChange", params={"project_id": f"{month_proj.id}"}
+    )
+    month_result = month_response.json()
+    assert month_result["performance"] == "One Month"
+
+    gtmonth_response = client.get(
+        "/metrics/LeadTimeToChange", params={"project_id": f"{gtmonth_proj.id}"}
+    )
+    gtmonth_result = gtmonth_response.json()
+    assert gtmonth_result["performance"] == "Greater than One Month"
+
+    """Test giving project_name returns correctly"""
+    day_response = client.get(
+        "/metrics/LeadTimeToChange", params={"project_name": f"{day_proj.name}"}
+    )
+    day_result = day_response.json()
+    assert day_result["performance"] == "One Day"
+
+    """Test giving project_name and project_id returns correctly"""
+    day_response = client.get(
+        "/metrics/LeadTimeToChange",
+        params={"project_name": f"{day_proj.name}", "project_id": f"{day_proj.id}"},
+    )
+    day_result = day_response.json()
+    assert day_result["performance"] == "One Day"
+
+    """Test giving a project with no workItems raises exception"""
+    with pytest.raises(Exception) as ex:
+        client.get(
+            "/metrics/LeadTimeToChange",
+            params={"project_name": "Test Project with no WorkItems"},
+        )
+        assert (
+            ex.value.message
+            == "No pull requests to main associated with specified project"
+        )
+
+    """Test giving a project name with no matching project raises exception"""
+    response = client.get(
+        "/metrics/LeadTimeToChange", params={"project_name": "Gibberish"}
+    )
+    assert response.status_code == 404
+
+    """Test giving a project id with no matching project raises exception """
+    response = client.get("/metrics/LeadTimeToChange", params={"project_id": "7777"})
+    assert response.status_code == 404
+
+    """Test get request when no pull requests exist in database"""
+    pull_requests = db.exec(
+        select(WorkItem).where(WorkItem.category == "Pull Request")
+    ).all()
+    for item in pull_requests:
+        db.delete(item)
+    db.commit()
+
+    response = client.get("/metrics/LeadTimeToChange")
+    assert response.status_code == 404

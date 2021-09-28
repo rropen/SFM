@@ -36,7 +36,9 @@ def get_work_items(
         db, skip=skip, limit=limit, project_id=project_id, project_name=project_name
     )
     if not work_items:
-        raise HTTPException(status_code=404, detail="WorkItems not found")
+        raise HTTPException(
+            status_code=404, detail="WorkItems not found"
+        )  # pragma: no cover
     return work_items
 
 
@@ -56,7 +58,9 @@ def get_work_item(work_item_id: int, db: Session = Depends(get_db)):
     """
     work_item = crud.get_by_id(db, work_item_id)
     if not work_item:
-        raise HTTPException(status_code=404, detail="WorkItem not found")
+        raise HTTPException(
+            status_code=404, detail="WorkItem not found"
+        )  # pragma: no cover
     return work_item
 
 
@@ -104,7 +108,7 @@ def create_work_item(
             "id": new_work_item_success,
         }
     else:
-        return {"code": "error", "message": "Row Not Created"}
+        return {"code": "error", "message": "Row Not Created"}  # pragma: no cover
 
 
 # Since  WorkItem has no name, use database id to delete item
@@ -139,7 +143,7 @@ def delete_work_item(
             "code": "success",
             "message": "WorkItem {} Deleted".format(work_item_id),
         }
-    else:
+    else:  # pragma: no cover
         return {
             "code": "error",
             "message": "WorkItem not deleted or multiple WorkItems with same work_item_id existed.",
@@ -193,4 +197,4 @@ def update_work_item(
             "id": updated_work_item.id,
         }
     else:
-        return {"code": "error", "message": "Row not updated"}
+        return {"code": "error", "message": "Row not updated"}  # pragma: no cover

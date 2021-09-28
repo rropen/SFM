@@ -30,6 +30,16 @@ def test_get_all_endpoint(client: TestClient, db: Session):
             "on_prem": False,
             "id": 2,
         },
+        {
+            "name": "Test Project with no WorkItems",
+            "lead_name": "Sergio Manuel",
+            "lead_email": "team-europe@pga.com",
+            "description": "A third test project for testing",
+            "location": "Kohler",
+            "repo_url": "github.com/pgaGolf",
+            "on_prem": False,
+            "id": 3,
+        },
     ]
 
 

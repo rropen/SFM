@@ -13,7 +13,9 @@ from datetime import datetime
 from statistics import median
 
 
-def deployment_processor(db, deployment, project_db, project_auth_token):
+def deployment_processor(
+    db, deployment, project_db, project_auth_token
+):  # pragma: no cover
     deployment_dict = {
         "category": "Deployment",
         "end_time": deployment.get("updated_at"),
@@ -24,7 +26,9 @@ def deployment_processor(db, deployment, project_db, project_auth_token):
     crud.create_work_item(db, work_item_data, project_auth_token)
 
 
-def pull_request_processor(db, pull_request, project_db, project_auth_token):
+def pull_request_processor(
+    db, pull_request, project_db, project_auth_token
+):  # pragma: no cover
 
     pull_request_dict = {
         "category": "Pull Request",
@@ -63,7 +67,7 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
 router = APIRouter()
 
 
-@router.post("/github_webhooks/")
+@router.post("/github_webhooks/")  # pragma: no cover
 async def webhook_handler(
     request: Request,
     project_auth_token: str = Header(...),

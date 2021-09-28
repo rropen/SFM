@@ -175,9 +175,7 @@ def populate_db(  # pragma: no cover
     for item_id in pull_req_work_items:
         for date in commit_dates:
             commit_dict = {
-                "sha": random_sha(
-                    i
-                ),  # used for random string generation (not actually a proj auth token)
+                "sha": random_sha(i),
                 "date": date + time_shift,
                 "author": "Gabe Geiger",
                 "work_item_id": item_id,

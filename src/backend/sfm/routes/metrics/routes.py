@@ -102,6 +102,8 @@ def calc_frequency(
 
 
 def combine_deploys(deployment_dates):  # [date, date, date]
+    if deployment_dates == []:
+        return []
     initial_date = min(deployment_dates)  # date
     total_days = (datetime.now().date() - initial_date).days  # number of days
     grouped_deploys = []
@@ -295,6 +297,7 @@ def get_Lead_Time_To_Change(
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
+            print(project, "DOES NOT EXIST")
             raise HTTPException(
                 status_code=404,
                 detail=f"No project found with the specified name: {project_name}",
