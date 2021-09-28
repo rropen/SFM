@@ -1,18 +1,29 @@
 /// <reference types="cypress" />
-// var date = new Date();
+
 describe("SFM Frontend Tests", () => {
-  const dayjs = require("dayjs");
-  const todaysDate = dayjs().format("YYYY-MM-DD");
-  const todaysDateConfirm = dayjs().format("DD MMM YYYY");
-  const historicalDate = dayjs().subtract(60, "day").format("YYYY-MM-DD");
-  const historicalDateConfirm = dayjs()
-    .subtract(60, "day")
-    .format("DD MMM YYYY");
   it("Load Home Page", function () {
     cy.visit("localhost:3000");
   });
 
   it("Load About Page", function () {
     cy.visit("localhost:3000/about");
+  });
+
+  /* ==== Test Created with Cypress Studio ==== */
+  it("Test Project Dropdown", function () {
+    /* ==== Generated with Cypress Studio ==== */
+    cy.visit("http://localhost:3000/");
+    cy.get("#location").select("Project for Deployments Testing");
+    /* ==== End Cypress Studio ==== */
+  });
+
+  /* ==== Test Created with Cypress Studio ==== */
+  it("Test Deployments Status Bar Modal", function () {
+    /* ==== Generated with Cypress Studio ==== */
+    cy.visit("localhost:3000");
+    cy.get(":nth-child(1) > .chartAreaWrapper > .mt-4 > .mr-4 > path").click();
+    cy.get(".modalBox").click();
+    cy.get(".delay-100").click();
+    /* ==== End Cypress Studio ==== */
   });
 });

@@ -11,5 +11,5 @@ it("Header is visible", () => {
 });
 
 it("Logo is visible", () => {
-  cy.get(".w-8").should("be.visible");
+  cy.get("img").should("be.visible");
 });
