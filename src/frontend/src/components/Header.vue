@@ -1,4 +1,3 @@
-<!-- This example requires Tailwind CSS v2.0+ -->
 <template>
   <Disclosure as="nav" class="bg-rrblue-800 shadow" v-slot="{ open }">
     <div class="max-w-7xl mr-auto px-6">
