@@ -26,6 +26,21 @@
         and capabilities that drive high performance in technology delivery. It
         is also used to compare against industry peers.
       </p>
+      <p>
+        **Deployment Frequency:** How often we as an organization successfully
+        releases to production - Elite: Multiple deploys per day - High: Between
+        once per day and once per week - Medium: Between once per week and once
+        per month - Low: Between once per month and once every six months **Lead
+        Time for Changes:** The amount of time it takes a commit to get into
+        production - Elite: Less than one day - High: Between one day and one
+        week - Medium: Between one week and one month - Low: Between one month
+        and six months **Time to Restore Service:** How long it takes an
+        organization to recover from a failure in production - Elite: Less than
+        one hour - High: Less than one day - Medium: Less than one day - Low:
+        Between one week and one month **Change failure rate:** The percentage
+        of deployments causing a failure in production - Elite: 0-15% - High:
+        0-15% - Medium: 0-15% - Low: 46-60%
+      </p>
     </blockquote>
   </div>
 </template>
