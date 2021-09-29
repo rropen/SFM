@@ -19,6 +19,7 @@ dependencies = [
     "sqlmodel~=0.0",
     "passlib~=1.7",
     "bcrypt~=3.2",
+    "opencensus~=0.7",
 ]
 requires-python = ">=3.8"
 dynamic = ["classifiers"]
