@@ -1,11 +1,15 @@
 name: Integration Tests
 on:
-  workflow_run:
-    workflows: ["Backend Unit Tests", "Frontend Unit Tests"]
-    branches: dev
-    types: completed
+#   workflow_run:
+#     workflows: ["Backend Unit Tests", "Frontend Unit Tests"]
+#     branches: dev
+#     types: completed
+
   pull_request:
     branches: main
+  push: 
+    branches: dev
+    
 
 jobs:
   # Runs Integration Tests w/ Cypress
