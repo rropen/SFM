@@ -73,3 +73,11 @@ def verify_project_auth_token(attempt: str, target: str):
 
 def verify_admin_key(attempt):
     return attempt == ADMIN_KEY
+
+
+epoch = datetime.utcfromtimestamp(0)
+
+
+def unix_time_seconds(date):
+    dt = datetime.combine(date, datetime.min.time())
+    return (dt - epoch).total_seconds()

@@ -10,6 +10,7 @@ from typing import List, Optional
 from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
 from sfm.database import engine
+from sfm.utils import unix_time_seconds
 
 
 logging.basicConfig(
@@ -121,12 +122,12 @@ def combine_deploys(deployment_dates):  # [date, date, date]
         day = initial_date + timedelta(days=iter_day)  # date
         if day in deployment_dates:
             grouped_deploys.append(
-                [mktime(day.timetuple()), deployment_dates.count(day)]
+                [unix_time_seconds(day), deployment_dates.count(day)]
             )  # counts number dates that repeat in list and puts it with UNIX
             # [[date, num], [date, num]]
         else:
             grouped_deploys.append(
-                [mktime(day.timetuple()), 0]
+                [unix_time_seconds(day), 0]
             )  # if not in list then deployment must not have happened on this day, add 0
 
     return grouped_deploys
@@ -150,16 +151,16 @@ def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
 
         if day in commit_dates:
             daily_commits.append(
-                [mktime(day.timetuple()), commit_dates.count(day)]
+                [unix_time_seconds(day), commit_dates.count(day)]
             )  # counts number dates that repeat in list and puts it with UNIX
             daily_lead_times.append(
-                [mktime(day.timetuple()), (median(day_lead_times)) / 60]
+                [unix_time_seconds(day), (median(day_lead_times)) / 60]
             )  # convert seconds in db to minutes for return
         else:
             daily_commits.append(
-                [mktime(day.timetuple()), 0]
+                [unix_time_seconds(day), 0]
             )  # if not in list then deployment must not have happened on this day, add 0
-            daily_lead_times.append([mktime(day.timetuple()), 0])
+            daily_lead_times.append([unix_time_seconds(day), 0])
 
     return [daily_commits, daily_lead_times]
 

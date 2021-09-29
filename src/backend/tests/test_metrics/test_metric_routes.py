@@ -7,6 +7,7 @@ from sfm.models import Project, WorkItem, Commit
 from tests.conftest import hashed_token1
 from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
+from sfm.utils import unix_time_seconds
 
 # Test calc_frequency function
 def test_calc_frequency(db: Session):
@@ -149,10 +150,10 @@ def test_combine_deploys():
     result = routes.combine_deploys(deployment_list)[:4]
     print(result)
     expected_result = [
-        [mktime(datetime(2021, 5, 31).date().timetuple()), 3],
-        [mktime(datetime(2021, 6, 1).date().timetuple()), 1],
-        [mktime(datetime(2021, 6, 2).date().timetuple()), 0],
-        [mktime(datetime(2021, 6, 3).date().timetuple()), 1],
+        [unix_time_seconds(datetime(2021, 5, 31).date()), 3],
+        [unix_time_seconds(datetime(2021, 6, 1).date()), 1],
+        [unix_time_seconds(datetime(2021, 6, 2).date()), 0],
+        [unix_time_seconds(datetime(2021, 6, 3).date()), 1],
     ]
     print(expected_result)
     assert result == expected_result
@@ -176,16 +177,16 @@ def test_lead_time_per_day():
 
     expected_result = [
         [
-            [mktime(datetime(2021, 5, 31).date().timetuple()), 3],
-            [mktime(datetime(2021, 6, 1).date().timetuple()), 1],
-            [mktime(datetime(2021, 6, 2).date().timetuple()), 0],
-            [mktime(datetime(2021, 6, 3).date().timetuple()), 1],
+            [unix_time_seconds(datetime(2021, 5, 31).date()), 3],
+            [unix_time_seconds(datetime(2021, 6, 1).date()), 1],
+            [unix_time_seconds(datetime(2021, 6, 2).date()), 0],
+            [unix_time_seconds(datetime(2021, 6, 3).date()), 1],
         ],
         [
-            [mktime(datetime(2021, 5, 31).date().timetuple()), 2.0],
-            [mktime(datetime(2021, 6, 1).date().timetuple()), 4.0],
-            [mktime(datetime(2021, 6, 2).date().timetuple()), 0.0],
-            [mktime(datetime(2021, 6, 3).date().timetuple()), 5.0],
+            [unix_time_seconds(datetime(2021, 5, 31).date()), 2.0],
+            [unix_time_seconds(datetime(2021, 6, 1).date()), 4.0],
+            [unix_time_seconds(datetime(2021, 6, 2).date()), 0.0],
+            [unix_time_seconds(datetime(2021, 6, 3).date()), 5.0],
         ],
     ]
     print(expected_result)
@@ -213,12 +214,12 @@ def test_get_deployments(client: TestClient, db: Session):
     time_shift = timedelta(days=32)
     deploy_dates = [deploy + time_shift for deploy in deploy_dates]
     deployment_dates = [
-        [mktime(deploy_dates[0].date().timetuple()), 1],  # Week 1
-        [mktime(deploy_dates[1].date().timetuple()), 0],  # Week 2
-        [mktime(deploy_dates[2].date().timetuple()), 0],  # Week 10
-        [mktime(deploy_dates[3].date().timetuple()), 0],  # Week 11
-        [mktime(deploy_dates[4].date().timetuple()), 0],
-        [mktime(deploy_dates[5].date().timetuple()), 0],  # Week 12
+        [unix_time_seconds(deploy_dates[0].date()), 1],  # Week 1
+        [unix_time_seconds(deploy_dates[1].date()), 0],  # Week 2
+        [unix_time_seconds(deploy_dates[2].date()), 0],  # Week 10
+        [unix_time_seconds(deploy_dates[3].date()), 0],  # Week 11
+        [unix_time_seconds(deploy_dates[4].date()), 0],
+        [unix_time_seconds(deploy_dates[5].date()), 0],  # Week 12
     ]
 
     expected_result = [
@@ -264,17 +265,18 @@ def test_get_deployments(client: TestClient, db: Session):
 
     result4 = response4.json()
     result4[0]["deployment_dates"] = result4[0]["deployment_dates"][:6]
+    print(result4)
 
     expected_result4 = [
         {
             "project_name": "org",
             "deployment_dates": [
-                [1625198400.0, 2],
-                [1625284800.0, 0],
-                [1625371200.0, 0],
-                [1625457600.0, 0],
-                [1625544000.0, 0],
-                [1625630400.0, 0],
+                [1625184000.0, 2],
+                [1625270400.0, 0],
+                [1625356800.0, 0],
+                [1625443200.0, 0],
+                [1625529600.0, 0],
+                [1625616000.0, 0],
             ],
             "performance": "Daily",
             "deployment_dates_description": "",
@@ -298,12 +300,12 @@ def test_get_deployments(client: TestClient, db: Session):
         {
             "project_name": "Test Project 1",
             "deployment_dates": [
-                [1625198400.0, 1],
-                [1625284800.0, 0],
-                [1625371200.0, 0],
-                [1625457600.0, 0],
-                [1625544000.0, 0],
-                [1625630400.0, 0],
+                [1625184000.0, 1],
+                [1625270400.0, 0],
+                [1625356800.0, 0],
+                [1625443200.0, 0],
+                [1625529600.0, 0],
+                [1625616000.0, 0],
             ],
             "performance": "Daily",
             "deployment_dates_description": "",
@@ -312,12 +314,12 @@ def test_get_deployments(client: TestClient, db: Session):
         {
             "project_name": "Test Project 2",
             "deployment_dates": [
-                [1625198400.0, 1],
-                [1625284800.0, 0],
-                [1625371200.0, 0],
-                [1625457600.0, 0],
-                [1625544000.0, 0],
-                [1625630400.0, 0],
+                [1625184000.0, 1],
+                [1625270400.0, 0],
+                [1625356800.0, 0],
+                [1625443200.0, 0],
+                [1625529600.0, 0],
+                [1625616000.0, 0],
             ],
             "performance": "Monthly",
             "deployment_dates_description": "",
