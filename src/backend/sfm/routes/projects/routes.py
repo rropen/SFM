@@ -8,7 +8,8 @@ from sfm.models import (
 )
 from typing import List, Optional
 import logging
-from opencensus.ext.azure.log_exporter import AzureLogHandler
+
+# from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Query
 from sfm.database import engine
