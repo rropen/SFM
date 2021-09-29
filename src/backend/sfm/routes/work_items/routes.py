@@ -124,7 +124,7 @@ def create_work_item(
             "id": new_work_item_success,
         }
     else:
-        logging.error('method=POST path="workItems/" error="Row Not Created"')
+        logger.error('method=POST path="workItems/" error="Row Not Created"')
         return {"code": "error", "message": "Row Not Created"}  # pragma: no cover
 
 
@@ -161,7 +161,7 @@ def delete_work_item(
             "message": "WorkItem {} Deleted".format(work_item_id),
         }
     else:  # pragma: no cover
-        logging.error(
+        logger.error(
             'method=POST path="workItems/{work_item_id}" error="WorkItem not deleted or multiple WorkItems with same work_item_id existed."'
         )
         return {
@@ -217,7 +217,7 @@ def update_work_item(
             "id": updated_work_item.id,
         }
     else:
-        logging.error(
+        logger.error(
             'method=PATCH path="workItems/{work_item_id}" error="Row not updated"'
         )
         return {"code": "error", "message": "Row not updated"}  # pragma: no cover

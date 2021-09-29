@@ -28,12 +28,12 @@ def get_all(
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
-            logging.warning('func="get_all" warning="Projects not found"')
+            logger.warning('func="get_all" warning="Projects not found"')
             raise HTTPException(status_code=404, detail="Project not found")
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
-            logging.warning('func="get_all" warning="Projects not found"')
+            logger.warning('func="get_all" warning="Projects not found"')
             raise HTTPException(status_code=404, detail="Project not found")
     elif project_id and project_name:
         project = db.exec(
@@ -42,7 +42,7 @@ def get_all(
             )
         ).first()
         if not project:
-            logging.warning('func="get_all" warning="Projects not found"')
+            logger.warning('func="get_all" warning="Projects not found"')
             raise HTTPException(status_code=404, detail="Project not found")
 
     if project:
@@ -65,6 +65,7 @@ def create_commit(db: Session, commit_data, project_auth_token):
     work_item = db.get(WorkItem, commit_data.work_item_id)
     intended_project = db.get(Project, work_item.project_id)
     if not intended_project:
+        logger.warning('func="create_commit" warning="Credentials are incorrect"')
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
         project_auth_token, intended_project.project_auth_token_hashed
@@ -77,7 +78,7 @@ def create_commit(db: Session, commit_data, project_auth_token):
         db.add(commit_db)
         db.commit()
     else:
-        logging.warning('func="create_commit" warning="Credentials are incorrect"')
+        logger.warning('func="create_commit" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check the new record exists
@@ -85,7 +86,7 @@ def create_commit(db: Session, commit_data, project_auth_token):
     if commit_db:
         return commit_db.sha  # successfully created record
     else:
-        logging.error('func="create_commit" error="Item did not store correctly"')
+        logger.error('func="create_commit" error="Item did not store correctly"')
         raise HTTPException(
             status_code=404, detail="Item did not store correctly"
         )  # didn't store correctly
@@ -95,11 +96,11 @@ def delete_commit(db: Session, commit_sha, project_auth_token):
     """Take a commit and remove the row from the database."""
     commit = db.get(Commit, commit_sha)
     if not commit:
-        logging.warning('func="delete_commit" warning="Item not found"')
+        logger.warning('func="delete_commit" warning="Item not found"')
         raise HTTPException(status_code=404, detail="Item not found")
     intended_project = db.get(Project, commit.work_item.project.id)
     if not intended_project:
-        logging.warning('func="delete_commit" warning="Project not found"')
+        logger.warning('func="delete_commit" warning="Project not found"')
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
         project_auth_token, intended_project.project_auth_token_hashed
@@ -108,13 +109,13 @@ def delete_commit(db: Session, commit_sha, project_auth_token):
         db.delete(commit)
         db.commit()
     else:
-        logging.warning('func="delete_commit" warning="Credentials are incorrect"')
+        logger.warning('func="delete_commit" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check our work
     row = db.get(Commit, commit_sha)
     if row:
-        logging.error(
+        logger.error(
             'func="delete_commit" error="Item did not delete correctly and still exists"'
         )
         raise HTTPException(
@@ -128,12 +129,12 @@ def update_commit(db: Session, commit_sha, commit_data, project_auth_token):
     """Take data from request and update an existing Commit in the database."""
     commit = db.get(Commit, commit_sha)
     if not commit:
-        logging.warning('func="update_commit" warning="Item not found"')
+        logger.warning('func="update_commit" warning="Item not found"')
         raise HTTPException(status_code=404, detail="Item not found")
 
     intended_project = db.get(Project, commit.work_item.project.id)
     if not intended_project:
-        logging.warning('func="update_commit" warning="Project not found"')
+        logger.warning('func="update_commit" warning="Project not found"')
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
         project_auth_token, intended_project.project_auth_token_hashed
@@ -151,7 +152,7 @@ def update_commit(db: Session, commit_sha, commit_data, project_auth_token):
         db.add(commit)
         db.commit()
     else:
-        logging.warning('func="update_commit" warning="Credentials are incorrect"')
+        logger.warning('func="update_commit" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # return updated item
@@ -159,5 +160,5 @@ def update_commit(db: Session, commit_sha, commit_data, project_auth_token):
     if commit:
         return commit  # updated record
     else:
-        logging.warning('func="update_commit" warning="Item did not store correctly"')
+        logger.warning('func="update_commit" warning="Item did not store correctly"')
         raise HTTPException(status_code=404, detail="Item did not store correctly")

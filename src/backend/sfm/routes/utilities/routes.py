@@ -15,6 +15,17 @@ import string
 import random
 
 
+import logging
+
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
+
 def random_sha(seed):  # pragma: no cover
     N = 20
     random.seed(a=seed)
@@ -35,7 +46,7 @@ def populate_db(  # pragma: no cover
     Calling this endpoint creates a database at SFM/src/backend/sfm/issues.db. This database is set in .env and created in database.py. Sample work items, projects, and commits are generated to be used in metrics testing. A date offset can be manually set on the mock data to allow the dates of the data to be shifted nearer the current date for a more realistic mock data set.
 
     """
-
+    logger.info('method=post path="utilities/populate_mock_data"')
     time_shift = timedelta(days=32)
 
     # fIRST PROJECT: Create project to file deployments under:
@@ -189,13 +200,22 @@ def populate_db(  # pragma: no cover
     all_projects = proj_crud.get_all(db)
 
     if len(all_projects) != 2:
+        logger.warning(
+            'method=post path="utilities/populate_mock_data"',
+            "Incorrect number of project present. Clear database and rerun.",
+        )
         return "Incorrect number of projects present. Clear database and rerun."
+
     else:
         pass
 
     all_work_items = crud.get_all(db)
 
     if len(all_work_items) != (len(dates) + len(dates2) + len(pull_dates)):
+        logger.warning(
+            'method=post path="utilities/populate_mock_data"',
+            "Incorrect number of work items present. Clear database and rerun.",
+        )
         return "Incorrect number of work items present. Clear database and rerun."
     else:
         pass
@@ -216,5 +236,7 @@ def clear_db():  # pragma: no cover
     Calling this endpoint drops all entries from all tables present in the local issues.db database.
 
     """
+
+    logger.info('method=delete path="utilities/clear_local_db"')
     SQLModel.metadata.drop_all(engine)
     return "Database cleared"

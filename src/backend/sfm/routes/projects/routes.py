@@ -132,7 +132,7 @@ def create_project(
             "token": token,
         }
     else:
-        logging.error('method=POST path="projects/" error="Row Not Created"')
+        logger.error('method=POST path="projects/" error="Row Not Created"')
         return {"code": "error", "message": "Row Not Created"}  # pragma: no cover
 
 
@@ -163,7 +163,7 @@ def delete_project(
             "message": "Project {} and associated workItems deleted".format(project_id),
         }
     else:  # pragma: no cover
-        logging.error(
+        logger.error(
             'method=POST path="projects/{project_id}" error="Project not deleted or multiple projects with same project_id existed."'
         )
         return {
@@ -196,9 +196,9 @@ def refresh_project_key(
     - **project_id**: Unique identifier that links to the project to be deleted
 
     """
-    logging.info('method=POST path="projects/{project_id}"')
+    logger.info('method=POST path="projects/{project_id}"')
     if not project_id:
-        logging.error(
+        logger.error(
             'method=POST path="projects/{project_id}" error="Project_id not provided"'
         )
         raise HTTPException(status_code=404, detail="project_id not provided")
@@ -210,7 +210,7 @@ def refresh_project_key(
             "token": refreshed_token,
         }
     else:
-        logging.error(
+        logger.error(
             'method=POST path="projects/{project_id}" error="Token  Not Refresh"'
         )
         return {"code": "error", "message": "Token Not Refreshed"}  # pragma: no cover
@@ -264,7 +264,7 @@ def update_project(
             "id": update_project_success.id,
         }
     else:
-        logging.error(
+        logger.error(
             'method=PATCH path="projects/{project_id}" error="Row not updated"'
         )
         return {"code": "error", "message": "Row not updated"}  # pragma: no cover

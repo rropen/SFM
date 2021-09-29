@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from time import mktime
 from statistics import median
@@ -10,6 +11,14 @@ from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
 from sfm.database import engine
 
+
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -103,6 +112,7 @@ def calc_frequency(
 
 def combine_deploys(deployment_dates):  # [date, date, date]
     if deployment_dates == []:
+        logger.debug('func="combine_deploys" debug="deployment_dates was empty"')
         return []
     initial_date = min(deployment_dates)  # date
     total_days = (datetime.now().date() - initial_date).days  # number of days
@@ -176,10 +186,14 @@ def get_deployments(
     - **project_name**: sets project the WorkItem belongs to
 
     """
+    logger.info('method="GET" path="metrics/deployments"')
     project = None
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
+            logger.warning(
+                'method="GET" path="metrics/deployments" warning="No project found with the specified name"'
+            )
             raise HTTPException(
                 status_code=404,
                 detail=f"No project found with the specified name: {project_name}",
@@ -187,6 +201,9 @@ def get_deployments(
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
+            logger.warning(
+                'method="GET" path="metrics/deployments" warning="No project found with the specified id"'
+            )
             raise HTTPException(
                 status_code=404,
                 detail=f"No project found with the specified id: {project_id}",
@@ -198,6 +215,9 @@ def get_deployments(
             )
         ).first()
         if not project:
+            logger.warning(
+                'method="GET" path="metrics/deployments" warning="Either project_id and project_name do not match or no matching project"'
+            )
             raise HTTPException(
                 status_code=404,
                 detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
@@ -293,11 +313,14 @@ def get_Lead_Time_To_Change(
     - **project_name**: sets project data to be used for lead time calculation
 
     """
+    logger.info('method="GET" path="metrics/LeadTimeToChange"')
     project = None
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
-            print(project, "DOES NOT EXIST")
+            logger.warning(
+                'method="GET" path="metrics/LeadTimeToChange" warning="No Project found with the specified name"'
+            )
             raise HTTPException(
                 status_code=404,
                 detail=f"No project found with the specified name: {project_name}",
@@ -305,6 +328,9 @@ def get_Lead_Time_To_Change(
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
+            logger.warning(
+                'method="GET" path="metrics/LeadTimeToChange" warning="No Project found with the specified id"'
+            )
             raise HTTPException(
                 status_code=404,
                 detail=f"No project found with the specified id: {project_id}",
@@ -316,6 +342,9 @@ def get_Lead_Time_To_Change(
             )
         ).first()
         if not project:
+            logger.warning(
+                'method="GET" path="metrics/LeadTimeToChange" warning="Either project_id and project_name do not match or no matching project"'
+            )
             raise HTTPException(
                 status_code=404,
                 detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
@@ -326,6 +355,9 @@ def get_Lead_Time_To_Change(
             item for item in project.work_items if (item.category == "Pull Request")
         ]
         if not pullRequests:
+            logger.warning(
+                'method="GET" path="metrics/LeadTimeToChange" warning="No pull requests to main with specified project"'
+            )
             raise HTTPException(
                 status_code=404,
                 detail="No pull requests to main associated with specified project",
@@ -335,6 +367,9 @@ def get_Lead_Time_To_Change(
         all_items = crud.get_all(db)
         pullRequests = [item for item in all_items if (item.category == "Pull Request")]
         if not pullRequests:
+            logger.warning(
+                'method="GET" path="metrics/LeadTimeToChange" warning="No pull requests to main in record for any project"'
+            )
             raise HTTPException(
                 status_code=404,
                 detail="No pull requests to main in record for any project",

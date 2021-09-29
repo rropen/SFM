@@ -6,3 +6,4 @@ omit = __pypackages__
 exclude_lines = 
     pragma: no cover
     logging
+    logger

@@ -21,7 +21,7 @@ def get_all(db: Session, skip: int = None, limit: int = None):
     """Get all the projects and return them."""
     projects = db.exec(select(Project).offset(skip).limit(limit)).all()
     if not projects:
-        logging.warning('func="get_all" warning="Projects not found"')
+        logger.warning('func="get_all" warning="Projects not found"')
         raise HTTPException(status_code=404, detail="Projects not found")
     return projects
 
@@ -30,7 +30,7 @@ def get_by_id(db: Session, project_id: int):
     """Get the project with corresponding id and return it."""
     project = db.get(Project, project_id)
     if not project:
-        logging.warning('func="get_by_id" warning="Projects not found"')
+        logger.warning('func="get_by_id" warning="Projects not found"')
         raise HTTPException(status_code=404, detail="Project not found")
     return project
 
@@ -47,7 +47,7 @@ def create_project(db: Session, project_data, admin_key):
         db.add(project_db)
         db.commit()
     else:
-        logging.warning('func="create_project" warning="Credentials are incorrect"')
+        logger.warning('func="create_project" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check the new record
@@ -56,7 +56,7 @@ def create_project(db: Session, project_data, admin_key):
     if new_project.name == project_data.name:
         return [new_project, token]  # successfully created record
     else:
-        logging.error('func="create_project" error="Project did not store correctly"')
+        logger.error('func="create_project" error="Project did not store correctly"')
         return False  # didn't store correctly
 
 
@@ -66,7 +66,7 @@ def delete_project(db: Session, project_id, admin_key):
     if verified_admin:
         project = db.get(Project, project_id)
         if not project:
-            logging.warning('func="delete_project" warning="Project not found"')
+            logger.warning('func="delete_project" warning="Project not found"')
             raise HTTPException(status_code=404, detail="Project not found")
 
         for item in project.work_items:
@@ -74,13 +74,13 @@ def delete_project(db: Session, project_id, admin_key):
         db.delete(project)
         db.commit()
     else:
-        logging.warning('func="delete_project" warning="Credentials are incorrect"')
+        logger.warning('func="delete_project" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check our work
     row = db.get(Project, project_id)
     if row:
-        logging.error('func="delete_project" error="Project did not delete correctly"')
+        logger.error('func="delete_project" error="Project did not delete correctly"')
         return False  # Row didn't successfully delete or another one exists
     else:
         return True  # Successful deletion
@@ -92,7 +92,7 @@ def refresh_project_key(db: Session, project_id, admin_key):
     if verified_admin:
         project_db = db.get(Project, project_id)
         if not project_db:
-            logging.warning(
+            logger.warning(
                 'func="refresh_project_key" warning="Project with matching id not found"'
             )
             raise HTTPException(
@@ -104,9 +104,7 @@ def refresh_project_key(db: Session, project_id, admin_key):
         db.add(project_db)
         db.commit()
     else:
-        logging.warning(
-            'func="refresh_project_key" warning="Credentials are incorrect"'
-        )
+        logger.warning('func="refresh_project_key" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     check = db.exec(
@@ -115,7 +113,7 @@ def refresh_project_key(db: Session, project_id, admin_key):
     if check:
         return new_token
     else:
-        logging.error(
+        logger.error(
             'func="refresh_project_key" error="Project auth token did not update correctly"'
         )
         return False
@@ -139,7 +137,7 @@ def update_project(db: Session, project_id, project_data, admin_key):
         db.commit()
 
     else:
-        logging.warning('func="update_project" warning="Credentials are incorrect"')
+        logger.warning('func="update_project" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # return updated item
@@ -147,7 +145,7 @@ def update_project(db: Session, project_id, project_data, admin_key):
     if project:
         return project  # updated record
     else:
-        logging.warning(
+        logger.warning(
             'func="update_project" warning="Project did not store correctly"'
         )
         return False  # didn't store correctly

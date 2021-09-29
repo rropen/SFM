@@ -5,6 +5,7 @@ from passlib.context import CryptContext
 
 import string
 import random
+import logging
 
 # SECRET_KEY = config.SECRET_KEY
 # ALGORITHM = config.ALGORITHM
@@ -12,9 +13,18 @@ ADMIN_KEY = config.ADMIN_KEY
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
 
 def create_project_auth_token():
     # creates 20 character string of random letters, numbers, symbols.
+    logger.info("Created new project auth token")
     low_letters = string.ascii_lowercase
     up_letters = string.ascii_uppercase
     digits = string.digits

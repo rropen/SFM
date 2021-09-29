@@ -37,7 +37,7 @@ def get_all(
             )
         ).first()
         if not project:
-            logging.warning('func="get_all" warning="Project not found"')
+            logger.warning('func="get_all" warning="Project not found"')
             raise HTTPException(status_code=404, detail="Project not found")
 
     if project:
@@ -57,7 +57,7 @@ def get_by_id(db: Session, work_item_id):
     if workitem:
         return workitem
     if not workitem:
-        logging.warning('func="get_by_id" warning="Item not found"')
+        logger.warning('func="get_by_id" warning="Item not found"')
         raise HTTPException(status_code=404, detail="Item not found")
 
 
@@ -65,7 +65,7 @@ def create_work_item(db: Session, work_item_data, project_auth_token):
     """Take data from request and create a new WorkItem in the database."""
     intended_project = db.get(Project, work_item_data.project_id)
     if not intended_project:
-        logging.warning('func="create_work_item" warning="Project not found"')
+        logger.warning('func="create_work_item" warning="Project not found"')
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
         project_auth_token, intended_project.project_auth_token_hashed
@@ -75,7 +75,7 @@ def create_work_item(db: Session, work_item_data, project_auth_token):
         db.add(work_item_db)
         db.commit()
     else:
-        logging.warning('func="create_work_item" warning="Credentials are incorrect"')
+        logger.warning('func="create_work_item" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check the new record exists
@@ -83,7 +83,7 @@ def create_work_item(db: Session, work_item_data, project_auth_token):
     if work_item_db:
         return work_item_db.id  # successfully created record
     else:
-        logging.error('func="create_work_item" error="Item did not store correctly"')
+        logger.error('func="create_work_item" error="Item did not store correctly"')
         raise HTTPException(
             status_code=404, detail="Item did not store correctly"
         )  # didn't store correctly
@@ -93,12 +93,12 @@ def delete_work_item(db: Session, work_item_id, project_auth_token):
     """Take a issueTitle and remove the row from the database."""
     work_item = db.get(WorkItem, work_item_id)
     if not work_item:
-        logging.warning('func="delete_work_item" warning="Item not found"')
+        logger.warning('func="delete_work_item" warning="Item not found"')
         raise HTTPException(status_code=404, detail="Item not found")
 
     intended_project = db.get(Project, work_item.project_id)
     if not intended_project:
-        logging.warning('func="delete_work_item" warning="Project not found"')
+        logger.warning('func="delete_work_item" warning="Project not found"')
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
         project_auth_token, intended_project.project_auth_token_hashed
@@ -107,13 +107,13 @@ def delete_work_item(db: Session, work_item_id, project_auth_token):
         db.delete(work_item)
         db.commit()
     else:
-        logging.warning('func="delete_work_item" warning="Credentials are incorrect"')
+        logger.warning('func="delete_work_item" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check our work
     row = db.get(WorkItem, work_item_id)
     if row:
-        logging.error('func="delete_work_item" error="Item did not delete correctly"')
+        logger.error('func="delete_work_item" error="Item did not delete correctly"')
         raise HTTPException(
             status_code=404, detail="Item did not delete correctly"
         )  # Row didn't successfully delete or another one exists
@@ -125,12 +125,12 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
     """Take data from request and update an existing WorkItem in the database."""
     work_item = db.get(WorkItem, work_item_id)
     if not work_item:
-        logging.warning('func="update_work_item" warning="Item not found"')
+        logger.warning('func="update_work_item" warning="Item not found"')
         raise HTTPException(status_code=404, detail="Item not found")
 
     intended_project = db.get(Project, work_item.project_id)
     if not intended_project:
-        logging.warning('func="update_work_item" warning="Project not found"')
+        logger.warning('func="update_work_item" warning="Project not found"')
         raise HTTPException(status_code=404, detail="Project not found")
     verified = verify_project_auth_token(
         project_auth_token, intended_project.project_auth_token_hashed
@@ -145,7 +145,7 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
         db.add(work_item)
         db.commit()
     else:
-        logging.warning('func="update_work_item" warning="Credentials are incorrect"')
+        logger.warning('func="update_work_item" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # return updated item
@@ -153,5 +153,5 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
     if work_item:
         return work_item  # updated record
     else:
-        logging.error('func="update_work_item" error="Item did not store correctly"')
+        logger.error('func="update_work_item" error="Item did not store correctly"')
         raise HTTPException(status_code=404, detail="Item did not store correctly")
