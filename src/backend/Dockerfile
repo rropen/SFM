@@ -17,3 +17,5 @@ RUN pip install -r requirements.txt
 COPY . .
 # CMD ["pdm", "run", "uvicorn","mec.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181", "--reload"]
 CMD ["uvicorn","sfm.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181", "--reload"]
+
+EXPOSE 8181

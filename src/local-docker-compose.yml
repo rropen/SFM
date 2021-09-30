@@ -14,12 +14,12 @@ services:
       - ./backend/:/app
 
   frontend:
-      depends_on:
-          - backend
-      environment:
-        - VITE_MODE=development
-        - NODE_ENV=development
-        - VITE_API_URL=http://localhost:8181
-        - VITE_COVERAGE=true
-      ports:
-          - 3000:3000
+    depends_on:
+      - backend
+    environment:
+      - VITE_MODE=development
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8181
+      - VITE_COVERAGE=true
+    ports:
+      - 3000:3000
