@@ -878,12 +878,12 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@headlessui/vue@^1.4.0":
+"@headlessui/vue@^1.4.0", "@headlessui/vue@^1.4.1":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@headlessui/vue/-/vue-1.4.1.tgz#bc1a37d3180eeeae28ad467f020c2dfdc8d43645"
   integrity sha512-yLgpqxJGdGw+ylouZfxxuXXBqCWRZq+Jh1jb23cXQIuAngbisN5BlSO8pPpvKOvk6hXr8dx9bPohSn45cbIIHw==
 
-"@heroicons/vue@^1.0.3":
+"@heroicons/vue@^1.0.3", "@heroicons/vue@^1.0.4":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@heroicons/vue/-/vue-1.0.4.tgz#dcfd957a9abc827321054e643f6fb73629b3eef6"
   integrity sha512-jm7JMoUGr7Asn07oYNmewxkdQALnskTzRo17iGpHG/apLcc+GFdvdN4XvWZ2awStodaqeZ4eYWg7UcI0LvLETQ==
@@ -939,12 +939,15 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@rrglobal/vue-cobalt@^1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@rrglobal/vue-cobalt/1.2.1/bb0ead98f13cd7a501f2d3c4cab2cf765e85819d4bdc3360193d4ed834d7d4fa#ff01ea8a9a4f3d3ad317ea89c94672e98c3999c6"
-  integrity sha512-nf1trFgiuconRWF/Efts9wo9U/SbcyDkmhrOzOl1LhY+isZXu6JgiVrgwSj0Y5gwvdtmQCEaoweUMwRByO1Xpw==
+"@rrglobal/vue-cobalt@^1.3.0":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@rrglobal/vue-cobalt/1.3.0/8ff8cdd2d2e69d17c061d87c28fd3739caebee4503c3f91f57ad984efa4cdefc#6e1371d986e7ad6ceaab123a104418d9283ec77f"
+  integrity sha512-/fHkozZhU8MzgdVOlCxPA8U0dDzo2JVxVBEx32gFJJLNpFFm8Sk6mAV2VTjTqh5SX/pIsp3UliZ+e8hfHF5eAA==
   dependencies:
+    "@headlessui/vue" "^1.4.1"
+    "@heroicons/vue" "^1.0.4"
     vue "^3.2.0"
+    vue-router "^4.0.11"
 
 "@sideway/address@^4.1.0":
   version "4.1.2"
@@ -7303,7 +7306,7 @@ vue-eslint-parser@^7.10.0:
     lodash "^4.17.21"
     semver "^6.3.0"
 
-vue-router@4:
+vue-router@4, vue-router@^4.0.11:
   version "4.0.11"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.0.11.tgz#cd649a0941c635281763a20965b599643ddc68ed"
   integrity sha512-sha6I8fx9HWtvTrFZfxZkiQQBpqSeT+UCwauYjkdOQYRvwsGwimlQQE2ayqUwuuXGzquFpCPoXzYKWlzL4OuXg==
