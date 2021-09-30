@@ -12,7 +12,7 @@ import urllib
 # DBUSER = os.environ.get("DBUSER") or username
 # DBPASS = os.environ.get("DBPASS") or password
 
-conn_str = "sqlite:///database.db"
+conn_str = "sqlite:///./issues.db"
 
 # driver = "{ODBC Driver 17 for SQL Server}"
 # server = ""
