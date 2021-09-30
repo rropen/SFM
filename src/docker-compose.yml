@@ -3,16 +3,16 @@ version: "3.7"
 services:
   backend:
     build: ./backend
-    container_name: sfm_backend
+    container_name: ghcr.io/rropen/test_sfm_backend
     restart: always
     env_file:
       - ./backend/.env
 
   frontend:
-      build: ./frontend
-      container_name: sfm_frontend
-      restart: always
-      depends_on:
-          - backend
-      env_file:
-          - ./frontend/.env
+    build: ./frontend
+    container_name: ghcr.io/rropen/test_sfm_frontend
+    restart: always
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env
