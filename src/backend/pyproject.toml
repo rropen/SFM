@@ -6,11 +6,20 @@ authors = [
     {name = "Gabe Geiger", email = "gabe.geiger@gmail.com"},
 ]
 dependencies = [
-    "opencensus-ext-azure~=1.0",
-    "passlib~=1.7",
-    "sqlmodel~=0.0.4",
-    "fastapi~=0.68",
+    "sqlalchemy~=1.4",
+    "pydantic==1.8.2",
+    "pip==21.1.1",
+    "msal==1.11.0",
+    "pyodbc==4.0.30",
+    "alembic==1.6.2",
     "python-dotenv~=0.19",
+    "uvicorn~=0.14",
+    "fastapi~=0.66",
+    "icecream~=2.1",
+    "sqlmodel~=0.0",
+    "passlib~=1.7",
+    "bcrypt~=3.2",
+    "opencensus~=0.7",
 ]
 requires-python = ">=3.8"
 dynamic = ["classifiers"]
