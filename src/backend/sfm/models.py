@@ -80,28 +80,38 @@ class WorkItemUpdate(SQLModel):
     project_id: Optional[int] = None
 
 
-class ChartData(SQLModel):
+class MetricData(SQLModel):
     project_name: str
-    deployment_dates: Optional[List]
-    deployment_frequency: str
+    deployment_dates: List
+    performance: str
+    deployment_dates_description: str
+    performance_description: str
 
 
 class LeadTimeData(SQLModel):
-    lead_time: Optional[float] = None
-    color: Optional[str] = None
+    lead_time: int
+    time_units: str
+    performance: str
+    daily_commits: List
+    daily_lead_times: List
+    lead_time_description: str
+    performance_description: str
+    daily_commits_description: str
+    daily_lead_times_description: str
 
 
 class CommitBase(SQLModel):
-    sha: str = Field(primary_key=True)
+    sha: str
     date: Optional[datetime] = None
-    time_to_pull: Optional[int] = None
     message: Optional[str] = None
     author: Optional[str] = None
     work_item_id: Optional[int] = Field(default=None, foreign_key="workitem.id")
 
 
 class Commit(CommitBase, table=True):
+    id: int = Field(primary_key=True)
     work_item: Optional[WorkItem] = Relationship(back_populates="commits")
+    time_to_pull: int
 
 
 class CommitRead(CommitBase):
@@ -110,7 +120,6 @@ class CommitRead(CommitBase):
 
 class CommitUpdate(SQLModel):
     date: Optional[datetime] = None
-    time_to_pull: Optional[int] = None
     message: Optional[str] = None
     author: Optional[str] = None
 

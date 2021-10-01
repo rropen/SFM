@@ -1,4 +1,3 @@
-<!-- This example requires Tailwind CSS v2.0+ -->
 <template>
   <Disclosure as="nav" class="bg-rrblue-800 shadow" v-slot="{ open }">
     <div class="max-w-7xl mr-auto px-6">
@@ -183,7 +182,7 @@
   </Disclosure>
 </template>
 
-<script>
+<script lang="ts" setup>
 import {
   Disclosure,
   DisclosureButton,
@@ -194,19 +193,4 @@ import {
   MenuItems,
 } from "@headlessui/vue";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/vue/outline";
-
-export default {
-  components: {
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-    Menu,
-    MenuButton,
-    MenuItem,
-    MenuItems,
-    BellIcon,
-    MenuIcon,
-    XIcon,
-  },
-};
 </script>

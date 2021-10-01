@@ -1,6 +1,8 @@
 import json
+import logging
 from sfm.routes.work_items import crud
 from sfm.routes.commits import crud as commit_crud
+from sfm.dependencies import get_db
 from sfm.models import WorkItemCreate, Project, CommitCreate
 from typing import List, Optional
 from sqlmodel import Session, select
@@ -10,14 +12,26 @@ from urllib.request import urlopen
 import requests
 from datetime import datetime
 from statistics import median
-
-# Create a database connection we can use
-def get_db():
-    with Session(engine) as db:
-        yield db
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 
 
-def deployment_processor(db, deployment, project_db, project_auth_token):
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
+
+
+def deployment_processor(
+    db, deployment, project_db, project_auth_token
+):  # pragma: no cover
     deployment_dict = {
         "category": "Deployment",
         "end_time": deployment.get("updated_at"),
@@ -28,7 +42,9 @@ def deployment_processor(db, deployment, project_db, project_auth_token):
     crud.create_work_item(db, work_item_data, project_auth_token)
 
 
-def pull_request_processor(db, pull_request, project_db, project_auth_token):
+def pull_request_processor(
+    db, pull_request, project_db, project_auth_token
+):  # pragma: no cover
 
     pull_request_dict = {
         "category": "Pull Request",
@@ -39,8 +55,6 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
 
     work_item_data = WorkItemCreate(**pull_request_dict)
     work_item_id = crud.create_work_item(db, work_item_data, project_auth_token)
-
-    pull_date = datetime.strptime(pull_request.get("merged_at"), "%Y-%m-%dT%H:%M:%SZ")
 
     # commits_url = pull_request.get("commits_url")
     commits_url = "https://api.github.com/repos/Codertocat/Hello-World/commits"
@@ -58,22 +72,22 @@ def pull_request_processor(db, pull_request, project_db, project_auth_token):
             "work_item_id": work_item_id,
             "sha": commit_data["sha"],
             "date": date,
-            "time_to_pull": (pull_date - date).total_seconds(),
             "message": commit_data["commit"]["message"],
             "author": commit_data["commit"]["author"]["name"],
         }
 
-        commit_data = CommitCreate(**commit_dict)
-        commit_crud.create_commit(db, commit_data, project_auth_token)
+        commit_obj = CommitCreate(**commit_dict)
+        commit_crud.create_commit(db, commit_obj, project_auth_token)
 
 
 router = APIRouter()
 
 
-@router.post("/github_webhooks/")
+@router.post("/github_webhooks/")  # pragma: no cover
 async def webhook_handler(
     request: Request,
-    # project_auth_token: str = Header(...),
+    project_auth_token: str = Header(...),
+    X_GitHub_Event: str = Header(...),  # DELETE ME WHEN DONE
     db: Session = Depends(get_db),
 ):
     """
@@ -83,11 +97,13 @@ async def webhook_handler(
     Currently, endpoint processes two different event types: "Deployment" and "Pull Request".
     The payload data is parsed and data needed to calculate the DORA metrics is stored in the db tables.
     """
+    logger.info('method="POST" path="converters/github_webhooks"')
     # handle events
     payload = await request.json()
     event_type = request.headers.get("X-Github-Event")
-    # secret_auth_key = request.headers.get("X-Hub-Signature-256")
 
+    # secret_auth_key = request.headers.get("X-Hub-Signature-256")
+    event_type = X_GitHub_Event
     print("THE EVENT TYPE:", event_type)
 
     # gather common payload object properties
@@ -98,6 +114,7 @@ async def webhook_handler(
         # organization = payload.get("organization")
         # installation = payload.get("installation")
 
+        print(repository)
     else:
         # TODO: pull in push event information
         pass
@@ -106,6 +123,9 @@ async def webhook_handler(
     print(project_name)
     project_db = db.exec(select(Project).where(Project.name == project_name)).first()
     if not project_db:
+        logger.warning(
+            'method=POST path="converters/github_webhooks" warning="Matching project not found"'
+        )
         raise HTTPException(status_code=404, detail="Matching project not found")
 
     project_auth_token = request.headers.get("project-auth-key")  # workaround for now
@@ -116,6 +136,13 @@ async def webhook_handler(
 
     elif event_type == "pull_request":
         pull_request = payload.get("pull_request")
+        print(pull_request)
         pull_request_processor(db, pull_request, project_db, project_auth_token)
 
-    return
+    else:
+        logger.warning(
+            'method=POST path="converters/github_webhooks" warning="Event type not handled."'
+        )
+        raise HTTPException(status_code=404, detail="Event type not handled.")
+
+    return project_name, pull_request

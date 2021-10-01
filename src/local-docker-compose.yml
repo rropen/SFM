@@ -1,12 +1,6 @@
 version: "3.7"
 
 services:
-  nocodb:
-    volumes:
-      - ./nocodb/data:/usr/app/data/
-    ports:
-      - 8080:8080
-
   backend:
     command: uvicorn sfm.main:app --workers 4 --host 0.0.0.0 --port 8181 --reload
     # command:
@@ -19,13 +13,13 @@ services:
       # - ./backend:/usr/mec/static
       - ./backend/:/app
 
-  # frontend:
-  #     build:
-  #         target: 'deploy'
-  #     depends_on:
-  #         - backend
-  #     environment:
-  #         ENV: "Local"
-  #         NODE_ENV: development
-  #     ports:
-  #         - 3000:3000
+  frontend:
+    depends_on:
+      - backend
+    environment:
+      - VITE_MODE=development
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8181
+      - VITE_COVERAGE=true
+    ports:
+      - 3000:3000

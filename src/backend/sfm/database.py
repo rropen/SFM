@@ -1,35 +1,53 @@
-from sqlmodel import SQLModel, create_engine
+from sqlmodel import SQLModel, Session, create_engine
+
 import os
+import config
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+import logging
+import pyodbc
+import urllib
 
-# This is the Database Connection for Azure
-# server = ''
-# database = ''
-# username = ''
-# password = ''
-# driver= '{ODBC Driver 17 for SQL Server}'
+# # SECRET_KEY = os.environ.get("SECRET_KEY") or "secret-key"
+# DBHOST = os.environ.get("DBHOST") or server
+# DBNAME = os.environ.get("DBNAME") or database
+# DBUSER = os.environ.get("DBUSER") or username
+# DBPASS = os.environ.get("DBPASS") or password
 
-# SECRET_KEY = os.environ.get('SECRET_KEY') or 'secret-key'
-# SQL_SERVER = os.environ.get('SQL_SERVER') or server
-# SQL_DATABASE = os.environ.get('SQL_DATABASE') or database
-# SQL_USER_NAME = os.environ.get('SQL_USER_NAME') or username
-# SQL_PASSWORD = os.environ.get('SQL_PASSWORD') or password
-# SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://' + SQL_USER_NAME + '@' + SQL_SERVER + ':' + SQL_PASSWORD + '@' + SQL_SERVER + ':1433/' + SQL_DATABASE + '?driver=ODBC+Driver+17+for+SQL+Server'
-# SQLALCHEMY_TRACK_MODIFICATIONS = False
+conn_str = "sqlite:///./issues.db"
 
-DATABASE_URL = "sqlite:///./issues.db"
-# print("Database Url: {}".format(os.getenv("DATABASE_URL")))
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./issues.db")
-print(DATABASE_URL)
-assert DATABASE_URL != ""
+# driver = "{ODBC Driver 17 for SQL Server}"
+# server = ""
+# user = ""
+# database = ""
+# password = ""
 
-# check_same_thread = false only works in sqlite, not postgres or others
-if "sqlite" in DATABASE_URL:
+# conn = f"""Driver={driver};Server=tcp:{server},1433;Database={database};
+# Uid={user};Pwd={password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"""
+
+# params = urllib.parse.quote_plus(conn)
+# conn_str = "mssql+pyodbc:///?autocommit=true&odbc_connect={}".format(params)
+
+# # check_same_thread = false only works in sqlite, not postgres or others
+if "sqlite" in conn_str:
     print("Using a sqlite database")
     connect_args = {"check_same_thread": False}
-    engine = create_engine(DATABASE_URL, connect_args=connect_args)
+    engine = create_engine(conn_str, connect_args=connect_args)
 else:
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(conn_str, echo=True)
+
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(levelname)s %(name)s %(asctime)s %(message)s",
+)
+logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
 
 
 def create_db_and_tables():
+    logger.info('func="create_db_and_tables" info="Database created"')
     SQLModel.metadata.create_all(engine)
