@@ -2,6 +2,7 @@ from sqlmodel import SQLModel, Session, create_engine
 
 import os
 import config
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 import pyodbc
 import urllib
@@ -40,6 +41,11 @@ logging.basicConfig(
     format="%(levelname)s %(name)s %(asctime)s %(message)s",
 )
 logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
 
 
 def create_db_and_tables():

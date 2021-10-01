@@ -2,6 +2,7 @@ from fastapi.exceptions import HTTPException
 from sfm.models import Project, WorkItem
 from sqlmodel import Session, select
 import logging
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.utils import (
     create_project_auth_token,
     hash_project_auth_token,
@@ -15,6 +16,12 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
 
 
 def get_all(db: Session, skip: int = None, limit: int = None):

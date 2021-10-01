@@ -5,6 +5,7 @@ from sfm.models import WorkItem, Project, Commit
 from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
 from datetime import datetime, time, timedelta
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 
 logging.basicConfig(
@@ -14,6 +15,11 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
 
 
 def get_all(

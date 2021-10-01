@@ -144,7 +144,8 @@ def init_database(session):
     session.add(commit1)
     session.commit()
 
-    time_shift = datetime.timedelta(days=32)
+    # time_shift = datetime.timedelta(days=32)
+    time_shift = datetime.datetime.now().date() - datetime.datetime(2021, 8, 19).date()
 
     # Creates the deployment items:
     dates = [

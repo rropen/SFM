@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 import string
 import random
 import logging
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 
 # SECRET_KEY = config.SECRET_KEY
 # ALGORITHM = config.ALGORITHM
@@ -20,6 +21,11 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
 
 
 def create_project_auth_token():

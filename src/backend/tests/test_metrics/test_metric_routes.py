@@ -211,7 +211,7 @@ def test_get_deployments(client: TestClient, db: Session):
         datetime(2021, 6, 4),
         datetime(2021, 6, 5),  # Week 12
     ]
-    time_shift = timedelta(days=32)
+    time_shift = datetime.now().date() - datetime(2021, 8, 19).date()
     deploy_dates = [deploy + time_shift for deploy in deploy_dates]
     deployment_dates = [
         [unix_time_seconds(deploy_dates[0].date()), 1],  # Week 1
@@ -266,23 +266,25 @@ def test_get_deployments(client: TestClient, db: Session):
     result4 = response4.json()
     result4[0]["deployment_dates"] = result4[0]["deployment_dates"][:6]
     print(result4)
+    deployment_dates = [
+        [unix_time_seconds(deploy_dates[0].date()), 2],  # Week 1
+        [unix_time_seconds(deploy_dates[1].date()), 0],  # Week 2
+        [unix_time_seconds(deploy_dates[2].date()), 0],  # Week 10
+        [unix_time_seconds(deploy_dates[3].date()), 0],  # Week 11
+        [unix_time_seconds(deploy_dates[4].date()), 0],
+        [unix_time_seconds(deploy_dates[5].date()), 0],  # Week 12
+    ]
 
     expected_result4 = [
         {
             "project_name": "org",
-            "deployment_dates": [
-                [1625184000.0, 2],
-                [1625270400.0, 0],
-                [1625356800.0, 0],
-                [1625443200.0, 0],
-                [1625529600.0, 0],
-                [1625616000.0, 0],
-            ],
+            "deployment_dates": deployment_dates,
             "performance": "Daily",
             "deployment_dates_description": "",
             "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
         }
     ]
+    print(expected_result4)
     assert result4 == expected_result4
 
     """Testing if you set all_deployments to false"""
@@ -296,31 +298,26 @@ def test_get_deployments(client: TestClient, db: Session):
     for i in range(0, len(result5)):
         result5[i]["deployment_dates"] = result5[i]["deployment_dates"][:6]
 
+    deployment_dates = [
+        [unix_time_seconds(deploy_dates[0].date()), 1],  # Week 1
+        [unix_time_seconds(deploy_dates[1].date()), 0],  # Week 2
+        [unix_time_seconds(deploy_dates[2].date()), 0],  # Week 10
+        [unix_time_seconds(deploy_dates[3].date()), 0],  # Week 11
+        [unix_time_seconds(deploy_dates[4].date()), 0],
+        [unix_time_seconds(deploy_dates[5].date()), 0],  # Week 12
+    ]
+
     expected_result5 = [
         {
             "project_name": "Test Project 1",
-            "deployment_dates": [
-                [1625184000.0, 1],
-                [1625270400.0, 0],
-                [1625356800.0, 0],
-                [1625443200.0, 0],
-                [1625529600.0, 0],
-                [1625616000.0, 0],
-            ],
+            "deployment_dates": deployment_dates,
             "performance": "Daily",
             "deployment_dates_description": "",
             "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
         },
         {
             "project_name": "Test Project 2",
-            "deployment_dates": [
-                [1625184000.0, 1],
-                [1625270400.0, 0],
-                [1625356800.0, 0],
-                [1625443200.0, 0],
-                [1625529600.0, 0],
-                [1625616000.0, 0],
-            ],
+            "deployment_dates": deployment_dates,
             "performance": "Monthly",
             "deployment_dates_description": "",
             "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
