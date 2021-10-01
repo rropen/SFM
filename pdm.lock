@@ -16,6 +16,16 @@ requires_python = ">=3.5"
 summary = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 
 [[package]]
+name = "fastapi"
+version = "0.68.1"
+requires_python = ">=3.6"
+summary = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
+dependencies = [
+    "pydantic!=1.7,!=1.7.1,!=1.7.2,!=1.7.3,!=1.8,!=1.8.1,<2.0.0,>=1.6.2",
+    "starlette==0.14.2",
+]
+
+[[package]]
 name = "google-api-core"
 version = "1.31.3"
 requires_python = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
@@ -213,6 +223,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "starlette"
+version = "0.14.2"
+requires_python = ">=3.6"
+summary = "The little ASGI library that shines."
+
+[[package]]
 name = "typing-extensions"
 version = "3.10.0.2"
 summary = "Backported and Experimental Type Hints for Python 3.5+"
@@ -225,7 +241,7 @@ summary = "HTTP library with thread-safe connection pooling, file post, and more
 
 [metadata]
 lock_version = "3.1"
-content_hash = "sha256:626b9439fa76eb4f354e074828a78f39ac6df0714999ab78b9199950c200aae4"
+content_hash = "sha256:c12048033d5bc5eb38de153d1e79bf3bfa1b80f25348efbf09f9bed823a38e27"
 
 [metadata.files]
 "cachetools 4.2.4" = [
@@ -239,6 +255,10 @@ content_hash = "sha256:626b9439fa76eb4f354e074828a78f39ac6df0714999ab78b9199950c
 "charset-normalizer 2.0.6" = [
     {file = "charset_normalizer-2.0.6-py3-none-any.whl", hash = "sha256:5d209c0a931f215cee683b6445e2d77677e7e75e159f78def0db09d68fafcaa6"},
     {file = "charset-normalizer-2.0.6.tar.gz", hash = "sha256:5ec46d183433dcbd0ab716f2d7f29d8dee50505b3fdb40c6b985c7c4f5a3591f"},
+]
+"fastapi 0.68.1" = [
+    {file = "fastapi-0.68.1-py3-none-any.whl", hash = "sha256:94d2820906c36b9b8303796fb7271337ec89c74223229e3cfcf056b5a7d59e23"},
+    {file = "fastapi-0.68.1.tar.gz", hash = "sha256:644bb815bae326575c4b2842469fb83053a4b974b82fa792ff9283d17fbbd99d"},
 ]
 "google-api-core 1.31.3" = [
     {file = "google_api_core-1.31.3-py2.py3-none-any.whl", hash = "sha256:f52c708ab9fd958862dea9ac94d9db1a065608073fe583c3b9c18537b177f59a"},
@@ -482,6 +502,10 @@ content_hash = "sha256:626b9439fa76eb4f354e074828a78f39ac6df0714999ab78b9199950c
 "sqlmodel 0.0.4" = [
     {file = "sqlmodel-0.0.4-py3-none-any.whl", hash = "sha256:441224eea75ea3799661dad0f9599bbd70322ce7d083f30f6741ebc807bc3ee6"},
     {file = "sqlmodel-0.0.4.tar.gz", hash = "sha256:9503befd4374a8e84e9432b344dc9488e9ca2cc4bd1c944ab6837c1bae0b9837"},
+]
+"starlette 0.14.2" = [
+    {file = "starlette-0.14.2-py3-none-any.whl", hash = "sha256:3c8e48e52736b3161e34c9f0e8153b4f32ec5d8995a3ee1d59410d92f75162ed"},
+    {file = "starlette-0.14.2.tar.gz", hash = "sha256:7d49f4a27f8742262ef1470608c59ddbc66baf37c148e938c7038e6bc7a998aa"},
 ]
 "typing-extensions 3.10.0.2" = [
     {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
