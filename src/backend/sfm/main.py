@@ -27,20 +27,29 @@ def get_settings():
     return Settings()
 
 
-assert get_settings().ENV != "unset"  # mandate environment value
+assert get_settings().ENV != "unset"  # mandate ENV value
+assert get_settings().DEBUG != "unset"  # mandate DEBUG value
+assert get_settings().SECRET_KEY != "unset"  # mandate SECRET_KEY value
+assert get_settings().FRONTEND_URL != "unset"  # mandate FRONTEND_URL value
+assert get_settings().DBHOST != "unset"  # mandate DBHOST value
+assert get_settings().DBNAME != "unset"  # mandate DBNAME value
+assert get_settings().DBUSER != "unset"  # mandate DBUSER value
+assert get_settings().DBPASS != "unset"  # mandate DBPASS value
 
 # CORS Stuff
-if os.environ.get("ENV") == "Local":
-    ui_url = "http://localhost:3000"
+
+# if os.environ.get("ENV") == "Local":
+#     ui_url = "http://localhost:3000"
 
 # allow override
-if os.environ.get("UI_URL", "http://localhost:3000"):
-    ui_url = os.environ.get("UI_URL", "http://localhost:3000")
+# if os.environ.get("UI_URL", "http://localhost:3000"):
+#     ui_url = os.environ.get("UI_URL", "http://localhost:3000")
+
 
 # throw an error if URL is unset.
-assert ui_url != ""
-origins = [ui_url]
-print("origins: {}".format(origins))
+# assert ui_url != ""
+origins = [get_settings().FRONTEND_URL]
+print("Configured Origins: {}".format(origins))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
