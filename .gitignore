@@ -155,7 +155,7 @@ dist
 .pnp.*
 workspace.code-workspace
 .dccache
-src/backend/.pdm.toml
+.pdm.toml
 *.pyc
 __pycache__/
 .coverage

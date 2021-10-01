@@ -8,7 +8,7 @@ authors = [
 dependencies = [
     "opencensus-ext-azure~=1.0",
     "passlib~=1.7",
-    "sqlmodel~=0.0",
+    "sqlmodel~=0.0.4",
     "fastapi~=0.68",
 ]
 requires-python = ">=3.8"
