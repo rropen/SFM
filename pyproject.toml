@@ -5,7 +5,12 @@ description = ""
 authors = [
     {name = "Gabe Geiger", email = "gabe.geiger@gmail.com"},
 ]
-dependencies = []
+dependencies = [
+    "opencensus-ext-azure~=1.0",
+    "passlib~=1.7",
+    "sqlmodel~=0.0",
+    "fastapi~=0.68",
+]
 requires-python = ">=3.8"
 dynamic = ["classifiers"]
 license = {text = "MIT"}
@@ -16,3 +21,6 @@ homepage = ""
 [build-system]
 requires = ["pdm-pep517"]
 build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]
