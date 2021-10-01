@@ -11,6 +11,8 @@ from sfm.routes.converters import routes as converters
 from sfm.routes.metrics import routes as metrics
 from sfm.routes.utilities import routes as utilities
 from sfm.routes import root
+from functools import lru_cache
+from .config import Settings
 
 
 # this file will always be called with __name__ == "sfm.main" (even in docker container)
@@ -18,6 +20,14 @@ create_db_and_tables()
 
 description = "<h2>Software Factory Metrics</h2><br><blockquote>A custom app built by the Software Factory to generate DORA metrics which are a key concept in the move towards DevSecOps.</blockquote>"
 app = FastAPI(title="SFM API", description=description, version="0.0.1")
+
+# Environment Config Settings
+@lru_cache()
+def get_settings():
+    return Settings()
+
+
+assert get_settings().ENV != "unset"  # mandate environment value
 
 # CORS Stuff
 if os.environ.get("ENV") == "Local":

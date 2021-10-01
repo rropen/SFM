@@ -18,24 +18,21 @@ class Default:
 
     APP_NAME = "sfm"
     TESTING = True
-    ENV = os.environ.get("ENV") or ValidEnvironments.Development
+    ENV = os.environ.get("ENV") or ValidEnvironments.Test
     SERVER = os.environ.get("SERVER") or "localhost"
-    SECRET_KEY = "secret_key"
-    WKHTMLTOPDF_BIN_PATH = "/usr/local/bin/"
-    PDF_DIR_PATH = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "static", "pdf"
-    )
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "unset"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
-class Development(Default):
-    """Development environment"""
+class Test(Default):
+    """Unit Testing, Integration Testing"""
 
-    DEBUG = True
-    TESTING = False
-    ENV = os.environ.get("ENV" or ValidEnvironments.Development)
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    DEBUG = False
+    TESTING = True
+    ENV = os.environ.get("ENV") or ValidEnvironments.Test
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "unset"
+    WTF_CSRF_ENABLED = False
 
 
 class Local(Default):
@@ -43,18 +40,25 @@ class Local(Default):
 
     DEBUG = True
     TESTING = False
+    ENV = os.environ.get("ENV") or ValidEnvironments.Local
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///./issues.db"
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "unset"
+
+
+class Development(Default):
+    """Development"""
+
+    DEBUG = True
+    TESTING = False
     ENV = os.environ.get("ENV") or ValidEnvironments.Development
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
 
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "unset"
+    assert SQLALCHEMY_DATABASE_URI != "unset"  # mandate a connection string
 
-class Test(Default):
-    """Continuous Integration (CI) / User Acceptance"""
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "unset"
+    assert SECRET_KEY != "unset"
 
-    DEBUG = False
-    TESTING = True
-    ENV = os.environ.get("ENV") or ValidEnvironments.Test
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    WTF_CSRF_ENABLED = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
 class Production(Default):
@@ -63,4 +67,10 @@ class Production(Default):
     DEBUG = False
     TESTING = False
     ENV = os.environ.get("ENV") or ValidEnvironments.Production
-    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:temp@postgres:5432/production"
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "unset"
+    assert SQLALCHEMY_DATABASE_URI != "unset"  # mandate a connection string
+
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "unset"
+    assert SECRET_KEY != "unset"
+
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
