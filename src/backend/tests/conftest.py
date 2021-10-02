@@ -8,11 +8,9 @@ from sqlmodel import SQLModel, create_engine, Session
 from sqlmodel.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
-
 from sfm.main import app, get_settings
 from sfm.dependencies import get_db
 from sfm.config import Settings
-
 from sfm.models import WorkItem, Project, Commit, ProjectCreate, WorkItemCreate
 
 
@@ -40,7 +38,6 @@ def client_fixture(session: Session):
             DEBUG=False,
             TESTING=True,
             SECRET_KEY="secret_key",
-            FRONTEND_URL="",
         )
 
     app.dependency_overrides[get_db] = get_session_override

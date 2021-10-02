@@ -2,16 +2,13 @@ import config
 from datetime import datetime, timedelta
 from typing import Optional
 from passlib.context import CryptContext
-
 import string
 import random
 import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
+from .config import get_settings
 
-# SECRET_KEY = config.SECRET_KEY
-# ALGORITHM = config.ALGORITHM
-ADMIN_KEY = config.ADMIN_KEY
-
+app_settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 logging.basicConfig(
@@ -21,11 +18,11 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
-)
+# logger.addHandler(
+#     AzureLogHandler(
+#         connection_string=app_settings.AZURELOGGING_CONN_STR
+#     )
+# )
 
 
 def create_project_auth_token():
@@ -78,7 +75,7 @@ def verify_project_auth_token(attempt: str, target: str):
 
 
 def verify_admin_key(attempt):
-    return attempt == ADMIN_KEY
+    return attempt == app_settings.ADMIN_KEY
 
 
 epoch = datetime.utcfromtimestamp(0)
