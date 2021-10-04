@@ -23,6 +23,5 @@ COPY . .
 # COPY ./main.py __pypackages__/3.9/lib/sqlmodel
 
 CMD ["uvicorn","sfm.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181"]
-# CMD ["uvicorn","sfm.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181", "--reload"]
 
 EXPOSE 8181

@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     """
 
     APP_NAME: str = "sfm"
+    # dev or test
     ENV: str = os.environ.get("ENV") or "test"
     DEBUG: bool = (os.environ.get("DEBUG", "False") == "True") or False
     TESTING: bool = os.environ.get("TESTING", "False") == "True"
