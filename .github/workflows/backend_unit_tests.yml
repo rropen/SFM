@@ -33,6 +33,6 @@ jobs:
         run: |
           cd src/backend
           mv .env.example .env
-          ls
-          cd tests/
+          ls -la
+          cd ../../
           pytest
