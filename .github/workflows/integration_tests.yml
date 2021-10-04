@@ -82,4 +82,3 @@ jobs:
           VITE_API_URL: "http://localhost:8181"
         run: |
           yarn cy
-        run: yarn cy
