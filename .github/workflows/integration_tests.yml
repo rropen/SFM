@@ -51,6 +51,7 @@ jobs:
           TESTING: True
           SECRET_KEY: secret_key
           ADMIN_KEY: admin_key
+          FRONTEND_URL: http://localhost:3000
         run: |
           python -m uvicorn sfm.main:app --port 8181 &
 
