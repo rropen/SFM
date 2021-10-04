@@ -31,17 +31,7 @@ def client_fixture(session: Session):
     def get_session_override():
         return session
 
-    def get_settings_override():
-        return Settings(
-            APP_NAME="sfm",
-            ENV="test",
-            DEBUG=False,
-            TESTING=True,
-            SECRET_KEY="secret_key",
-        )
-
     app.dependency_overrides[get_db] = get_session_override
-    app.dependency_overrides[get_settings] = get_settings_override
 
     client = TestClient(app)
     yield client

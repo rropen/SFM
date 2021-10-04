@@ -14,19 +14,22 @@ from sfm.routes import root
 from .config import get_settings
 
 
-# This is how you can get access to environment configuration values throughout the application
-# Then app_settings.ENV or app_settings.CONN_STR.  See config.py for possible values.
-app_settings = get_settings()
-
 # this file will always be called with __name__ == "sfm.main" (even in docker container)
 create_db_and_tables()
 
 description = "<h2>Software Factory Metrics</h2><br><blockquote>A custom app built by the Software Factory to generate DORA metrics which are a key concept in the move towards DevSecOps.</blockquote>"
 app = FastAPI(
-    debug=app_settings.DEBUG, title="SFM API", description=description, version="0.0.1"
+    debug=os.environ.get("DEBUG"),
+    title="SFM API",
+    description=description,
+    version="0.0.1",
 )
 
-assert app_settings.ENV != "unset"  # mandate ENV value
+# This is how you can get access to environment configuration values throughout the application
+# Then app_settings.ENV or app_settings.CONN_STR.  See config.py for possible values.
+app_settings = get_settings()
+
+# assert app_settings.ENV != "unset"  # mandate ENV value
 assert app_settings.ENV in ("test", "local", "development", "production")
 assert app_settings.DEBUG != "unset"  # mandate DEBUG value
 assert app_settings.SECRET_KEY != "unset"  # mandate SECRET_KEY value

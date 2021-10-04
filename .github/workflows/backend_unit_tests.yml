@@ -31,4 +31,5 @@ jobs:
 
       - name: Pytest Unit Tests
         run: |
+          mv ../.env.example ../.env
           pytest
