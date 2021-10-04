@@ -271,7 +271,7 @@ const projects = ref<projectItem[]>([]); // holds all fetched projects
 const infoForStatus: infoForStatusItem = {
   deployments: {
     Daily: {
-      info: 'Daily Info Here <ul class="list-disc"><li class="ml-8">First Item</li></ul>',
+      info: 'Daily deployment frequency suggests a team can deploy <span class="italic text-rrpink-400">on-demand</span> and <span class="italic text-rrpink-400">at will</span>.  This is the elite value for this metric and demonstrates understand and implementation of most DevOps practices.',
     },
     Weekly: {
       info: "Weekly Info Here",
