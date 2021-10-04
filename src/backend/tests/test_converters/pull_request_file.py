@@ -37,8 +37,8 @@ input_json = """
     "body": "This is a pretty simple change that we need to pull into master.",
     "created_at": "2019-05-15T15:20:33Z",
     "updated_at": "2019-05-15T15:20:33Z",
-    "closed_at": "2019-05-15T15:20:33Z",
-    "merged_at": "2019-05-15T15:24:33Z",
+    "closed_at": null,
+    "merged_at": null,
     "merge_commit_sha": null,
     "assignee": null,
     "assignees": [],
@@ -78,7 +78,7 @@ input_json = """
       "repo": {
         "id": 186853002,
         "node_id": "MDEwOlJlcG9zaXRvcnkxODY4NTMwMDI=",
-        "name": "2nd Project for testing",
+        "name": "Hello-World",
         "full_name": "Codertocat/Hello-World",
         "private": false,
         "owner": {
@@ -341,7 +341,7 @@ input_json = """
   "repository": {
     "id": 186853002,
     "node_id": "MDEwOlJlcG9zaXRvcnkxODY4NTMwMDI=",
-    "name": "Test Project 1",
+    "name": "Hello-World",
     "full_name": "Codertocat/Hello-World",
     "private": false,
     "owner": {

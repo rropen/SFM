@@ -9,9 +9,9 @@ class ProjectBase(SQLModel):
     lead_name: Optional[str] = None
     lead_email: Optional[str] = None
     description: Optional[str] = None
-    location: str
+    location: Optional[str] = None
     repo_url: str
-    on_prem: bool
+    on_prem: Optional[bool] = None
 
 
 class Project(ProjectBase, table=True):
