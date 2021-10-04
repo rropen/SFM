@@ -5,6 +5,7 @@ from typing import List, Optional
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Header
 from sfm.database import engine
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 
 logging.basicConfig(
@@ -13,12 +14,14 @@ logging.basicConfig(
     format="%(levelname)s %(name)s %(asctime)s %(message)s",
 )
 logger = logging.getLogger(__name__)
-"""TODO: ADD AZURE INSTRUMENTATION KEY ONCE WE SETUP SFM ON AZURE"""
-# logger.addHandler(AzureLogHandler(
-#     connection_string='InstrumentationKey=00000000-0000-0000-0000-000000000000')
-# )
 
 router = APIRouter()
+
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
 
 
 @router.get("/", response_model=List[WorkItemRead])

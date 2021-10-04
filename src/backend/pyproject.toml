@@ -3,74 +3,26 @@ name = ""
 version = ""
 description = ""
 authors = [
-    {name = "Ian Mungovann", email = "ian.mungovan1@gmail.com"},
+    {name = "Gabe Geiger", email = "gabe.geiger@gmail.com"},
 ]
 dependencies = [
-    "alembic==1.6.2",
-    "asgiref==3.4.1",
-    "asttokens==2.0.5",
-    "atomicwrites==1.4.0; sys_platform == \"win32\"",
-    "attrs==21.2.0",
-    "bcrypt==3.2.0",
-    "cachetools==4.2.2",
-    "certifi==2021.5.30",
-    "cffi==1.14.6",
-    "charset-normalizer==2.0.3; python_version >= \"3\"",
-    "click==8.0.1",
-    "colorama==0.4.4",
-    "coverage==5.5",
-    "cryptography==3.4.7",
-    "executing==0.8.0",
-    "fastapi==0.66.1",
-    "google-api-core==1.31.3",
-    "google-auth==1.35.0",
-    "googleapis-common-protos==1.53.0",
-    "greenlet==1.1.0; python_version >= \"3\"",
-    "h11==0.12.0",
-    "icecream==2.1.1",
-    "idna==3.2; python_version >= \"3\"",
-    "iniconfig==1.1.1",
-    "mako==1.1.4",
-    "markupsafe==2.0.1",
-    "msal==1.11.0",
-    "opencensus==0.7.13",
-    "opencensus-context==0.1.2",
-    "packaging==21.0",
-    "passlib==1.7.4",
-    "pip==21.1.1",
-    "pluggy==0.13.1",
-    "protobuf==3.17.3",
-    "py==1.10.0",
-    "pyasn1==0.4.8",
-    "pyasn1-modules==0.2.8",
-    "pycparser==2.20",
+    "sqlalchemy~=1.4",
     "pydantic==1.8.2",
-    "pygments==2.9.0",
-    "pyjwt==2.1.0",
-    "pyjwt[crypto]==2.1.0",
+    "pip==21.1.1",
+    "msal==1.11.0",
     "pyodbc==4.0.30",
-    "pyparsing==2.4.7",
-    "pytest==6.2.4",
-    "pytest-cov==2.12.1",
-    "python-dateutil==2.8.2",
-    "python-dotenv==0.19.0",
-    "python-editor==1.0.4",
-    "pytz==2021.1",
-    "requests==2.26.0",
-    "rsa==4.7.2; python_version >= \"3.6\"",
-    "setuptools==58.1.0",
-    "six==1.16.0",
-    "sqlalchemy==1.4.22",
-    "sqlalchemy2-stubs==0.0.2a15",
-    "sqlmodel==0.0.4",
-    "starlette==0.14.2",
-    "toml==0.10.2",
-    "typing-extensions==3.10.0.0",
-    "urllib3==1.26.6",
-    "uvicorn==0.14.0",
-    "pymssql~=2.2",
+    "alembic==1.6.2",
+    "python-dotenv~=0.19",
+    "uvicorn~=0.14",
+    "fastapi~=0.66",
+    "icecream~=2.1",
+    "sqlmodel~=0.0",
+    "passlib~=1.7",
+    "bcrypt~=3.2",
+    "opencensus~=0.7",
+    "opencensus.ext.azure~=1.0",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 dynamic = ["classifiers"]
 license = {text = "MIT"}
 
@@ -83,22 +35,3 @@ build-backend = "pdm.pep517.api"
 
 [tool]
 [tool.pdm]
-[[tool.pdm.source]]
-name = "pypi"
-url = "https://pypi.org/simple"
-verify_ssl = true
-[[tool.pdm.source]]
-name = "pypi"
-url = "https://pypi.org/simple"
-verify_ssl = true
-
-[[tool.pdm.source]]
-name = "pypi"
-url = "https://pypi.org/simple"
-verify_ssl = true
-[tool.pdm.dev-dependencies]
-test = [
-    "pytest~=6.2",
-    "coverage~=5.5",
-    "pytest-cov~=2.12",
-]

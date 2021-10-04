@@ -1,10 +1,11 @@
 from sqlmodel import SQLModel, Session, create_engine
-
 import os
 import config
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 import pyodbc
 import urllib
+from .config import get_settings
 
 # SECRET_KEY = os.environ("SECRET_KEY")
 # server = os.environ["DBHOST"]
@@ -20,13 +21,13 @@ conn_str = "sqlite:///./issues.db"
 # params = urllib.parse.quote_plus(conn)
 # conn_str = "mssql+pyodbc:///?autocommit=true&odbc_connect={}".format(params)
 
-# # check_same_thread = false only works in sqlite, not postgres or others
-if "sqlite" in conn_str:
-    print("Using a sqlite database")
+# check_same_thread = false only works in sqlite, not postgres or others
+if "sqlite" in app_settings.CONN_STR:
+    # print("Using a sqlite database")
     connect_args = {"check_same_thread": False}
-    engine = create_engine(conn_str, connect_args=connect_args)
+    engine = create_engine(app_settings.CONN_STR, connect_args=connect_args)
 else:
-    engine = create_engine(conn_str, echo=True)
+    engine = create_engine(app_settings.CONN_STR, echo=True)
 
 # logging.basicConfig(
 #     filename="logs.log",
@@ -34,6 +35,7 @@ else:
 #     format="%(levelname)s %(name)s %(asctime)s %(message)s",
 # )
 # logger = logging.getLogger(__name__)
+# logger.addHandler(AzureLogHandler(connection_string=app_settings.AZURELOGGING_CONN_STR))
 
 
 def create_db_and_tables():

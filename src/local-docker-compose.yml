@@ -6,8 +6,8 @@ services:
     # command:
     ports:
       - 8181:8181
-    environment:
-      ENV: "Local"
+    # environment:
+    # ENV: "local"
 
     volumes:
       # - ./backend:/usr/mec/static
