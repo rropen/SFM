@@ -14,14 +14,6 @@ jobs:
   # Runs Integration Tests w/ Cypress
   Integration-Tests:
     runs-on: ubuntu-latest
-    #     services:
-    #       backend:
-    #         image: ghcr.io/rropen/sfm_backend:latest
-    #         credentials:
-    #           username: ${{ github.repository_owner }}
-    #           password: ${{ secrets.CONTAINER_PAT }}
-    #         ports:
-    #           - 8181:8181
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
