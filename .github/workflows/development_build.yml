@@ -12,13 +12,16 @@ jobs:
   Deploy-Dev:
     runs-on: ubuntu-latest
     steps:
-      - working-directory: src/backend
-      - uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
-          username: ${{ secrets.CRSFT_USERNAME}}
-          password: ${{ secrets.CRSFT_PASSWORD }}
-      - run: |
-            docker build -t crsft.azurecr.us/sfm_backend_dev:latest .
-            docker push crsft.azurecr.us/sfm_backend_dev:latest
+    
+     - name: Checkout repository
+       uses: actions/checkout@v2
+       
+     - uses: azure/docker-login@v1
+       with:
+        login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
+        username: ${{ secrets.CRSFT_USERNAME}}
+        password: ${{ secrets.CRSFT_PASSWORD }}
+     - run: |
+          docker build -t crsft.azurecr.us/sfm_backend_dev:latest src/backend
+          docker push crsft.azurecr.us/sfm_backend_dev:latest
     
