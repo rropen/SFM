@@ -11,26 +11,37 @@ from sfm.routes.converters import routes as converters
 from sfm.routes.metrics import routes as metrics
 from sfm.routes.utilities import routes as utilities
 from sfm.routes import root
+from .config import get_settings
 
+
+# This is how you can get access to environment configuration values throughout the application
+# Then app_settings.ENV or app_settings.CONN_STR.  See config.py for possible values.
+app_settings = get_settings()
 
 # this file will always be called with __name__ == "sfm.main" (even in docker container)
 create_db_and_tables()
 
 description = "<h2>Software Factory Metrics</h2><br><blockquote>A custom app built by the Software Factory to generate DORA metrics which are a key concept in the move towards DevSecOps.</blockquote>"
-app = FastAPI(title="SFM API", description=description, version="0.0.1")
+app = FastAPI(
+    debug=app_settings.DEBUG, title="SFM API", description=description, version="0.0.1"
+)
+
+assert app_settings.ENV != "unset"  # mandate ENV value
+assert app_settings.ENV in ("test", "local", "development", "production")
+assert app_settings.DEBUG != "unset"  # mandate DEBUG value
+assert app_settings.SECRET_KEY != "unset"  # mandate SECRET_KEY value
+assert app_settings.ADMIN_KEY != "unset"  # mandate SECRET_KEY value
+assert app_settings.FRONTEND_URL != "unset"  # mandate FRONTEND_URL value
+if app_settings.ENV in ["development", "production"]:
+    assert app_settings.DBHOST != "unset"  # mandate DBHOST value
+    assert app_settings.DBNAME != "unset"  # mandate DBNAME value
+    assert app_settings.DBUSER != "unset"  # mandate DBUSER value
+    assert app_settings.DBPASS != "unset"  # mandate DBPASS value
 
 # CORS Stuff
-if os.environ.get("ENV") == "Local":
-    ui_url = "http://localhost:3000"
+origins = [app_settings.FRONTEND_URL]
+print("Configured Origins: {}".format(origins))
 
-# allow override
-if os.environ.get("UI_URL", "http://localhost:3000"):
-    ui_url = os.environ.get("UI_URL", "http://localhost:3000")
-
-# throw an error if URL is unset.
-assert ui_url != ""
-origins = [ui_url]
-print("origins: {}".format(origins))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

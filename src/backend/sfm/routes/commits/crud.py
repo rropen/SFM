@@ -5,6 +5,7 @@ from sfm.models import WorkItem, Project, Commit
 from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
 from datetime import datetime, time, timedelta
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 
 logging.basicConfig(
@@ -14,6 +15,11 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
 
 
 def get_all(
@@ -57,7 +63,7 @@ def get_all(
 
 def get_by_sha(db: Session, commit_sha):
     """Get a specified Commit and return it."""
-    return db.get(Commit, commit_sha)
+    return db.exec(select(Commit).where(Commit.sha == commit_sha)).first()
 
 
 def create_commit(db: Session, commit_data, project_auth_token):
@@ -94,7 +100,7 @@ def create_commit(db: Session, commit_data, project_auth_token):
 
 def delete_commit(db: Session, commit_sha, project_auth_token):
     """Take a commit and remove the row from the database."""
-    commit = db.get(Commit, commit_sha)
+    commit = db.exec(select(Commit).where(Commit.sha == commit_sha)).first()
     if not commit:
         logger.warning('func="delete_commit" warning="Item not found"')
         raise HTTPException(status_code=404, detail="Item not found")
@@ -113,7 +119,7 @@ def delete_commit(db: Session, commit_sha, project_auth_token):
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check our work
-    row = db.get(Commit, commit_sha)
+    row = db.exec(select(Commit).where(Commit.sha == commit_sha)).first()
     if row:
         logger.error(
             'func="delete_commit" error="Item did not delete correctly and still exists"'
@@ -127,7 +133,7 @@ def delete_commit(db: Session, commit_sha, project_auth_token):
 
 def update_commit(db: Session, commit_sha, commit_data, project_auth_token):
     """Take data from request and update an existing Commit in the database."""
-    commit = db.get(Commit, commit_sha)
+    commit = db.exec(select(Commit).where(Commit.sha == commit_sha)).first()
     if not commit:
         logger.warning('func="update_commit" warning="Item not found"')
         raise HTTPException(status_code=404, detail="Item not found")

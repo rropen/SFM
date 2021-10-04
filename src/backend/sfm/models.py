@@ -101,7 +101,7 @@ class LeadTimeData(SQLModel):
 
 
 class CommitBase(SQLModel):
-    sha: str = Field(primary_key=True)
+    sha: str
     date: Optional[datetime] = None
     message: Optional[str] = None
     author: Optional[str] = None
@@ -109,6 +109,7 @@ class CommitBase(SQLModel):
 
 
 class Commit(CommitBase, table=True):
+    id: int = Field(primary_key=True)
     work_item: Optional[WorkItem] = Relationship(back_populates="commits")
     time_to_pull: int
 

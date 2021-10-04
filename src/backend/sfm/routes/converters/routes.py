@@ -12,6 +12,7 @@ from urllib.request import urlopen
 import requests
 from datetime import datetime
 from statistics import median
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 
 
 logging.basicConfig(
@@ -21,6 +22,11 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
+    )
+)
 
 
 def deployment_processor(

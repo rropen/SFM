@@ -14,5 +14,5 @@ services:
     restart: always
     depends_on:
       - backend
-    env_file:
-      - ./frontend/.env
+    # env_file:
+    # - ./frontend/.env

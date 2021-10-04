@@ -1,6 +1,6 @@
 from typing import List
 from fastapi.testclient import TestClient
-from sqlmodel import Session
+from sqlmodel import Session, select
 from sfm.routes.commits import crud
 import pytest
 import os
@@ -123,7 +123,7 @@ def test_create_commit(db):
     response = crud.create_commit(db, commit_data, project_auth_token="Catalyst1")
     assert isinstance(response, str)
     assert response == "faslkuvczberwe2975jinvcui"
-    commit = db.get(Commit, response)
+    commit = db.exec(select(Commit).where(Commit.sha == response)).first()
     assert commit.sha == "faslkuvczberwe2975jinvcui"
     assert commit.date == datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
     assert commit.message == "feat(test): a new commit message"
@@ -201,7 +201,7 @@ def test_update_commit(db):
     )
     assert type(response) == Commit
     assert response.sha == "daffasdfsjfoie3039j33j882ji2jhsdaf"
-    commit = db.get(Commit, response.sha)
+    commit = db.exec(select(Commit).where(Commit.sha == response.sha)).first()
     assert commit.date == datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
     assert commit.message == "feat(test): a new commit message"
     assert commit.author == "Spider-girl"
@@ -224,7 +224,7 @@ def test_update_commit(db):
     )
 
     assert type(response) == Commit
-    commit = db.get(Commit, response.sha)
+    commit = db.exec(select(Commit).where(Commit.sha == response.sha)).first()
     assert commit.date == datetime.datetime(2021, 8, 11, 9, 43, 8, 41351)
     assert commit.message == "update message"
     assert commit.author == "new author"
