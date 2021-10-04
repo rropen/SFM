@@ -31,9 +31,8 @@ app_settings = get_settings()
 
 # assert app_settings.ENV != "unset"  # mandate ENV value
 assert app_settings.ENV in ("test", "local", "development", "production")
-assert app_settings.DEBUG != "unset"  # mandate DEBUG value
 assert app_settings.SECRET_KEY != "unset"  # mandate SECRET_KEY value
-assert app_settings.ADMIN_KEY != "unset"  # mandate SECRET_KEY value
+assert app_settings.ADMIN_KEY != "unset"  # mandate ADMIN_KEY value
 assert app_settings.FRONTEND_URL != "unset"  # mandate FRONTEND_URL value
 if app_settings.ENV in ["development", "production"]:
     assert app_settings.DBHOST != "unset"  # mandate DBHOST value

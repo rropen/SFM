@@ -1,28 +1,27 @@
 name: Integration Tests
 on:
-#   workflow_run:
-#     workflows: ["Backend Unit Tests", "Frontend Unit Tests"]
-#     branches: dev
-#     types: completed
+  #   workflow_run:
+  #     workflows: ["Backend Unit Tests", "Frontend Unit Tests"]
+  #     branches: dev
+  #     types: completed
 
   pull_request:
     branches: main
-  push: 
+  push:
     branches: dev
-    
 
 jobs:
   # Runs Integration Tests w/ Cypress
   Integration-Tests:
     runs-on: ubuntu-latest
-#     services:
-#       backend:
-#         image: ghcr.io/rropen/sfm_backend:latest
-#         credentials:
-#           username: ${{ github.repository_owner }}
-#           password: ${{ secrets.CONTAINER_PAT }}
-#         ports:
-#           - 8181:8181
+    #     services:
+    #       backend:
+    #         image: ghcr.io/rropen/sfm_backend:latest
+    #         credentials:
+    #           username: ${{ github.repository_owner }}
+    #           password: ${{ secrets.CONTAINER_PAT }}
+    #         ports:
+    #           - 8181:8181
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -43,14 +42,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          
+
       - name: Run Backend
         working-directory: src/backend
         env:
-          SECRET_KEY: secret_key
           ENV: test
           DEBUG: False
           TESTING: True
+          SECRET_KEY: secret_key
+          ADMIN_KEY: admin_key
         run: |
           python -m uvicorn sfm.main:app --port 8181 &
 
