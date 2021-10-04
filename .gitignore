@@ -168,3 +168,4 @@ src/backend/*.db
 .yarnrc
 *.local
 screenshots/
+PAT.txt

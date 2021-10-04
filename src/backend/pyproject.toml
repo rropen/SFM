@@ -3,7 +3,7 @@ name = ""
 version = ""
 description = ""
 authors = [
-    {name = "Ian Mungovan", email = "ian.mungovan1@gmail.com"},
+    {name = "Ian Mungovann", email = "ian.mungovan1@gmail.com"},
 ]
 dependencies = [
     "alembic==1.6.2",

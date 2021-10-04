@@ -198,7 +198,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "MarkupSafe"
+name = "markupsafe"
 version = "2.0.1"
 requires_python = ">=3.6"
 summary = "Safely add untrusted strings to HTML/XML markup."
@@ -302,7 +302,7 @@ requires_python = ">=3.5"
 summary = "Pygments is a syntax highlighting package written in Python."
 
 [[package]]
-name = "PyJWT"
+name = "pyjwt"
 version = "2.1.0"
 requires_python = ">=3.6"
 summary = "JSON Web Token implementation in Python"
@@ -314,7 +314,7 @@ extras = ["crypto"]
 requires_python = ">=3.6"
 summary = "JSON Web Token implementation in Python"
 dependencies = [
-    "PyJWT==2.1.0",
+    "PyJWT<3,>=1.0.0",
     "cryptography<4.0.0,>=3.3.1",
 ]
 
