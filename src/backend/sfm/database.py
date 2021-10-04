@@ -2,23 +2,9 @@ from sqlmodel import SQLModel, Session, create_engine
 import os
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
-import pyodbc
-import urllib
 from sfm.config import get_settings
 
-# SECRET_KEY = os.environ("SECRET_KEY")
-# server = os.environ["DBHOST"]
-# database = os.environ["DBNAME"]
-# user = os.environ["DBUSER"]
-# password = os.environ["DBPASS"]
-# driver = "{ODBC Driver 17 for SQL Server}"
-
-# Uncomment this line for local dev in sqlite
-conn_str = "sqlite:///./issues.db"
-
-# conn = f"""Driver={driver};Server=tcp:{server},1433;Database={database};Uid={user};Pwd={password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"""
-# params = urllib.parse.quote_plus(conn)
-# conn_str = "mssql+pyodbc:///?autocommit=true&odbc_connect={}".format(params)
+app_settings = get_settings()
 
 # check_same_thread = false only works in sqlite, not postgres or others
 if "sqlite" in app_settings.CONN_STR:
