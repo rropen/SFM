@@ -46,6 +46,11 @@ jobs:
           
       - name: Run Backend
         working-directory: src/backend
+        env:
+          SECRET_KEY: secret_key
+          ENV: test
+          DEBUG: False
+          TESTING: True
         run: |
           python -m uvicorn sfm.main:app --port 8181 &
 
