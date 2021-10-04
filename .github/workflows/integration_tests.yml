@@ -38,7 +38,7 @@ jobs:
       - name: Run Backend
         working-directory: src/backend
         env:
-          ENV: local
+          ENV: test
           DEBUG: False
           TESTING: True
           SECRET_KEY: secret_key
