@@ -1,12 +1,12 @@
 name: Development Build
-on:
-  pull_request:
-    branches: [dev]
+# on:
+#   pull_request:
+#     branches: [dev]
 
-  push:
-    branches: [dev]
+#   push:
+#     branches: [dev]
 
-# on: workflow_dispatch
+on: workflow_dispatch
 
 jobs:
   Deploy-Dev:
@@ -24,4 +24,8 @@ jobs:
      - run: |
           docker build -t crsft.azurecr.us/sfm_backend_dev:latest src/backend
           docker push crsft.azurecr.us/sfm_backend_dev:latest
+          docker build -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
+          docker push crsft.azurecr.us/sfm_frontend_dev:latest
+       env:
+          NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
     
