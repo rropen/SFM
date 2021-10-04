@@ -31,6 +31,8 @@ jobs:
 
       - name: Pytest Unit Tests
         run: |
-          pwd
+          cd src/backend
+          mv .env.example .env
           ls
+          cd tests/
           pytest
