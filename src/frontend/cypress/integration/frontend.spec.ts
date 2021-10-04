@@ -2,9 +2,9 @@
 
 describe("SFM Frontend Tests", () => {
   it("Seeds Database", function () {
-    cy.request("DELETE", "http://0.0.0.0:8181/utilities/clear_local_db");
-    cy.visit("0.0.0.0:8181/docs");
-    cy.request("POST", "http://0.0.0.0:8181/utilities/populate_mock_data");
+    cy.request("DELETE", "http://localhost:8181/utilities/clear_local_db");
+    cy.visit("localhost:8181/docs");
+    cy.request("POST", "http://localhost:8181/utilities/populate_mock_data");
   });
   it("Load Home Page", function () {
     cy.visit("localhost:3000");
