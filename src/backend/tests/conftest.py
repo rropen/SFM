@@ -8,9 +8,9 @@ from sqlmodel import SQLModel, create_engine, Session
 from sqlmodel.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
-from sfm.main import app, get_settings
+from sfm.main import app
 from sfm.dependencies import get_db
-from sfm.config import Settings
+from sfm.config import Settings, get_settings
 from sfm.models import WorkItem, Project, Commit, ProjectCreate, WorkItemCreate
 
 
