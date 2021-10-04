@@ -47,7 +47,7 @@ jobs:
       - name: Run Backend
         working-directory: src/backend
         run: |
-          python -m uvicorn --port 8181 &
+          python -m uvicorn sfm.main:app --port 8181 &
 
       - name: Setup Frontend
         uses: actions/setup-node@v2
