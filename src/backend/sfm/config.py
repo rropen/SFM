@@ -1,6 +1,6 @@
 from pydantic import BaseSettings
 import os
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 import urllib
 from functools import lru_cache
 
@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     """
 
     APP_NAME: str = "sfm"
-    ENV: str = os.environ.get("ENV") or "unset"
+    ENV: str = os.environ.get("ENV") or "test"
     DEBUG: bool = (os.environ.get("DEBUG", "False") == "True") or False
     TESTING: bool = os.environ.get("TESTING", "False") == "True"
     SECRET_KEY: str = os.environ.get("SECRET_KEY") or "unset"

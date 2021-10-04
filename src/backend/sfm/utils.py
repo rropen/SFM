@@ -1,4 +1,3 @@
-import config
 from datetime import datetime, timedelta
 from typing import Optional
 from passlib.context import CryptContext
@@ -6,7 +5,7 @@ import string
 import random
 import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
-from .config import get_settings
+from sfm.config import get_settings
 
 app_settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

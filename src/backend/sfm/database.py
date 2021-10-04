@@ -1,11 +1,10 @@
 from sqlmodel import SQLModel, Session, create_engine
 import os
-import config
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 import pyodbc
 import urllib
-from .config import get_settings
+from sfm.config import get_settings
 
 # SECRET_KEY = os.environ("SECRET_KEY")
 # server = os.environ["DBHOST"]

@@ -8,9 +8,9 @@ from sqlmodel import SQLModel, create_engine, Session
 from sqlmodel.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
-from sfm.main import app, get_settings
+from sfm.main import app
 from sfm.dependencies import get_db
-from sfm.config import Settings
+from sfm.config import Settings, get_settings
 from sfm.models import WorkItem, Project, Commit, ProjectCreate, WorkItemCreate
 
 
@@ -31,17 +31,7 @@ def client_fixture(session: Session):
     def get_session_override():
         return session
 
-    def get_settings_override():
-        return Settings(
-            APP_NAME="sfm",
-            ENV="test",
-            DEBUG=False,
-            TESTING=True,
-            SECRET_KEY="secret_key",
-        )
-
     app.dependency_overrides[get_db] = get_session_override
-    app.dependency_overrides[get_settings] = get_settings_override
 
     client = TestClient(app)
     yield client
