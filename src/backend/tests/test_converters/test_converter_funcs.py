@@ -16,6 +16,8 @@ def test_github_backpopulate(client: TestClient, db: Session):
     response = client.get(
         "/converters/github_populate", params={"org": "rropen", "repo": "testing"}
     )
+
+    print(response)
     assert response.status_code == 200
 
     project = db.exec(select(Project).where(Project.name == "testing")).first()
@@ -31,5 +33,5 @@ def test_github_backpopulate(client: TestClient, db: Session):
     ).all()
     assert len(commits) == 1
     assert commits[0].sha == "6c25310a034145701775e620895c7b36d16fc1c4"
-    assert commits[0].work_item_id == 50
+    assert commits[0].work_item_id == 44
     assert commits[0].time_to_pull == 373

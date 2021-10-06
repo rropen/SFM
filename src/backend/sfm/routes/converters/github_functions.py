@@ -52,9 +52,6 @@ def pull_request_processor(
 
     if pull_request["merged"] is False:
         return  # do not store un-merged pull requests
-    print(pull_request["merged"])
-    print(pull_request["created_at"])
-    print(pull_request["merged_at"])
     pull_request_dict = {
         "category": "Pull Request",
         "project_id": project_db.id,
@@ -70,8 +67,10 @@ def pull_request_processor(
     )
 
     # commits_url = "https://api.github.com/repos/Codertocat/Hello-World/commits"
-
-    json_data = requests.get(pull_request["commits_url"], headers=headers).json()
+    if app_settings.ENV != "test":
+        json_data = requests.get(pull_request["commits_url"], headers=headers).json()
+    else:
+        json_data = json.load(open("./test_converters/testing_files/commits.json"))
 
     for i in range(0, len(json_data)):
         commit_data = json_data[i]
@@ -80,7 +79,6 @@ def pull_request_processor(
         )
 
         # pass work item id in dictionary to create commit
-        print(commit_data["sha"])
         commit_dict = {
             "work_item_id": work_item_id,
             "sha": commit_data["sha"],
@@ -124,16 +122,27 @@ def populate_past_github(db, org):
                 -i. (not easy and possible improvement) timer stops when verified issue is fixed
             - b. This marks the MOST RECENT deploy as a failure
     """
+    print(app_settings.ENV)
+    if app_settings.ENV != "test":
+        org_data = requests.get(
+            f"https://api.github.com/orgs/{org}", headers=headers
+        ).json()
+        repo_data = requests.get(org_data["repos_url"]).json()
 
-    org_data = requests.get(
-        f"https://api.github.com/orgs/{org}", headers=headers
-    ).json()
-    repo_data = requests.get(org_data["repos_url"]).json()
+    else:
+        org_data = json.load(open("./test_converters/testing_files/org_data.json"))
+        repo_data = [
+            json.load(open("./test_converters/testing_files/testing_repo.json"))
+        ]
 
     for repo in repo_data:
         project, proj_auth_token = project_processor(db, repo)
 
-        events = requests.get(repo["events_url"], headers=headers).json()
+        if app_settings.ENV != "test":
+            events = requests.get(repo["events_url"], headers=headers).json()
+        else:
+            events = json.load(open("./test_converters/testing_files/events.json"))
+
         for event in events:
             if event["type"] == "PullRequestEvent":
                 if (
@@ -143,6 +152,3 @@ def populate_past_github(db, org):
                     pull_request_processor(
                         db, event["payload"]["pull_request"], project, proj_auth_token
                     )
-
-            # elif event["type"] == "":
-            #     deployment_processor(event["payload"]["deployment"])
