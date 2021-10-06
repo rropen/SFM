@@ -94,6 +94,7 @@ class LeadTimeData(SQLModel):
     performance: str
     daily_commits: List
     daily_lead_times: List
+    project_name: str
     lead_time_description: str
     performance_description: str
     daily_commits_description: str

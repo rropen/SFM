@@ -369,6 +369,7 @@ def get_Lead_Time_To_Change(
                 status_code=404,
                 detail="No pull requests to main associated with specified project",
             )
+        project_name = project.name
 
     else:
         all_items = crud.get_all(db)
@@ -381,6 +382,7 @@ def get_Lead_Time_To_Change(
                 status_code=404,
                 detail="No pull requests to main in record for any project",
             )
+        project_name = "org"
 
     lead_times = []
     commit_dates = []
@@ -414,6 +416,7 @@ def get_Lead_Time_To_Change(
         "performance": performance,
         "daily_commits": daily_commits,
         "daily_lead_times": daily_lead_times,
+        "project_name": project_name,
         "lead_time_description": "median lead time for a commit to get pulled to main branch in minutes",
         "performance_description": "Elite = less than one day, High = between one day and one week, Medium = bewtween one week and one month, Low = greater than one month",
         "daily_commits_description": "List of lists, where each sublist consits of [unix date, number of commits on that date]",

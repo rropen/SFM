@@ -336,9 +336,11 @@ def test_get_deployments(client: TestClient, db: Session):
 
 # Test get "/LeadTimeToChange" endpoint
 def test_get_lead_time_endpoint(client: TestClient, db: Session):
+    """Test that the endpoint works as expected when no parameters are passed"""
     response = client.get("/metrics/LeadTimeToChange")
     assert response is not None
     assert response.status_code == 200
+    assert response.json()["project_name"] == "org"
 
     day_proj = Project(
         **{
@@ -547,6 +549,7 @@ def test_get_lead_time_endpoint(client: TestClient, db: Session):
     )
     day_result = day_response.json()
     assert day_result["performance"] == "One Day"
+    assert day_result["project_name"] == day_proj.name
 
     """Test giving a project with no workItems raises exception"""
     with pytest.raises(Exception) as ex:
