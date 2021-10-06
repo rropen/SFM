@@ -141,34 +141,34 @@ jobs:
             run: |
               yarn cy
               
-#     Code-QL:
-#         needs: [Frontend-Unit-Tests, Backend-Unit-Tests]
-#         runs-on: ubuntu-latest
-#         permissions:
-#           actions: read
-#           contents: read
-#           security-events: write
+    Code-QL:
+        needs: [Frontend-Unit-Tests, Backend-Unit-Tests]
+        runs-on: ubuntu-latest
+        permissions:
+          actions: read
+          contents: read
+          security-events: write
 
-#         strategy:
-#           fail-fast: false
-#           matrix:
-#             language: ["python"]
+        strategy:
+          fail-fast: false
+          matrix:
+            language: ["python"]
 
-#         steps:
-#           - name: Checkout repository
-#             uses: actions/checkout@v2
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v2
 
-#           # Initializes the CodeQL tools for scanning.
-#           - name: Initialize CodeQL
-#             uses: github/codeql-action/init@v1
-#             with:
-#               languages: ${{ matrix.language }}
+          # Initializes the CodeQL tools for scanning.
+          - name: Initialize CodeQL
+            uses: github/codeql-action/init@v1
+            with:
+              languages: ${{ matrix.language }}
 
-#           - name: Autobuild
-#             uses: github/codeql-action/autobuild@v1
+          - name: Autobuild
+            uses: github/codeql-action/autobuild@v1
 
-#           - name: Perform CodeQL Analysis
-#             uses: github/codeql-action/analyze@v1
+          - name: Perform CodeQL Analysis
+            uses: github/codeql-action/analyze@v1
               
     Backend-Build:
       needs: [Integration-Tests]
@@ -187,20 +187,20 @@ jobs:
             docker build -t crsft.azurecr.us/sfm_backend_dev:latest src/backend
             docker push crsft.azurecr.us/sfm_backend_dev:latest
 
-    Frontend-Build:
-      needs: [Integration-Tests]
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
-        - name: Login ACR
-        - uses: azure/docker-login@v1
-          with:
-            login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
-            username: ${{ secrets.CRSFT_USERNAME}}
-            password: ${{ secrets.CRSFT_PASSWORD }}
-        - name: Build/Push Frontend Container
-          run: |
-            docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
-            docker push crsft.azurecr.us/sfm_frontend_dev:latest
+#     Frontend-Build:
+#       needs: [Integration-Tests]
+#       runs-on: ubuntu-latest
+#       steps:
+#         - name: Checkout repository
+#           uses: actions/checkout@v2
+#         - name: Login ACR
+#         - uses: azure/docker-login@v1
+#           with:
+#             login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
+#             username: ${{ secrets.CRSFT_USERNAME}}
+#             password: ${{ secrets.CRSFT_PASSWORD }}
+#         - name: Build/Push Frontend Container
+#           run: |
+#             docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
+#             docker push crsft.azurecr.us/sfm_frontend_dev:latest
 
