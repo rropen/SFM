@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
 from sfm.main import app
 from sfm.dependencies import get_db
-from sfm.config import Settings, get_settings
+from sfm.config import get_settings
 from sfm.models import WorkItem, Project, Commit, ProjectCreate, WorkItemCreate
 
 

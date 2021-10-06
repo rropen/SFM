@@ -13,13 +13,29 @@ from statistics import median
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
 
-
 app_settings = get_settings()
+headers = {"Authorization": f"token {app_settings.GITHUB_API_TOKEN}"}
+
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+)
+
+
+response = requests.get("https://api.github.com/rate_limit", headers=headers)
+print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
 
 
 def deployment_processor(
     db, deployment, project_db, project_auth_token
 ):  # pragma: no cover
+    logger.info("")
     deployment_dict = {
         "category": "Deployment",
         "end_time": deployment.get("updated_at"),
@@ -53,10 +69,9 @@ def pull_request_processor(
         db, work_item_data, project_auth_token
     )
 
-    commits_url = pull_request.get("commits_url")
     # commits_url = "https://api.github.com/repos/Codertocat/Hello-World/commits"
 
-    json_data = requests.get(commits_url).json()
+    json_data = requests.get(pull_request["commits_url"], headers=headers).json()
 
     for i in range(0, len(json_data)):
         commit_data = json_data[i]
@@ -110,13 +125,15 @@ def populate_past_github(db, org):
             - b. This marks the MOST RECENT deploy as a failure
     """
 
-    org_data = requests.get(f"https://api.github.com/orgs/{org}").json()
+    org_data = requests.get(
+        f"https://api.github.com/orgs/{org}", headers=headers
+    ).json()
     repo_data = requests.get(org_data["repos_url"]).json()
 
     for repo in repo_data:
         project, proj_auth_token = project_processor(db, repo)
 
-        events = requests.get(repo["events_url"]).json()
+        events = requests.get(repo["events_url"], headers=headers).json()
         for event in events:
             if event["type"] == "PullRequestEvent":
                 if (

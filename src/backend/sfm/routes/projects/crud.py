@@ -3,11 +3,14 @@ from sfm.models import Project, WorkItem
 from sqlmodel import Session, select
 import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
+from sfm.config import get_settings
 from sfm.utils import (
     create_project_auth_token,
     hash_project_auth_token,
     verify_admin_key,
 )
+
+app_settings = get_settings()
 
 logging.basicConfig(
     filename="logs.log",
@@ -18,9 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
+    AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
 )
 
 

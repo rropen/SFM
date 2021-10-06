@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     SECRET_KEY: Long random string of characters to use in hashing and encryption.  Don't expose this value.
     ADMIN_KEY: Long string that will set the admin key used to generate new project keys.
     FRONTEND_URL: Location from which API requests will be made by the frontend.  This will need refactored if we start to have other tools using this API.
+    GITHUB_API_TOKEN: Token used for authentication with Github to increase rate limit of API calls
     DBHOST: Hostname for a database used in building a connection string
     DBNAME: Database name used in building a connection string
     DBUSER: Username used in building a connection string
@@ -58,11 +59,13 @@ class Settings(BaseSettings):
     SECRET_KEY: str = os.environ.get("SECRET_KEY") or "unset"
     ADMIN_KEY: str = os.environ.get("ADMIN_KEY") or "unset"
     FRONTEND_URL: str = os.environ.get("FRONTEND_URL") or "unset"
+    GITHUB_API_TOKEN: str = os.environ.get("GITHUB_API_TOKEN") or "unset"
     DBHOST: str = os.environ.get("DBHOST") or "unset"
     DBNAME: str = os.environ.get("DBNAME") or "unset"
     DBUSER: str = os.environ.get("DBUSER") or "unset"
     DBPASS: str = os.environ.get("DBPASS") or "unset"
-    AZURELOGGING_CONN_STR: str = os.environ.get("AZURELOGGING_CONN_STR") or "unset"
+    print(os.environ.get("AZURELOGGING_CONN_STR"))
+    AZURE_LOGGING_CONN_STR: str = os.environ.get("AZURE_LOGGING_CONN_STR") or "unset"
     CONN_STR: str = generate_db_string(ENV, DBHOST, DBNAME, DBUSER, DBPASS)
 
 

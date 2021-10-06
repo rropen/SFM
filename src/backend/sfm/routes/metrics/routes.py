@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from time import mktime
 from statistics import median
+from sfm.config import get_settings
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
 from sfm.dependencies import get_db
@@ -13,6 +14,7 @@ from sfm.database import engine
 from sfm.utils import unix_time_seconds
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 
+app_settings = get_settings()
 
 logging.basicConfig(
     filename="logs.log",
@@ -22,9 +24,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
+    AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
 )
 
 router = APIRouter()
