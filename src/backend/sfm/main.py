@@ -5,6 +5,7 @@ from sqlmodel import Session
 from starlette.middleware.cors import CORSMiddleware
 from sfm.database import create_db_and_tables, engine
 import os
+from sfm.models import *
 from sfm.routes.work_items import routes as work_items
 from sfm.routes.projects import routes as projects
 from sfm.routes.converters import routes as converters

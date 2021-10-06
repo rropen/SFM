@@ -104,3 +104,4 @@ def populate_past_data(
     org: str, repo: Optional[str] = None, db: Session = Depends(get_db)
 ):
     populate_past_github(db, org)
+    return {"code": "success"}

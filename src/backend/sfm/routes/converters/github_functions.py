@@ -28,14 +28,10 @@ logger.addHandler(
 )
 
 
-response = requests.get("https://api.github.com/rate_limit", headers=headers)
-print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
-
-
 def deployment_processor(
     db, deployment, project_db, project_auth_token
 ):  # pragma: no cover
-    logger.info("")
+    logger.info('func="deployment_processor" info="entered"')
     deployment_dict = {
         "category": "Deployment",
         "end_time": deployment.get("updated_at"),
@@ -49,8 +45,12 @@ def deployment_processor(
 def pull_request_processor(
     db, pull_request, project_db, project_auth_token
 ):  # pragma: no cover
+    logger.info('func="pull_request_processor" info="entered"')
 
     if pull_request["merged"] is False:
+        logger.info(
+            'func="pull_request_processor" info="exited, not a merged pull request"'
+        )
         return  # do not store un-merged pull requests
     pull_request_dict = {
         "category": "Pull Request",
@@ -71,6 +71,7 @@ def pull_request_processor(
         json_data = requests.get(pull_request["commits_url"], headers=headers).json()
     else:
         json_data = json.load(open("./test_converters/testing_files/commits.json"))
+        logger.warning('func="pull_request_processor" info="using testing commit file"')
 
     for i in range(0, len(json_data)):
         commit_data = json_data[i]
@@ -92,12 +93,15 @@ def pull_request_processor(
 
 
 def project_processor(db, project):
+    logger.info('func="project_processor" info="entered"')
     project_dict = {
         "name": project["name"],
         "lead_name": project["owner"]["login"],
         "repo_url": project["html_url"],
     }
-
+    logger.info(
+        f'func="project_processor" info="project name = {project_dict["name"]}"'
+    )
     project_data = ProjectCreate(**project_dict)
     [project_db, proj_auth_token] = project_crud.create_project(
         db, project_data, admin_key=app_settings.ADMIN_KEY
@@ -122,12 +126,17 @@ def populate_past_github(db, org):
                 -i. (not easy and possible improvement) timer stops when verified issue is fixed
             - b. This marks the MOST RECENT deploy as a failure
     """
+
+    logger.info('func="populate_past_github" info="entered"')
+    response = requests.get("https://api.github.com/rate_limit", headers=headers)
+    logger.debug(f"{response}")
+    print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
     print(app_settings.ENV)
     if app_settings.ENV != "test":
         org_data = requests.get(
             f"https://api.github.com/orgs/{org}", headers=headers
         ).json()
-        repo_data = requests.get(org_data["repos_url"]).json()
+        repo_data = requests.get(org_data["repos_url"], headers=headers).json()
 
     else:
         org_data = json.load(open("./test_converters/testing_files/org_data.json"))
@@ -136,14 +145,32 @@ def populate_past_github(db, org):
         ]
 
     for repo in repo_data:
+        logger.info(
+            f'func="populate_past_github" info="Entered repo loop with repo name = {repo["name"]}"'
+        )
         project, proj_auth_token = project_processor(db, repo)
 
+        logger.info(f'func="populate_past_github" info="ENV is {app_settings.ENV}"')
+        logger.info(
+            f'func="populate_past_github" info="event_url is {repo["events_url"]}"'
+        )
+
         if app_settings.ENV != "test":
+            logger.info(
+                'func="populate_past_github" info="about to request events url"'
+            )
             events = requests.get(repo["events_url"], headers=headers).json()
+            logger.info(
+                'func="populate_past_github" info="made it past events url call"'
+            )
+            logger.info(events)
         else:
             events = json.load(open("./test_converters/testing_files/events.json"))
 
         for event in events:
+            logger.info(
+                f'func="populate_past_github" info="Entered event loop with event name = {event["name"]}"'
+            )
             if event["type"] == "PullRequestEvent":
                 if (
                     event["payload"]["pull_request"]["head"]["repo"]["default_branch"]
