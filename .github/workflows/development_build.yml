@@ -143,7 +143,6 @@ jobs:
               
     Code-QL:
         needs: [Frontend-Unit-Tests, Backend-Unit-Tests]
-        name: Code QL
         runs-on: ubuntu-latest
         permissions:
           actions: read
