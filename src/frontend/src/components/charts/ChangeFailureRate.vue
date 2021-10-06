@@ -5,7 +5,7 @@
         type="line"
         height="350"
         :options="chartOptions"
-        :series="timeToRestoreData"
+        :series="changeFailureRateData"
       ></apexchart>
     </div>
     <div
@@ -21,10 +21,9 @@
         justify-apart
       "
       :class="{
-        'bg-green-600 text-white': perfStatus == 'One Day',
-        'bg-yellow-400 text-rrgrey-800': perfStatus == 'One Week',
-        'bg-orange-500 text-white': perfStatus == 'One Month',
-        'bg-red-600 text-white': perfStatus == 'Greater Than One Month',
+        'bg-green-600 text-white': perfStatus == '0-15%',
+        'bg-yellow-400 text-rrgrey-800': perfStatus == '16-45%',
+        'bg-red-600 text-white': perfStatus == 'Greater Than 45%',
       }"
     >
       <div class="spacer"></div>
@@ -74,7 +73,7 @@ export default {
 
 import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-import { infoForStatusItem, timeToRestoreItem } from "../../types";
+import { infoForStatusItem, changeFailureRateItem } from "../../types";
 import infoModal from "../InfoModal.vue";
 
 /* ----------------------------------------------
@@ -97,11 +96,11 @@ const props = defineProps({
                   VARIABLES
 ---------------------------------------------- */
 
-const timeToRestore = ref<timeToRestoreItem>(); // holds currently fetched deployment data
+const changeFailureRate = ref<changeFailureRateItem>(); // holds currently fetched deployment data
 
-const perfStatus = ref("One Day");
+const perfStatus = ref("0-15%");
 const showInfoModal = ref(false);
-const modalType = ref("timeToRestore");
+const modalType = ref("changeFailureRate");
 const chartOptions = ref({
   chart: {
     height: 350,
@@ -123,7 +122,7 @@ const chartOptions = ref({
 ---------------------------------------------- */
 
 /* GET request to /metrics/deployments to retrieve array of deployments. */
-function fetchTimeToRestore() {
+function fetchChangeFailureRate() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
@@ -142,7 +141,7 @@ function fetchTimeToRestore() {
       },
     })
     .then((response) => {
-      timeToRestore.value = response.data;
+      changeFailureRate.value = response.data;
       perfStatus.value = response.data.performance;
     })
     .catch((error) => {
@@ -155,16 +154,15 @@ function fetchTimeToRestore() {
   ---------------------------------------------- */
 
 // Data used in deployments chart. Pairs of [unix timestamp, number of deployments on that day]
-const timeToRestoreData = computed(() => {
-  if (timeToRestore.value) {
+const changeFailureRateData = computed(() => {
+  if (changeFailureRate.value) {
     return [
       {
-        name: "Time to Restore (hours)",
+        name: "Change Failure Rate",
         color: "#10069f",
-        data: timeToRestore.value.daily_times_to_restore.map((a: any) => [
-          new Date(a[0] * 1000),
-          a[1],
-        ]),
+        data: changeFailureRate.value.daily_change_failure_rates.map(
+          (a: any) => [new Date(a[0] * 1000), a[1]]
+        ),
       },
     ];
   } else {
@@ -180,7 +178,7 @@ const timeToRestoreData = computed(() => {
 watch(
   () => props.projectName,
   (val, oldVal) => {
-    fetchTimeToRestore();
+    fetchChangeFailureRate();
   }
 );
 
@@ -189,6 +187,6 @@ watch(
   ---------------------------------------------- */
 
 onMounted(() => {
-  fetchTimeToRestore();
+  fetchChangeFailureRate();
 });
 </script>

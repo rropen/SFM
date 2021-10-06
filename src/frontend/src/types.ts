@@ -89,4 +89,16 @@ export interface infoForStatusItem {
       info: string;
     };
   };
+
+  changeFailureRate: {
+    "0 - 15%": {
+      info: string;
+    };
+    "16-45%": {
+      info: string;
+    };
+    "Greater than 45%": {
+      info: string;
+    };
+  };
 }
