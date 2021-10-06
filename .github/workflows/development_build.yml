@@ -27,21 +27,17 @@ jobs:
           
   Frontend-Build:
     runs-on: ubuntu-latest
+    env:
+        NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
     steps:
-    
     - name: Checkout repository
       uses: actions/checkout@v2
-      with:
-        registry-url: "https://npm.pkg.github.com/"
-        scope: "@rrglobal"
-       
     - uses: azure/docker-login@v1
       with:
         login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
         username: ${{ secrets.CRSFT_USERNAME}}
         password: ${{ secrets.CRSFT_PASSWORD }}
-    - run: docker build -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
-    - run: docker push crsft.azurecr.us/sfm_frontend_dev:latest
+    - run: |
+        docker build -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
+        docker push crsft.azurecr.us/sfm_frontend_dev:latest
     
