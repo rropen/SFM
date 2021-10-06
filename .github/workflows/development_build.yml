@@ -27,8 +27,6 @@ jobs:
           
   Frontend-Build:
     runs-on: ubuntu-latest
-    env:
-        NODE_AUTH_TOKEN: ${{ secrets.VUE_COBALT_PAT }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -38,6 +36,6 @@ jobs:
         username: ${{ secrets.CRSFT_USERNAME}}
         password: ${{ secrets.CRSFT_PASSWORD }}
     - run: |
-        docker build -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
+        docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
         docker push crsft.azurecr.us/sfm_frontend_dev:latest
     
