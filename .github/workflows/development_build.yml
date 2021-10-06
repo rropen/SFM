@@ -9,21 +9,21 @@ name: Development Build
 on: workflow_dispatch
 
 jobs:
-  Backend-Build:
-    runs-on: ubuntu-latest
-    steps:
+#   Backend-Build:
+#     runs-on: ubuntu-latest
+#     steps:
     
-     - name: Checkout repository
-       uses: actions/checkout@v2
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
        
-     - uses: azure/docker-login@v1
-       with:
-        login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
-        username: ${{ secrets.CRSFT_USERNAME}}
-        password: ${{ secrets.CRSFT_PASSWORD }}
-     - run: |
-          docker build -t crsft.azurecr.us/sfm_backend_dev:latest src/backend
-          docker push crsft.azurecr.us/sfm_backend_dev:latest
+#      - uses: azure/docker-login@v1
+#        with:
+#         login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
+#         username: ${{ secrets.CRSFT_USERNAME}}
+#         password: ${{ secrets.CRSFT_PASSWORD }}
+#      - run: |
+#           docker build -t crsft.azurecr.us/sfm_backend_dev:latest src/backend
+#           docker push crsft.azurecr.us/sfm_backend_dev:latest
           
   Frontend-Build:
     runs-on: ubuntu-latest
@@ -31,6 +31,9 @@ jobs:
     
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        registry-url: "https://npm.pkg.github.com/"
+        scope: "@rrglobal"
        
     - uses: azure/docker-login@v1
       with:
