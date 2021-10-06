@@ -171,7 +171,7 @@ jobs:
             uses: github/codeql-action/analyze@v1
               
     Backend-Build:
-      needs: [Integration-Tests]
+      needs: [Integration-Tests, Code-QL]
       runs-on: ubuntu-latest
       steps:
        - name: Checkout repository
@@ -188,7 +188,7 @@ jobs:
             docker push crsft.azurecr.us/sfm_backend_dev:latest
 
     Frontend-Build:
-      needs: [Integration-Tests]
+      needs: [Integration-Tests, Code-QL]
       runs-on: ubuntu-latest
       steps:
         - name: Checkout repository
