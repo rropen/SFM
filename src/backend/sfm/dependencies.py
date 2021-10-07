@@ -3,8 +3,8 @@ from sfm.database import engine
 
 
 def get_db():  # pragma: no cover
+    db = Session(engine)
     try:
-        with Session(engine) as db:
-            yield db
+        yield db
     finally:
         db.close()
