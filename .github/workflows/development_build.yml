@@ -75,7 +75,7 @@ jobs:
             run: yarn cy-ct
             
     Integration-Tests:
-        needs: [Frontend-Unit-Tests, Backend-Unit-Tests]
+        needs: [Frontend-Unit-Tests]
         runs-on: ubuntu-latest
         steps:
           - name: Checkout Code
