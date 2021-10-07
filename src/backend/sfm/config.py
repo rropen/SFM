@@ -28,7 +28,6 @@ def generate_db_string(ENV: str, DBHOST: str, DBNAME: str, DBUSER: str, DBPASS: 
         Uid={DBUSER};Pwd={DBPASS};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"""
         params = urllib.parse.quote_plus(conn)
         conn_str = "mssql+pyodbc:///?autocommit=true&odbc_connect={}".format(params)
-        print("Connection String: {}".format(conn_str))
         return conn_str
 
 
