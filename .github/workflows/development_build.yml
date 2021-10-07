@@ -14,6 +14,8 @@ jobs:
         steps:
           - name: Checkout Code
             uses: actions/checkout@v2
+            env:
+              ENV: test
 
           - name: Set up Python 3.9
             uses: actions/setup-python@v2
@@ -141,37 +143,37 @@ jobs:
             run: |
               yarn cy
               
-    Code-QL:
-        needs: [Frontend-Unit-Tests, Backend-Unit-Tests]
-        runs-on: ubuntu-latest
-        permissions:
-          actions: read
-          contents: read
-          security-events: write
+#     Code-QL:
+#         needs: [Frontend-Unit-Tests, Backend-Unit-Tests]
+#         runs-on: ubuntu-latest
+#         permissions:
+#           actions: read
+#           contents: read
+#           security-events: write
 
-        strategy:
-          fail-fast: false
-          matrix:
-            language: ["python"]
+#         strategy:
+#           fail-fast: false
+#           matrix:
+#             language: ["python"]
 
-        steps:
-          - name: Checkout repository
-            uses: actions/checkout@v2
+#         steps:
+#           - name: Checkout repository
+#             uses: actions/checkout@v2
 
-          # Initializes the CodeQL tools for scanning.
-          - name: Initialize CodeQL
-            uses: github/codeql-action/init@v1
-            with:
-              languages: ${{ matrix.language }}
+#           # Initializes the CodeQL tools for scanning.
+#           - name: Initialize CodeQL
+#             uses: github/codeql-action/init@v1
+#             with:
+#               languages: ${{ matrix.language }}
 
-          - name: Autobuild
-            uses: github/codeql-action/autobuild@v1
+#           - name: Autobuild
+#             uses: github/codeql-action/autobuild@v1
 
-          - name: Perform CodeQL Analysis
-            uses: github/codeql-action/analyze@v1
+#           - name: Perform CodeQL Analysis
+#             uses: github/codeql-action/analyze@v1
               
     Backend-Build:
-      needs: [Integration-Tests, Code-QL]
+      needs: [Integration-Tests]
       runs-on: ubuntu-latest
       steps:
        - name: Checkout repository
@@ -188,7 +190,7 @@ jobs:
             docker push crsft.azurecr.us/sfm_backend_dev:latest
 
     Frontend-Build:
-      needs: [Integration-Tests, Code-QL]
+      needs: [Integration-Tests]
       runs-on: ubuntu-latest
       steps:
         - name: Checkout repository
