@@ -6,7 +6,7 @@ from sfm.routes.commits import crud as commit_crud
 from sfm.dependencies import get_db
 from sfm.models import WorkItemCreate, ProjectCreate, CommitCreate
 from typing import List, Optional
-from sqlmodel import SQLModel, Session
+from sqlmodel import SQLModel, Session, select
 from fastapi import APIRouter, HTTPException, Depends, Path, Header
 from sfm.database import engine
 from datetime import datetime, timedelta
@@ -234,7 +234,7 @@ def populate_db(  # pragma: no cover
 
 
 @router.delete("/clear_local_db")  # pragma: no cover
-def clear_db():  # pragma: no cover
+def clear_db(db=Depends(get_db)):  # pragma: no cover
 
     """
     ## Clear Local Database
@@ -244,5 +244,8 @@ def clear_db():  # pragma: no cover
     """
 
     logger.info('method=delete path="utilities/clear_local_db"')
-    SQLModel.metadata.drop_all(engine)
+    meta = SQLModel.metadata
+    for table in reversed(meta.sorted_tables):
+        db.execute(table.delete())
+    db.commit()
     return "Database cleared"

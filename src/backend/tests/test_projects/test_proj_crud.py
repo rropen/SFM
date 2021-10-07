@@ -95,6 +95,14 @@ def test_create(db):
     assert response[0].project_auth_token_hashed is not None
 
     """
+    Testing that the function raises an error if the project name already
+    exists in the database
+    """
+    with pytest.raises(Exception) as ex:
+        crud.delete_project(db, project_id=1, admin_key="admin_key")
+        assert ex.value.message == "Database entry already exists"
+
+    """
     Testing that the project raises an exception when the admin_key
     is incorrect
     """

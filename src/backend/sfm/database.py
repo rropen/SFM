@@ -14,15 +14,16 @@ if "sqlite" in app_settings.CONN_STR:
 else:
     engine = create_engine(app_settings.CONN_STR, echo=True)
 
-# logging.basicConfig(
-#     filename="logs.log",
-#     level=logging.DEBUG,
-#     format="%(levelname)s %(name)s %(asctime)s %(message)s",
-# )
-# logger = logging.getLogger(__name__)
-# logger.addHandler(AzureLogHandler(connection_string=app_settings.AZURELOGGING_CONN_STR))
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(levelname)s %(name)s %(asctime)s %(message)s",
+)
+logger = logging.getLogger(__name__)
+# logger.addHandler(AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR))
 
 
 def create_db_and_tables():
-    # logger.info('func="create_db_and_tables" info="Database created"')
+    logger.info('func="create_db_and_tables" info="before table create"')
     SQLModel.metadata.create_all(engine)
+    logger.info('func="create_db_and_tables" info="after table create"')

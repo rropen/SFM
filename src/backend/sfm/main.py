@@ -5,6 +5,8 @@ from sqlmodel import Session
 from starlette.middleware.cors import CORSMiddleware
 from sfm.database import create_db_and_tables, engine
 import os
+import logging
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.models import *
 from sfm.routes.work_items import routes as work_items
 from sfm.routes.projects import routes as projects
@@ -14,9 +16,22 @@ from sfm.routes.utilities import routes as utilities
 from sfm.routes import root
 from .config import get_settings
 
+app_settings = get_settings()
+
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(levelname)s %(name)s %(asctime)s %(message)s",
+)
+logger = logging.getLogger(__name__)
+logger.addHandler(
+    AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+)
 
 # this file will always be called with __name__ == "sfm.main" (even in docker container)
+logger.info('file="main" info="before calling create_db_and_tables"')
 create_db_and_tables()
+logger.info('file="main" info="after calling create_db_and_tables"')
 
 description = "<h2>Software Factory Metrics</h2><br><blockquote>A custom app built by the Software Factory to generate DORA metrics which are a key concept in the move towards DevSecOps.</blockquote>"
 app = FastAPI(

@@ -58,6 +58,13 @@ def create_project(db: Session, project_data, admin_key):
         logger.warning('func="create_project" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
+    project_name_repeat = db.exec(
+        select(Project).where(Project.name == project_data.name)
+    )
+    if project_name_repeat is None:
+        logger.warning('func="create_project" warning="Database entry already exists"')
+        raise HTTPException(status_code=409, detail="Database entry already exists")
+
     # Check the new record
     db.refresh(project_db)
     new_project = db.get(Project, project_db.id)

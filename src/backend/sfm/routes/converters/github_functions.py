@@ -4,10 +4,12 @@ from sfm.routes.work_items import crud as work_item_crud
 from sfm.routes.commits import crud as commit_crud
 from sfm.routes.projects import crud as project_crud
 from sfm.dependencies import get_db
-from sfm.models import WorkItemCreate, ProjectCreate, CommitCreate
+from sfm.models import WorkItemCreate, ProjectCreate, CommitCreate, Project
 from sfm.database import engine
 from urllib.request import urlopen
 import requests
+from fastapi import HTTPException
+from sqlmodel import select
 from datetime import datetime
 from statistics import median
 from opencensus.ext.azure.log_exporter import AzureLogHandler
@@ -94,6 +96,15 @@ def pull_request_processor(
 
 def project_processor(db, project):
     logger.info('func="project_processor" info="entered"')
+
+    if project["name"][0] == ".":
+        logger.info(
+            'func="project_processor" info="project starts with a . and will not be tracked"'
+        )
+        project_db = "unset"
+        proj_auth_token = "unset"
+        return project_db, proj_auth_token
+
     project_dict = {
         "name": project["name"],
         "lead_name": project["owner"]["login"],
@@ -103,9 +114,15 @@ def project_processor(db, project):
         f'func="project_processor" info="project name = {project_dict["name"]}"'
     )
     project_data = ProjectCreate(**project_dict)
-    [project_db, proj_auth_token] = project_crud.create_project(
-        db, project_data, admin_key=app_settings.ADMIN_KEY
-    )
+    try:
+        [project_db, proj_auth_token] = project_crud.create_project(
+            db, project_data, admin_key=app_settings.ADMIN_KEY
+        )
+
+    except HTTPException:
+        raise Exception(
+            "Issue with repeated projects. Clear database and try population again"
+        )
 
     return project_db, proj_auth_token
 
@@ -144,32 +161,41 @@ def populate_past_github(db, org):
             json.load(open("./test_converters/testing_files/testing_repo.json"))
         ]
 
+    key_dict = {}
     for repo in repo_data:
         logger.info(
             f'func="populate_past_github" info="Entered repo loop with repo name = {repo["name"]}"'
         )
-        project, proj_auth_token = project_processor(db, repo)
+        project_exist = db.exec(
+            select(Project).where(Project.name == repo["name"])
+        ).first()
 
-        logger.info(f'func="populate_past_github" info="ENV is {app_settings.ENV}"')
-        logger.info(
-            f'func="populate_past_github" info="event_url is {repo["events_url"]}"'
-        )
+        if project_exist and repo["name"] in key_dict.keys():
+            proj_auth_token = key_dict[repo["name"]]
+            project = project_exist
+        else:
+            project, proj_auth_token = project_processor(db, repo)
+
+        if project == "unset":
+            continue
+
+        if project is False:
+            logger.error(
+                'func="populate_past_github" error="project was not properly created"'
+            )
+            continue
+
+        key_dict[repo["name"]] = proj_auth_token
 
         if app_settings.ENV != "test":
-            logger.info(
-                'func="populate_past_github" info="about to request events url"'
-            )
-            events = requests.get(repo["events_url"], headers=headers).json()
-            logger.info(
-                'func="populate_past_github" info="made it past events url call"'
-            )
-            logger.info(events)
+            event_request_str = str(repo["events_url"])
+            events = requests.get(event_request_str, headers=headers).json()
         else:
             events = json.load(open("./test_converters/testing_files/events.json"))
 
         for event in events:
             logger.info(
-                f'func="populate_past_github" info="Entered event loop with event name = {event["name"]}"'
+                f'func="populate_past_github" info="Entered event loop with event name = {event["type"]}"'
             )
             if event["type"] == "PullRequestEvent":
                 if (
