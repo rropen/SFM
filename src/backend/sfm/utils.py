@@ -16,7 +16,6 @@ logging.basicConfig(
     format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
 )
 
-print(app_settings.AZURE_LOGGING_CONN_STR)
 logger = logging.getLogger(__name__)
 logger.addHandler(
     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
