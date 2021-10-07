@@ -1,17 +1,21 @@
 # build stage
-FROM node:15.14.0-alpine3.12 as build
+FROM node:15-alpine as build
+ADD ./vite.config.js /frontend/
 ADD ./package*.json /frontend/
+ADD ./yarn.lock /frontend/
+ADD ./.npmrc  /frontend/
 WORKDIR /frontend
-
-# Auth Token for Vue Cobalt
-ARG NODE_AUTH_TOKEN
-COPY .npmrc.ci .npmrc 
-
 RUN yarn
 COPY . .
-ENV PATH ./node_modules/.bin:$PATH
-CMD ["yarn", "serve"]
 ARG NODE_ENV
 ARG ENV
+RUN yarn build
 
-EXPOSE 3000
+FROM nginx:1.21-alpine as deploy
+RUN rm /etc/nginx/conf.d/default.conf && rm /etc/nginx/nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /frontend/dist /usr/share/nginx/html
+RUN chown -R nginx:nginx /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
