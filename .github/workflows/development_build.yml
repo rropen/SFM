@@ -75,7 +75,7 @@ jobs:
             run: yarn cy-ct
             
     Integration-Tests:
-        needs: [Frontend-Unit-Tests]
+        needs: [Frontend-Unit-Tests, Backend-Unit-Tests]
         runs-on: ubuntu-latest
         steps:
           - name: Checkout Code
@@ -173,7 +173,7 @@ jobs:
             uses: github/codeql-action/analyze@v1
               
     Backend-Build:
-      needs: [Integration-Tests]
+      needs: [Integration-Tests, Code-QL]
       runs-on: ubuntu-latest
       steps:
        - name: Checkout repository
@@ -190,7 +190,7 @@ jobs:
             docker push crsft.azurecr.us/sfm_backend_dev:latest
 
     Frontend-Build:
-      needs: [Integration-Tests]
+      needs: [Integration-Tests, Code-QL]
       runs-on: ubuntu-latest
       steps:
         - name: Checkout repository
