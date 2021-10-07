@@ -10,9 +10,14 @@ import requests
 import json
 import os
 
+from sfm.config import get_settings
+
+app_settings = get_settings()
+
 
 def test_github_backpopulate(client: TestClient, db: Session):
     """Clearing database so that id's are easier to test"""
+    print(app_settings.ENV)
     response = client.get(
         "/converters/github_populate", params={"org": "rropen", "repo": "testing"}
     )

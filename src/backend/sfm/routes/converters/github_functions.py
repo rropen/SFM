@@ -144,6 +144,7 @@ def populate_past_github(db, org):
             - b. This marks the MOST RECENT deploy as a failure
     """
 
+    logger.info(app_settings.ENV)
     logger.info('func="populate_past_github" info="entered"')
     if app_settings.ENV != "test":
         response = requests.get("https://api.github.com/rate_limit", headers=headers)
