@@ -1,5 +1,6 @@
 from time import time
 from sqlalchemy.sql.expression import false
+from sfm.database import create_db_and_tables
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
 from sfm.routes.commits import crud as commit_crud
@@ -244,8 +245,10 @@ def clear_db(db=Depends(get_db)):  # pragma: no cover
     """
 
     logger.info('method=delete path="utilities/clear_local_db"')
-    meta = SQLModel.metadata
-    for table in reversed(meta.sorted_tables):
-        db.execute(table.delete())
-    db.commit()
+    # meta = SQLModel.metadata
+    # for table in reversed(meta.sorted_tables):
+    #     db.execute(table.delete())
+    # db.commit()
+    SQLModel.metadata.drop_all(engine)
+    create_db_and_tables()
     return "Database cleared"
