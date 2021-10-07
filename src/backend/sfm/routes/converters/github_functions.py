@@ -145,11 +145,11 @@ def populate_past_github(db, org):
     """
 
     logger.info('func="populate_past_github" info="entered"')
-    response = requests.get("https://api.github.com/rate_limit", headers=headers)
-    logger.debug(f"{response}")
-    print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
-    print(app_settings.ENV)
     if app_settings.ENV != "test":
+        response = requests.get("https://api.github.com/rate_limit", headers=headers)
+        logger.debug(f"{response}")
+        print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
+        print(app_settings.ENV)
         org_data = requests.get(
             f"https://api.github.com/orgs/{org}", headers=headers
         ).json()
