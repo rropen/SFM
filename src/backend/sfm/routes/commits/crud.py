@@ -59,7 +59,7 @@ def get_all(
             project_commits.extend(item.commits)
         return project_commits
 
-    return db.exec(select(Commit).offset(skip).limit(limit)).all()
+    return db.exec(select(Commit).order_by(Commit.id).offset(skip).limit(limit)).all()
 
 
 def get_by_sha(db: Session, commit_sha):

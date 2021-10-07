@@ -27,7 +27,9 @@ logger.addHandler(
 
 def get_all(db: Session, skip: int = None, limit: int = None):
     """Get all the projects and return them."""
-    projects = db.exec(select(Project).offset(skip).limit(limit)).all()
+    projects = db.exec(
+        select(Project).order_by(Project.id).offset(skip).limit(limit)
+    ).all()
     if not projects:
         logger.warning('func="get_all" warning="Projects not found"')
         raise HTTPException(status_code=404, detail="Projects not found")

@@ -57,7 +57,9 @@ def get_all(
             .limit(limit)
         ).all()
 
-    return db.exec(select(WorkItem).offset(skip).limit(limit)).all()
+    return db.exec(
+        select(WorkItem).order_by(WorkItem.id).offset(skip).limit(limit)
+    ).all()
 
 
 def get_by_id(db: Session, work_item_id):
