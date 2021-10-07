@@ -5,18 +5,18 @@ from sqlmodel import Field, SQLModel, Relationship
 
 
 class ProjectBase(SQLModel):
-    name: str
-    lead_name: Optional[str] = None
-    lead_email: Optional[str] = None
-    description: Optional[str] = None
-    location: Optional[str] = None
-    repo_url: str
-    on_prem: Optional[bool] = None
+    name: str = Field(..., index=False)
+    lead_name: Optional[str] = Field(default=None, index=False)
+    lead_email: Optional[str] = Field(default=None, index=False)
+    description: Optional[str] = Field(default=None, index=False)
+    location: Optional[str] = Field(default=None, index=False)
+    repo_url: str = Field(..., index=False)
+    on_prem: Optional[bool] = Field(default=None, index=False)
 
 
 class Project(ProjectBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    project_auth_token_hashed: str
+    project_auth_token_hashed: str = Field(..., index=False)
 
     work_items: List["WorkItem"] = Relationship(back_populates="project")
 
@@ -30,13 +30,13 @@ class ProjectCreate(ProjectBase):
 
 
 class ProjectUpdate(SQLModel):
-    name: Optional[str] = None
-    lead_name: Optional[str] = None
-    lead_email: Optional[str] = None
-    description: Optional[str] = None
-    location: Optional[str] = None
-    repo_url: Optional[str] = None
-    on_prem: Optional[bool] = None
+    name: Optional[str] = Field(default=None, index=False)
+    lead_name: Optional[str] = Field(default=None, index=False)
+    lead_email: Optional[str] = Field(default=None, index=False)
+    description: Optional[str] = Field(default=None, index=False)
+    location: Optional[str] = Field(default=None, index=False)
+    repo_url: Optional[str] = Field(default=None, index=False)
+    on_prem: Optional[bool] = Field(default=None, index=False)
 
 
 class WorkItemCategory(str, Enum):
@@ -46,13 +46,15 @@ class WorkItemCategory(str, Enum):
 
 
 class WorkItemBase(SQLModel):
-    category: WorkItemCategory
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    duration_open: Optional[timedelta] = None
-    comments: Optional[str] = None
+    category: WorkItemCategory = Field(..., index=False)
+    start_time: Optional[datetime] = Field(default=None, index=False)
+    end_time: Optional[datetime] = Field(default=None, index=False)
+    duration_open: Optional[timedelta] = Field(default=None, index=False)
+    comments: Optional[str] = Field(default=None, index=False)
 
-    project_id: Optional[int] = Field(default=None, foreign_key="project.id")
+    project_id: Optional[int] = Field(
+        default=None, foreign_key="project.id", index=False
+    )
 
 
 class WorkItem(WorkItemBase, table=True):
@@ -63,7 +65,7 @@ class WorkItem(WorkItemBase, table=True):
 
 
 class WorkItemRead(WorkItemBase):
-    id: int
+    id: int = Field(..., index=False)
 
 
 class WorkItemCreate(WorkItemBase):
@@ -71,13 +73,13 @@ class WorkItemCreate(WorkItemBase):
 
 
 class WorkItemUpdate(SQLModel):
-    category: Optional[str] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    category: Optional[str] = Field(default=None, index=False)
+    start_time: Optional[datetime] = Field(default=None, index=False)
+    end_time: Optional[datetime] = Field(default=None, index=False)
     # duration_open not needed as it can be calculated and stored if given start and end
-    comments: Optional[str] = None
+    comments: Optional[str] = Field(default=None, index=False)
 
-    project_id: Optional[int] = None
+    project_id: Optional[int] = Field(default=None, index=False)
 
 
 class MetricData(SQLModel):
@@ -102,17 +104,19 @@ class LeadTimeData(SQLModel):
 
 
 class CommitBase(SQLModel):
-    sha: str
-    date: Optional[datetime] = None
-    message: Optional[str] = None
-    author: Optional[str] = None
-    work_item_id: Optional[int] = Field(default=None, foreign_key="workitem.id")
+    sha: str = Field(..., index=False)
+    date: Optional[datetime] = Field(default=None, index=False)
+    message: Optional[str] = Field(default=None, index=False)
+    author: Optional[str] = Field(default=None, index=False)
+    work_item_id: Optional[int] = Field(
+        default=None, foreign_key="workitem.id", index=False
+    )
 
 
 class Commit(CommitBase, table=True):
     id: int = Field(primary_key=True)
     work_item: Optional[WorkItem] = Relationship(back_populates="commits")
-    time_to_pull: int
+    time_to_pull: int = Field(..., index=False)
 
 
 class CommitRead(CommitBase):
@@ -120,9 +124,9 @@ class CommitRead(CommitBase):
 
 
 class CommitUpdate(SQLModel):
-    date: Optional[datetime] = None
-    message: Optional[str] = None
-    author: Optional[str] = None
+    date: Optional[datetime] = Field(default=None, index=False)
+    message: Optional[str] = Field(default=None, index=False)
+    author: Optional[str] = Field(default=None, index=False)
 
 
 class CommitCreate(CommitBase):

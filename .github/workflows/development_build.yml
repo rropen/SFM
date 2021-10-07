@@ -12,7 +12,11 @@ jobs:
     Backend-Unit-Tests:
         runs-on: ubuntu-latest
         env:
-          ENV: test
+          ENV: local
+          DEBUG: False
+          TESTING: True
+          SECRET_KEY: secret_key
+          ADMIN_KEY: admin_key
         steps:
           - name: Checkout Code
             uses: actions/checkout@v2
