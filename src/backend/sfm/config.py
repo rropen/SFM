@@ -18,7 +18,7 @@ def generate_db_string(ENV: str, DBHOST: str, DBNAME: str, DBUSER: str, DBPASS: 
 
     if ENV == "development" or "production":
         # need all four parameters available
-        if "unset" in [DBHOST, DBNAME, DBUSER, DBPASS]:
+        if "unset" in [DBNAME, DBPASS]:
             raise ValueError(
                 "Missing database parameter in the environment.  Please specify DBHOST, DBNAME, DBUSER, and DBPASS"
             )

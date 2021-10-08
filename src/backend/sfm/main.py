@@ -52,9 +52,9 @@ assert app_settings.ADMIN_KEY != "unset"  # mandate ADMIN_KEY value
 assert app_settings.FRONTEND_URL != "unset"  # mandate FRONTEND_URL value
 assert app_settings.GITHUB_API_TOKEN != "unset"  # mandate GITHUB_API_TOKEN value
 if app_settings.ENV in ["development", "production"]:
-    assert app_settings.DBHOST != "unset"  # mandate DBHOST value
+    # assert app_settings.DBHOST != "unset"  # mandate DBHOST value
     assert app_settings.DBNAME != "unset"  # mandate DBNAME value
-    assert app_settings.DBUSER != "unset"  # mandate DBUSER value
+    # assert app_settings.DBUSER != "unset"  # mandate DBUSER value
     assert app_settings.DBPASS != "unset"  # mandate DBPASS value
 
 # CORS Stuff
