@@ -582,3 +582,30 @@ def test_get_lead_time_endpoint(client: TestClient, db: Session):
 
     response = client.get("/metrics/LeadTimeToChange")
     assert response.status_code == 404
+
+
+# def test_lead_time_to_restore(client: TestClient, db: Session):
+#     """Testing that the endpoint is working as expected"""
+#     response = client.get("/TimeToRestore")
+#     assert response.status_code == 200
+#     assert response.json() == {
+#         "project_name": "org";
+#         "time_to_restore": int;
+#         "performance": "";
+#         "time_to_restore_description": "";
+#         "performance_description": "";
+#         "daily_times_to_restore": [[unixdate, 2]]
+#     }
+#
+#
+# def test_change_failure_rate(client: TestClient, db: Session):
+#     """Testing that the endpoint is working as expected"""
+#     response = client.get("/TimeToRestore")
+#     assert response.status_code == 200
+#     assert response.json() == {
+#         "project_name": "",
+#         "change_failure_rate": 0,
+#         "performance": "",
+#         "daily_change_failure_rate": [[unixdate, 0.15]],
+#         "change_failure_rate_description": "number of failed deployments per total number of deployments",
+#     }

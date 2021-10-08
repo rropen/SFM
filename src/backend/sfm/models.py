@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 from datetime import datetime, timedelta
+from pyasn1_modules.rfc2459 import IssuerAltName
 from sqlmodel import Field, SQLModel, Relationship
 
 
@@ -43,10 +44,12 @@ class WorkItemCategory(str, Enum):
     deployment = "Deployment"
     issue = "Issue"
     pull_request = "Pull Request"
+    production_defect = "Production Defect"
 
 
 class WorkItemBase(SQLModel):
     category: WorkItemCategory = Field(..., index=False)
+    issue: Optional[int] = Field(default=None, index=False)
     start_time: Optional[datetime] = Field(default=None, index=False)
     end_time: Optional[datetime] = Field(default=None, index=False)
     duration_open: Optional[timedelta] = Field(default=None, index=False)
@@ -74,6 +77,7 @@ class WorkItemCreate(WorkItemBase):
 
 class WorkItemUpdate(SQLModel):
     category: Optional[str] = Field(default=None, index=False)
+    issue: Optional[int] = Field(default=None, index=False)
     start_time: Optional[datetime] = Field(default=None, index=False)
     end_time: Optional[datetime] = Field(default=None, index=False)
     # duration_open not needed as it can be calculated and stored if given start and end
@@ -82,7 +86,7 @@ class WorkItemUpdate(SQLModel):
     project_id: Optional[int] = Field(default=None, index=False)
 
 
-class MetricData(SQLModel):
+class DeploymentData(SQLModel):
     project_name: str
     deployment_dates: List
     performance: str
@@ -101,6 +105,23 @@ class LeadTimeData(SQLModel):
     performance_description: str
     daily_commits_description: str
     daily_lead_times_description: str
+
+
+class TimeToRestoreData(SQLModel):
+    time_to_restore: int
+    performance: str
+    daily_times_to_restore: List
+    project_name: str
+    time_to_restore_description: str
+    performance_description: str
+    daily_times_to_restore_description: str
+
+
+class ChangeFailureRateData(SQLModel):
+    change_failure_rate: int
+    daily_change_failure_rates: List
+    project_name: str
+    change_failure_rate_description: str
 
 
 class CommitBase(SQLModel):
@@ -131,3 +152,10 @@ class CommitUpdate(SQLModel):
 
 class CommitCreate(CommitBase):
     pass
+
+
+class ProductionDefect(SQLModel):
+    issue: int = Field(..., index=False)
+    start_time: datetime = Field(..., index=False)
+    end_time: Optional[datetime] = Field(default=None, index=False)
+    deployment_id: int = Field(..., foreign_key="workItem.id", index=False)

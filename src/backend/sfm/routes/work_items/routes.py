@@ -109,6 +109,8 @@ def create_work_item(
         1. "Deployment"
         2. "Issue"
         3. "Pull Request"
+        4. "Production Defect"
+    - **issue**: sets the issue number that the workItem is associated with
     - **start_time**: sets the start time of the WorkItem
     - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
     - **duration_open**: sets duration of WorkItem being open
@@ -206,6 +208,8 @@ def update_work_item(
         1. "Deployment"
         2. "Issue"
         3. "Pull Request"
+        4. "Production Defect"
+    - **issue**: sets the issue number that the workItem is associated with
     - **start_time**: sets the start time of the WorkItem
     - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
     - **project_id**: sets project the WorkItem belongs to

@@ -261,8 +261,8 @@ def init_database(session):
                 "date": date + time_shift,
                 "author": "Gabe Geiger",
                 "work_item_id": item_id,
-                "time_to_pull": (proj_iter + i)
-                * 1000,  # not representative of acutal time to pull
+                "time_to_pull": (proj_iter + i) * 1000,
+                # not representative of acutal time to pull
             }
 
             commit_data = Commit(**commit_dict)
@@ -271,5 +271,18 @@ def init_database(session):
     proj_iter += 1
 
     session.commit()
+
+    # failure_dict = {
+    #     "category": "Production Defect",
+    #     "issue": 2,
+    #     "open_time": datetime.datetime(2021, 7, 1), # when it is flagged with label
+    #     "end_time": datetime.datetime(2021, 7, 4) # when a deployment that goes out that fixes issue
+    #     + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
+    #     "project_id": project_ids[proj_iter],
+    # }
+
+    # prod_failure = WorkItem(**failure_dict)
+
+    # session.add(prod_failure)
 
     yield session

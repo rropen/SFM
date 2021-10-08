@@ -23,6 +23,7 @@ def test_get_all(db):
     assert type(response) == list
     workitem = response[0]
     assert workitem.category == "Deployment"
+    assert workitem.issue is None
     assert workitem.start_time == datetime.datetime(2021, 8, 23, 9, 37, 17, 94309)
     assert workitem.end_time == datetime.datetime(2021, 9, 23, 9, 37, 17, 94309)
     assert workitem.duration_open == datetime.timedelta(days=31)
@@ -83,6 +84,7 @@ def test_get_by_id(db):
     assert type(response) is WorkItem
     workitem = response
     assert workitem.category == "Deployment"
+    assert workitem.issue is None
     assert workitem.start_time == datetime.datetime(2021, 8, 23, 9, 37, 17, 94309)
     assert workitem.end_time == datetime.datetime(2021, 9, 23, 9, 37, 17, 94309)
     assert workitem.duration_open == datetime.timedelta(days=31)
@@ -102,6 +104,7 @@ def test_create_work_item(db):
     work_item_data = WorkItemCreate(
         **{
             "category": "Issue",
+            "issue": 1,
             "start_time": datetime.datetime(2021, 8, 11, 10, 15, 16, 94309),
             "end_time": datetime.datetime(2021, 8, 13, 10, 15, 16, 94309),
             "duration_open": datetime.timedelta(days=2),
@@ -114,6 +117,7 @@ def test_create_work_item(db):
     assert response == 44
     workitem = db.get(WorkItem, response)
     assert workitem.category == "Issue"
+    assert workitem.issue == 1
     assert workitem.start_time == datetime.datetime(2021, 8, 11, 10, 15, 16, 94309)
     assert workitem.end_time == datetime.datetime(2021, 8, 13, 10, 15, 16, 94309)
     assert workitem.duration_open == datetime.timedelta(days=2)
@@ -172,6 +176,7 @@ def test_update_work_item(db):
     work_item_data = WorkItemUpdate(
         **{
             "category": "Pull Request",
+            "issue": 2,
             "start_time": datetime.datetime(2021, 7, 23, 9, 37, 17, 94309),
             "end_time": datetime.datetime(2021, 8, 23, 9, 37, 17, 94309),
             "comments": "different comment",
@@ -184,6 +189,7 @@ def test_update_work_item(db):
     assert type(response) == WorkItem
     workitem = response
     assert workitem.category == "Pull Request"
+    assert workitem.issue == 2
     assert workitem.start_time == datetime.datetime(2021, 7, 23, 9, 37, 17, 94309)
     assert workitem.end_time == datetime.datetime(2021, 8, 23, 9, 37, 17, 94309)
     assert workitem.comments == "different comment"
@@ -202,6 +208,7 @@ def test_update_work_item(db):
     assert type(response) == WorkItem
     workitem = response
     assert workitem.category == "Issue"
+    assert workitem.issue == 2
     assert workitem.start_time == datetime.datetime(2021, 7, 23, 9, 37, 17, 94309)
     assert workitem.end_time == datetime.datetime(2021, 8, 23, 9, 37, 17, 94309)
     assert workitem.comments == "new different comment"
