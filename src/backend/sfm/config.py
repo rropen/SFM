@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import urllib
 from functools import lru_cache
+import psycopg2
 
 load_dotenv()
 
@@ -24,15 +25,18 @@ def generate_db_string(ENV: str, DBHOST: str, DBNAME: str, DBUSER: str, DBPASS: 
             )
 
         # driver = "{ODBC Driver 17 for SQL Server}"
-        conn = f"""dbname='{DBNAME}' user='sfadmin@psql-sfm' host='psql-sfm.postgres.database.usgovcloudapi.net'
-        password='{DBPASS}' port='5432' sslmode='true'"""
+        # conn = f"""dbname='{DBNAME}' user='sfadmin@psql-sfm' host='psql-sfm.postgres.database.usgovcloudapi.net'
+        # password='{DBPASS}' port='5432' sslmode='true'"""
+        conn = "host={0} user={1} dbname={2} password={3} sslmode={4}".format(
+            DBHOST, DBUSER, DBNAME, DBPASS, "require"
+        )
         # conn = f"""Driver={driver};Server=tcp:{DBHOST},1433;Database={DBNAME};
         # Uid={DBUSER};Pwd={DBPASS};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"""
         # params = urllib.parse.quote_plus(conn)
-        # conn_str = "mssql+pyodbc:///?autocommit=true&odbc_connect={}".format(params)
+        conn_str = psycopg2.connect(conn)
 
-        return conn
-        # return conn_str
+        # return conn
+        return conn_str
 
 
 class Settings(BaseSettings):
