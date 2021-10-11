@@ -4,12 +4,19 @@ from sfm.routes.work_items import crud as work_item_crud
 from sfm.routes.commits import crud as commit_crud
 from sfm.routes.projects import crud as project_crud
 from sfm.dependencies import get_db
-from sfm.models import WorkItemCreate, ProjectCreate, CommitCreate, Project
+from sfm.models import (
+    WorkItem,
+    WorkItemUpdate,
+    WorkItemCreate,
+    ProjectCreate,
+    CommitCreate,
+    Project,
+)
 from sfm.database import engine
 from urllib.request import urlopen
 import requests
 from fastapi import HTTPException
-from sqlmodel import select
+from sqlmodel import select, and_
 from datetime import datetime
 from statistics import median
 from opencensus.ext.azure.log_exporter import AzureLogHandler
@@ -72,7 +79,9 @@ def pull_request_processor(
     if app_settings.ENV != "test":
         json_data = requests.get(pull_request["commits_url"], headers=headers).json()
     else:
-        json_data = json.load(open("./test_converters/testing_files/commits.json"))
+        json_data = json.load(
+            open("./test_converters/testing_files/commits.json")
+        )  # <~~~
         logger.warning('func="pull_request_processor" info="using testing commit file"')
 
     for i in range(0, len(json_data)):
@@ -119,12 +128,72 @@ def project_processor(db, project):
             db, project_data, admin_key=app_settings.ADMIN_KEY
         )
 
-    except HTTPException:
+    except HTTPException:  # pragma: no cover
         raise Exception(
             "Issue with repeated projects. Clear database and try population again"
         )
 
     return project_db, proj_auth_token
+
+
+def defect_processor(db, issue, project, proj_auth_token, closed=False):
+    # closed=True signifies this was a "closed" event and not a "labeled" event
+    logger.info('func="defect_processor" info="entered"')
+
+    issue_number = issue["number"]
+    # if closed is true, set the existing defect end_time to the closed_at time and exit the function
+    if closed is True:
+        existing_issue = db.exec(
+            select(WorkItem).where(
+                and_(
+                    WorkItem.category == "Production Defect",
+                    WorkItem.issue_num == issue_number,
+                )
+            )
+        ).first()
+
+        if existing_issue is None:
+            logger.warning(
+                'func="defect_processor" warning="Defect with matching issue number does not exist"'
+            )
+            raise HTTPException(
+                status_code=404,
+                detail="Defect with matching issue number does not exist",
+            )
+
+        update_defect_dict = {"end_time": issue["closed_at"]}
+        work_item_update = WorkItemUpdate(**update_defect_dict)
+        work_item_crud.update_work_item(
+            db, existing_issue.id, work_item_update, proj_auth_token
+        )
+        logger.info('func="defect_processor" info="Defect updated with new end_time"')
+
+        return
+
+    # otherwise, go through the function and create a new workItem with the category of "Production Defect"
+    state = issue["state"]
+    open_time = datetime.strptime(issue["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+
+    # used for backpopulation purposes. Only happens if flagged event is already closed.
+    if state == "closed":
+        logger.info('func="defect_processor" info="defect event"')
+        closed_time = datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ")
+    elif state == "open":
+        closed_time = None
+    else:
+        pass
+
+    create_defect_dict = {
+        "category": "Production Defect",
+        "issue_num": issue_number,
+        "start_time": open_time,
+        "end_time": closed_time,
+        "project_id": project.id,
+    }
+
+    work_item_data = WorkItemCreate(**create_defect_dict)
+    defect_id = work_item_crud.create_work_item(db, work_item_data, proj_auth_token)
+    logger.info(f'func="defect_processor" info="defect WorkItem Id = {defect_id}"')
 
 
 def populate_past_github(db, org):
@@ -146,7 +215,7 @@ def populate_past_github(db, org):
 
     logger.info(app_settings.ENV)
     logger.info('func="populate_past_github" info="entered"')
-    if app_settings.ENV != "test":
+    if app_settings.ENV != "test":  # pragma: no cover
         # response = requests.get("https://api.github.com/rate_limit", headers=headers)
         # logger.debug(f"{response}")
         # print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
@@ -154,7 +223,8 @@ def populate_past_github(db, org):
         org_data = requests.get(
             f"https://api.github.com/orgs/{org}", headers=headers
         ).json()
-        repo_data = requests.get(org_data["repos_url"], headers=headers).json()
+        org_data_string = str(org_data["repos_url"])
+        repo_data = requests.get(org_data_string, headers=headers).json()
 
     else:
         org_data = json.load(open("./test_converters/testing_files/org_data.json"))
@@ -188,13 +258,13 @@ def populate_past_github(db, org):
 
         key_dict[repo["name"]] = proj_auth_token
 
-        if app_settings.ENV != "test":
+        if app_settings.ENV != "test":  # pragma: no cover
             event_request_str = str(repo["events_url"])
             events = requests.get(event_request_str, headers=headers).json()
         else:
             events = json.load(open("./test_converters/testing_files/events.json"))
 
-        for event in events:
+        for event in reversed(events):
             logger.info(
                 f'func="populate_past_github" info="Entered event loop with event name = {event["type"]}"'
             )
@@ -206,3 +276,37 @@ def populate_past_github(db, org):
                     pull_request_processor(
                         db, event["payload"]["pull_request"], project, proj_auth_token
                     )
+
+        if app_settings.ENV != "test":  # pragma: no cover
+            issue_events_str = str(repo["issue_events_url"])
+            issue_events_str = issue_events_str.split("{")[0]
+            issue_events = requests.get(issue_events_str, headers=headers).json()
+        else:
+            issue_events = json.load(
+                open("./test_converters/testing_files/issue_events.json")
+            )
+
+        # Find the flagged events in the issue events and send them for processing and storage
+        for i_event in reversed(issue_events):
+            logger.info(
+                f'func="populate_past_github" info="Entered labeled event loop with event name = {i_event["event"]}"'
+            )
+            if (
+                i_event["event"] == "labeled"
+                and i_event["label"]["name"] == "production defect"
+            ):
+                defect_processor(
+                    db, i_event["issue"], project, proj_auth_token, closed=False
+                )
+
+        # Second time through the issue events, this time looking for any closed events to set end times for
+        # issues that were created with "labeled" events in the first loop through
+        for i_event in reversed(issue_events):
+            logger.info(
+                f'func="populate_past_github" info="Entered closed event loop with event name = {i_event["event"]}"'
+            )
+            label_names = [label["name"] for label in i_event["issue"]["labels"]]
+            if i_event["event"] == "closed" and "production defect" in label_names:
+                defect_processor(
+                    db, i_event["issue"], project, proj_auth_token, closed=True
+                )

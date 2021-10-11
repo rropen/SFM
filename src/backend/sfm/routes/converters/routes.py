@@ -100,8 +100,6 @@ async def webhook_handler(
 
 
 @router.get("/github_populate")
-def populate_past_data(
-    org: str, repo: Optional[str] = None, db: Session = Depends(get_db)
-):
+def populate_past_data(org: str, db: Session = Depends(get_db)):
     populate_past_github(db, org)
     return {"code": "success"}

@@ -7,3 +7,4 @@ exclude_lines =
     pragma: no cover
     logging
     logger
+    continue

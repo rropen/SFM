@@ -77,7 +77,14 @@ def create_work_item(db: Session, work_item_data, project_auth_token):
         project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
-        work_item_db = WorkItem.from_orm(work_item_data)
+        work_temp = work_item_data.dict()
+        if work_temp["start_time"] and work_temp["end_time"]:
+            duration_open = int(
+                (work_temp["end_time"] - work_temp["start_time"]).total_seconds()
+            )
+            work_temp.update({"duration_open": duration_open})
+
+        work_item_db = WorkItem(**work_temp)
         db.add(work_item_db)
         db.commit()
     else:
@@ -150,6 +157,14 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
 
         db.add(work_item)
         db.commit()
+        db.refresh(work_item)
+        if work_item.start_time and work_item.end_time:
+            work_item.duration_open = int(
+                (work_item.end_time - work_item.start_time).total_seconds()
+            )
+            db.add(work_item)
+            db.commit()
+
     else:
         logger.warning('func="update_work_item" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")

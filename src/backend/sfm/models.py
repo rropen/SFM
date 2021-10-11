@@ -49,12 +49,12 @@ class WorkItemCategory(str, Enum):
 
 class WorkItemBase(SQLModel):
     category: WorkItemCategory = Field(..., index=False)
-    issue: Optional[int] = Field(default=None, index=False)
+    issue_num: Optional[int] = Field(default=None, index=False)
     start_time: Optional[datetime] = Field(default=None, index=False)
     end_time: Optional[datetime] = Field(default=None, index=False)
-    duration_open: Optional[timedelta] = Field(default=None, index=False)
+    duration_open: Optional[int] = Field(default=None, index=False)
     comments: Optional[str] = Field(default=None, index=False)
-
+    failed: Optional[bool] = Field(default=None, index=False)
     project_id: Optional[int] = Field(
         default=None, foreign_key="project.id", index=False
     )
@@ -77,12 +77,12 @@ class WorkItemCreate(WorkItemBase):
 
 class WorkItemUpdate(SQLModel):
     category: Optional[str] = Field(default=None, index=False)
-    issue: Optional[int] = Field(default=None, index=False)
+    issue_num: Optional[int] = Field(default=None, index=False)
     start_time: Optional[datetime] = Field(default=None, index=False)
     end_time: Optional[datetime] = Field(default=None, index=False)
     # duration_open not needed as it can be calculated and stored if given start and end
     comments: Optional[str] = Field(default=None, index=False)
-
+    failed: Optional[bool] = Field(default=None, index=False)
     project_id: Optional[int] = Field(default=None, index=False)
 
 

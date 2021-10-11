@@ -101,7 +101,12 @@ def init_database(session):
             "category": "Deployment",
             "start_time": datetime.datetime(2021, 8, 23, 9, 37, 17, 94309),
             "end_time": datetime.datetime(2021, 9, 23, 9, 37, 17, 94309),
-            "duration_open": datetime.timedelta(days=31),
+            "duration_open": int(
+                (
+                    datetime.datetime(2021, 9, 23, 9, 37, 17, 94309)
+                    - datetime.datetime(2021, 8, 23, 9, 37, 17, 94309)
+                ).total_seconds()
+            ),
             "comments": "Test description for test work item in the database",
             "project_id": 1,
         }
@@ -115,7 +120,12 @@ def init_database(session):
             "category": "Pull Request",
             "start_time": datetime.datetime(2021, 7, 23, 9, 37, 17, 94309),
             "end_time": datetime.datetime(2021, 8, 23, 9, 37, 17, 94309),
-            "duration_open": datetime.timedelta(days=31),
+            "duration_open": int(
+                (
+                    datetime.datetime(2021, 8, 23, 9, 37, 17, 94309)
+                    - datetime.datetime(2021, 7, 23, 9, 37, 17, 94309)
+                ).total_seconds()
+            ),
             "comments": "new Test description for test work item in the database",
             "project_id": 2,
         }
@@ -275,10 +285,9 @@ def init_database(session):
     # failure_dict = {
     #     "category": "Production Defect",
     #     "issue": 2,
-    #     "open_time": datetime.datetime(2021, 7, 1), # when it is flagged with label
-    #     "end_time": datetime.datetime(2021, 7, 4) # when a deployment that goes out that fixes issue
-    #     + time_shift,  # ADDED TIME DELTA SHIFT TO BRING CLOSER TO CURRENT DATE
-    #     "project_id": project_ids[proj_iter],
+    #     "open_time": datetime.datetime(2021, 7, 1) + time_shift, # when it is flagged with label
+    #     "end_time": datetime.datetime(2021, 7, 4) + time_shift, # when the issue with the label is closed via linked pull request in GitHub
+    #     "project_id": 1
     # }
 
     # prod_failure = WorkItem(**failure_dict)
