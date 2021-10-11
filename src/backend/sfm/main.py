@@ -24,9 +24,9 @@ logging.basicConfig(
     format="%(levelname)s %(name)s %(asctime)s %(message)s",
 )
 logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
-)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 # this file will always be called with __name__ == "sfm.main" (even in docker container)
 logger.info('file="main" info="before calling create_db_and_tables"')

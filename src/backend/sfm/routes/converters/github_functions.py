@@ -25,9 +25,9 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
-)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 
 def deployment_processor(
@@ -147,10 +147,10 @@ def populate_past_github(db, org):
     logger.info(app_settings.ENV)
     logger.info('func="populate_past_github" info="entered"')
     if app_settings.ENV != "test":
-        response = requests.get("https://api.github.com/rate_limit", headers=headers)
-        logger.debug(f"{response}")
-        print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
-        print(app_settings.ENV)
+        # response = requests.get("https://api.github.com/rate_limit", headers=headers)
+        # logger.debug(f"{response}")
+        # print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
+        # print(app_settings.ENV)
         org_data = requests.get(
             f"https://api.github.com/orgs/{org}", headers=headers
         ).json()
