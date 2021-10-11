@@ -22,14 +22,14 @@ const routes = [
     component: () => import("../views/About.vue"),
   },
   {
-    path: "/:pathMatch(.*)*",
-    name: "not-found",
-    component: () => import("../views/404.vue"),
-  },
-  {
     path: "/422",
     name: "Unprocessable Entity",
     component: () => import("../views/422.vue"),
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "not-found",
+    component: () => import("../views/404.vue"),
   },
 ];
 
