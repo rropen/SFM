@@ -23,7 +23,7 @@ const routes = [
   },
   {
     path: "/422",
-    name: "Unprocessable Entity",
+    name: "422",
     component: () => import("../views/422.vue"),
   },
   {
