@@ -3,11 +3,11 @@
     <div class="w-1/3 mx-auto text-center">
       <img class="mb-8 pt-32 mx-auto" src="../assets/img/risks.png" />
       <h1 class="text-lg font-semibold text-rrgrey-800">
-        401 - Unauthorized Access
+        422 - Unprocessable Entity
       </h1>
       <p class="text-rrgrey-800 text-md mt-4">
-        You have attempted to access a page for which you are not authorized.<br />Please
-        check the credentials you entered, or return home.
+        Unable to process the contained instructions<br />Please check the
+        address you entered, or return home.
       </p>
       <router-link :to="{ name: 'Home' }">
         <button

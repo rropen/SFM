@@ -9,18 +9,18 @@ name: Development Build
 on: workflow_dispatch
 
 jobs:
-#   backend-unit-tests:
-#     uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
-#     with:
-#       backend_directory: src/backend
-              
+  #   backend-unit-tests:
+  #     uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
+  #     with:
+  #       backend_directory: src/backend
+
   frontend-unit-tests:
     uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
     with:
       frontend_directory: src/frontend
     secrets:
       vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
-            
+
   Integration-Tests:
     uses: rropen/reusable-workflows/.github/workflows/cypress_E2E.yml@main
     with:
@@ -28,12 +28,12 @@ jobs:
       frontend_directory: src/frontend
     secrets:
       vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
-                   
+
   Code-QL:
     uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
     with:
       language: python
-                   
+
   Backend-Build:
     uses: rropen/reusable-workflows/.github/workflows/build_deploy_azure.yml@main
     with:
@@ -43,21 +43,20 @@ jobs:
       crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
       crsft_username: ${{ secrets.CRSFT_USERNAME }}
       crsft_password: ${{ secrets.CRSFT_PASSWORD }}
- 
-  Frontend-Build:
-      needs: [Integration-Tests, Code-QL]
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
-        - name: Login ACR
-          uses: azure/docker-login@v1
-          with:
-            login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
-            username: ${{ secrets.CRSFT_USERNAME}}
-            password: ${{ secrets.CRSFT_PASSWORD }}
-        - name: Build/Push Frontend Container
-          run: |
-            docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
-            docker push crsft.azurecr.us/sfm_frontend_dev:latest
 
+  Frontend-Build:
+    needs: [Integration-Tests, Code-QL]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Login ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
+          username: ${{ secrets.CRSFT_USERNAME}}
+          password: ${{ secrets.CRSFT_PASSWORD }}
+      - name: Build/Push Frontend Container
+        run: |
+          docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
+          docker push crsft.azurecr.us/sfm_frontend_dev:latest
