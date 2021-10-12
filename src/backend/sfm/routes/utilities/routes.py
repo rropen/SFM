@@ -163,9 +163,9 @@ def populate_db(  # pragma: no cover
 
     pull_req_work_items = []
     project_ids = [project.id, project2.id]
-    print(project_ids)
+    # print(project_ids)
     project_auth_tokens = [project_auth_token, project_auth_token2]
-    print(project_auth_tokens)
+    # print(project_auth_tokens)
     proj_iter = 0
     for date in pull_dates:
         pull_dict = {

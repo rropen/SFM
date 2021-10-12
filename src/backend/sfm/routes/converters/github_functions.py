@@ -236,9 +236,20 @@ def populate_past_github(db, org):
                 -i. (not easy and possible improvement) timer stops when verified issue is fixed
             - b. This marks the MOST RECENT deploy as a failure
     """
-
     logger.info(app_settings.ENV)
     logger.info('func="populate_past_github" info="entered"')
+
+    if app_settings.GITHUB_API_TOKEN in ["", "XXXXXXXXXXX"]:
+        raise HTTPException(
+            status_code=412,
+            detail="Missing github api token.  Please specify GITHUB_API_TOKEN and try again",
+        )
+        # raise ValueError(
+        #     "Missing github api token.  Please specify GITHUB_API_TOKEN and try again"
+        # )
+
+    assert app_settings.ENV != ""
+
     if app_settings.ENV != "test":  # pragma: no cover
         # response = requests.get("https://api.github.com/rate_limit", headers=headers)
         # logger.debug(f"{response}")

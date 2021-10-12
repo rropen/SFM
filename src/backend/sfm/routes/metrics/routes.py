@@ -460,10 +460,10 @@ def get_time_to_restore(
                 and_(
                     WorkItem.project_id == project.id,
                     WorkItem.category == "Production Defect",
-                    WorkItem.end_time is not None,
+                    WorkItem.end_time != None,  # noqa: E711
                 )
             )
-        ).all()
+        ).all()  # noqa: E711
         recent_prod_defects = [
             defect
             for defect in closed_prod_defects
@@ -484,7 +484,7 @@ def get_time_to_restore(
             select(WorkItem).where(
                 and_(
                     WorkItem.category == "Production Defect",
-                    WorkItem.end_time is not None,
+                    WorkItem.end_time != None,  # noqa: E711
                 )
             )
         ).all()
@@ -588,7 +588,10 @@ def get_change_failure_rate(
 
     failed_deploys = [deploy for deploy in deployments if deploy.failed is True]
 
-    change_failure_rate = len(failed_deploys) / len(deployments)
+    if len(deployments) == 0:
+        change_failure_rate = 0
+    else:
+        change_failure_rate = len(failed_deploys) / len(deployments)
 
     daily_failure_rate = group_failures(all_deployments)
 
