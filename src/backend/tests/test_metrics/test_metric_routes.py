@@ -336,9 +336,11 @@ def test_get_deployments(client: TestClient, db: Session):
 
 # Test get "/LeadTimeToChange" endpoint
 def test_get_lead_time_endpoint(client: TestClient, db: Session):
+    """Test that the endpoint works as expected when no parameters are passed"""
     response = client.get("/metrics/LeadTimeToChange")
     assert response is not None
     assert response.status_code == 200
+    assert response.json()["project_name"] == "org"
 
     day_proj = Project(
         **{
@@ -547,6 +549,7 @@ def test_get_lead_time_endpoint(client: TestClient, db: Session):
     )
     day_result = day_response.json()
     assert day_result["performance"] == "One Day"
+    assert day_result["project_name"] == day_proj.name
 
     """Test giving a project with no workItems raises exception"""
     with pytest.raises(Exception) as ex:
@@ -579,3 +582,30 @@ def test_get_lead_time_endpoint(client: TestClient, db: Session):
 
     response = client.get("/metrics/LeadTimeToChange")
     assert response.status_code == 404
+
+
+# def test_lead_time_to_restore(client: TestClient, db: Session):
+#     """Testing that the endpoint is working as expected"""
+#     response = client.get("/TimeToRestore")
+#     assert response.status_code == 200
+#     assert response.json() == {
+#         "project_name": "org";
+#         "time_to_restore": int;
+#         "performance": "";
+#         "time_to_restore_description": "";
+#         "performance_description": "";
+#         "daily_times_to_restore": [[unixdate, 2]]
+#     }
+#
+#
+# def test_change_failure_rate(client: TestClient, db: Session):
+#     """Testing that the endpoint is working as expected"""
+#     response = client.get("/TimeToRestore")
+#     assert response.status_code == 200
+#     assert response.json() == {
+#         "project_name": "",
+#         "change_failure_rate": 0,
+#         "performance": "",
+#         "daily_change_failure_rate": [[unixdate, 0.15]],
+#         "change_failure_rate_description": "number of failed deployments per total number of deployments",
+#     }

@@ -4,9 +4,12 @@ from sqlalchemy.sql.expression import false
 from sfm.models import WorkItem, Project, Commit
 from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
+from sfm.config import get_settings
 from datetime import datetime, time, timedelta
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
+
+app_settings = get_settings()
 
 logging.basicConfig(
     filename="logs.log",
@@ -15,11 +18,9 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
-)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 
 def get_all(
@@ -58,7 +59,7 @@ def get_all(
             project_commits.extend(item.commits)
         return project_commits
 
-    return db.exec(select(Commit).offset(skip).limit(limit)).all()
+    return db.exec(select(Commit).order_by(Commit.id).offset(skip).limit(limit)).all()
 
 
 def get_by_sha(db: Session, commit_sha):

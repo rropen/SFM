@@ -2,10 +2,11 @@ import logging
 from datetime import datetime, timedelta
 from time import mktime
 from statistics import median
+from sfm.config import get_settings
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
 from sfm.dependencies import get_db
-from sfm.models import WorkItem, Project, MetricData, LeadTimeData
+from sfm.models import WorkItem, Project, DeploymentData, LeadTimeData
 from typing import List, Optional
 from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
@@ -13,6 +14,7 @@ from sfm.database import engine
 from sfm.utils import unix_time_seconds
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 
+app_settings = get_settings()
 
 logging.basicConfig(
     filename="logs.log",
@@ -21,11 +23,9 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
-)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 router = APIRouter()
 
@@ -171,7 +171,7 @@ def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
     return [daily_commits, daily_lead_times]
 
 
-@router.get("/deployments", response_model=List[MetricData])
+@router.get("/deployments", response_model=List[DeploymentData])
 def get_deployments(
     project_id: Optional[int] = None,
     project_name: Optional[str] = None,
@@ -302,7 +302,7 @@ def get_deployments(
 
 
 @router.get("/LeadTimeToChange", response_model=LeadTimeData)
-def get_Lead_Time_To_Change(
+def get_lead_time_to_change(
     project_id: Optional[int] = None,
     project_name: Optional[str] = None,
     db: Session = Depends(get_db),
@@ -369,6 +369,7 @@ def get_Lead_Time_To_Change(
                 status_code=404,
                 detail="No pull requests to main associated with specified project",
             )
+        project_name = project.name
 
     else:
         all_items = crud.get_all(db)
@@ -381,6 +382,7 @@ def get_Lead_Time_To_Change(
                 status_code=404,
                 detail="No pull requests to main in record for any project",
             )
+        project_name = "org"
 
     lead_times = []
     commit_dates = []
@@ -414,6 +416,7 @@ def get_Lead_Time_To_Change(
         "performance": performance,
         "daily_commits": daily_commits,
         "daily_lead_times": daily_lead_times,
+        "project_name": project_name,
         "lead_time_description": "median lead time for a commit to get pulled to main branch in minutes",
         "performance_description": "Elite = less than one day, High = between one day and one week, Medium = bewtween one week and one month, Low = greater than one month",
         "daily_commits_description": "List of lists, where each sublist consits of [unix date, number of commits on that date]",
@@ -421,3 +424,121 @@ def get_Lead_Time_To_Change(
     }
 
     return lead_time_dict
+
+
+# @router.get("/TimeToRestore", response_model=TimeToRestoreData)
+# def get_time_to_restore(
+#     project_id: Optional[int] = None,
+#     project_name: Optional[str] = None,
+#     db: Session = Depends(get_db),
+# ):
+#     """
+#     ## Get Time to Restore Metric
+#
+#     Get json data describing time to restore metric
+#
+#     ---
+#
+#     #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
+#     - **project_id**: sets project data to be used for calculation
+#     - **project_name**: sets project data to be used for calculation
+#
+#     """
+#     logger.info('method="GET" path="metrics/TimeToRestore"')
+#     project = None
+#     if project_name and not project_id:
+#         project = db.exec(select(Project).where(Project.name == project_name)).first()
+#         if not project:
+#             logger.warning(
+#                 'method="GET" path="metrics/TimeToRestore" warning="No Project found with the specified name"'
+#             )
+#             raise HTTPException(
+#                 status_code=404,
+#                 detail=f"No project found with the specified name: {project_name}",
+#             )
+#     elif project_id and not project_name:
+#         project = db.get(Project, project_id)
+#         if not project:
+#             logger.warning(
+#                 'method="GET" path="metrics/TimeToRestore" warning="No Project found with the specified id"'
+#             )
+#             raise HTTPException(
+#                 status_code=404,
+#                 detail=f"No project found with the specified id: {project_id}",
+#             )
+#     elif project_id and project_name:
+#         project = db.exec(
+#             select(Project).where(
+#                 and_(Project.id == project_id, Project.name == project_name)
+#             )
+#         ).first()
+#         if not project:
+#             logger.warning(
+#                 'method="GET" path="metrics/TimeToRestore" warning="Either project_id and project_name do not match or no matching project"'
+#             )
+#             raise HTTPException(
+#                 status_code=404,
+#                 detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
+#             )
+#
+#     if project:
+#         productionDefects = [
+#             item for item in project.work_items if (item.category == "Production Defect")
+#         ]
+#         if not productionDefects:
+#             time_to_restore = None
+#             performance = "No production defects"
+#
+#         project_name = project.name
+#
+#     else:
+#         all_items = crud.get_all(db)
+#         productionDefects = [item for item in all_items if (item.category == "Production Defect")]
+#         if not pullRequests:
+#             logger.warning(
+#                 'method="GET" path="metrics/TimeToRestore" warning="No pull requests to main in record for any project"'
+#             )
+#             raise HTTPException(
+#                 status_code=404,
+#                 detail="No pull requests to main in record for any project",
+#             )
+#         project_name = "org"
+#
+#     time_to_restore_dict = {
+#         "time_to_restore": median_time_to_restore, # only for last 3 months
+#         "performance": performance,
+#         "daily_times_to_restore": daily_restores,
+#         "project_name": project_name,
+#         "time_to_restore_description": "median time to restore service in hours (time from bug noticed to pull request to main with fix) over the past three months ",
+#         "performance_description": "Elite = less than one hour, High = less than one day, Medium = less than one week, Low = between one week and one month",
+#         "daily_times_to_restore_description": "list of lists, where each item in the list consists of [unix date, median time to restore for all bugs logged on that date, in hours]",
+#     }
+
+
+# @router.get("/ChangeFailureRate", response_model=ChangeFailureRateData)
+# def get_change_failure_rate(
+#     project_id: Optional[int] = None,
+#     project_name: Optional[str] = None,
+#     db: Session = Depends(get_db),
+# ):
+#     pass
+#     """
+#     ## Get Change Failure Rate Metric
+#
+#     Get json data describing change failure rate metric
+#
+#     ---
+#
+#     #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
+#     - **project_id**: sets project data to be used for calculation
+#     - **project_name**: sets project data to be used for calculation
+#
+#     """
+#
+#     change_failure_rate_dict = {
+#         "change_failure_rate": change_failure_rate,
+#         "daily_change_failure_rate": daily_restores,
+#         "performance": performance,
+#         "project_name": project_name,
+#         "change_failure_rate_description": "number of failed deployments per total number of deployments",
+#     }

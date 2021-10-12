@@ -3,14 +3,9 @@ version: "3.7"
 services:
   backend:
     command: uvicorn sfm.main:app --workers 4 --host 0.0.0.0 --port 8181 --reload
-    # command:
     ports:
       - 8181:8181
-    environment:
-      ENV: "Local"
-
     volumes:
-      # - ./backend:/usr/mec/static
       - ./backend/:/app
 
   frontend:
@@ -22,4 +17,4 @@ services:
       - VITE_API_URL=http://localhost:8181
       - VITE_COVERAGE=true
     ports:
-      - 3000:3000
+      - 3000:80

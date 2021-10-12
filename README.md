@@ -6,6 +6,7 @@
 <!-- Place any useful shield.io shields here.  Use the style=flat styling option. -->
 <p>
     <a href="https://github.com/rropen/SFM"><img src="https://img.shields.io/badge/Rolls--Royce-Software%20Factory-10069f"></a>
+    <a href="https://github.com/rropen/SFM/actions/workflows/development_build.yml"><img src="https://github.com/rropen/SFM/actions/workflows/development_build.yml/badge.svg"></a>
     <a href="https://github.com/rropen/SFM/actions/workflows/frontend_unit_tests.yml"><img src="https://github.com/rropen/SFM/actions/workflows/frontend_unit_tests.yml/badge.svg"></a>
     <a href="https://github.com/rropen/SFM/actions/workflows/backend_unit_tests.yml"><img src="https://github.com/rropen/SFM/actions/workflows/backend_unit_tests.yml/badge.svg"></a>
     <a href="https://github.com/rropen/SFM/actions/workflows/integration_tests.yml"><img src="https://github.com/rropen/SFM/actions/workflows/integration_tests.yml/badge.svg"></a>

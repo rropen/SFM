@@ -1,22 +1,25 @@
 from time import time
 from sqlalchemy.sql.expression import false
+from sfm.database import create_db_and_tables
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
 from sfm.routes.commits import crud as commit_crud
 from sfm.dependencies import get_db
 from sfm.models import WorkItemCreate, ProjectCreate, CommitCreate
 from typing import List, Optional
-from sqlmodel import SQLModel, Session
+from sqlmodel import SQLModel, Session, select
 from fastapi import APIRouter, HTTPException, Depends, Path, Header
 from sfm.database import engine
 from datetime import datetime, timedelta
 from sfm.utils import create_project_auth_token
+from sfm.config import get_settings
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import string
 import random
 
-
 import logging
+
+app_settings = get_settings()
 
 logging.basicConfig(
     filename="logs.log",
@@ -25,11 +28,9 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
-)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 
 def random_sha(seed):  # pragma: no cover
@@ -234,7 +235,7 @@ def populate_db(  # pragma: no cover
 
 
 @router.delete("/clear_local_db")  # pragma: no cover
-def clear_db():  # pragma: no cover
+def clear_db(db=Depends(get_db)):  # pragma: no cover
 
     """
     ## Clear Local Database
@@ -244,5 +245,10 @@ def clear_db():  # pragma: no cover
     """
 
     logger.info('method=delete path="utilities/clear_local_db"')
+    # meta = SQLModel.metadata
+    # for table in reversed(meta.sorted_tables):
+    #     db.execute(table.delete())
+    # db.commit()
     SQLModel.metadata.drop_all(engine)
+    create_db_and_tables()
     return "Database cleared"

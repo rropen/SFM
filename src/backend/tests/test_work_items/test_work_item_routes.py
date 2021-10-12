@@ -21,7 +21,7 @@ def test_get_all_endpoint(client: TestClient, db: Session):
     assert work_item["end_time"] == datetime(2021, 9, 23, 9, 37, 17, 94309).strftime(
         "%Y-%m-%dT%H:%M:%S.%f"
     )
-    assert work_item["duration_open"] == timedelta(days=31).total_seconds()
+    assert work_item["duration_open"] == int(timedelta(days=31).total_seconds())
     assert (
         work_item["comments"] == "Test description for test work item in the database"
     )
@@ -37,7 +37,7 @@ def test_get_all_endpoint(client: TestClient, db: Session):
     assert work_item["end_time"] == datetime(2021, 8, 23, 9, 37, 17, 94309).strftime(
         "%Y-%m-%dT%H:%M:%S.%f"
     )
-    assert work_item["duration_open"] == timedelta(days=31).total_seconds()
+    assert work_item["duration_open"] == int(timedelta(days=31).total_seconds())
     assert (
         work_item["comments"]
         == "new Test description for test work item in the database"

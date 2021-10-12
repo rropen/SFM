@@ -3,11 +3,14 @@ from sfm.models import Project, WorkItem
 from sqlmodel import Session, select
 import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
+from sfm.config import get_settings
 from sfm.utils import (
     create_project_auth_token,
     hash_project_auth_token,
     verify_admin_key,
 )
+
+app_settings = get_settings()
 
 logging.basicConfig(
     filename="logs.log",
@@ -17,16 +20,16 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
-)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 
 def get_all(db: Session, skip: int = None, limit: int = None):
     """Get all the projects and return them."""
-    projects = db.exec(select(Project).offset(skip).limit(limit)).all()
+    projects = db.exec(
+        select(Project).order_by(Project.id).offset(skip).limit(limit)
+    ).all()
     if not projects:
         logger.warning('func="get_all" warning="Projects not found"')
         raise HTTPException(status_code=404, detail="Projects not found")
@@ -56,6 +59,13 @@ def create_project(db: Session, project_data, admin_key):
     else:
         logger.warning('func="create_project" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
+
+    project_name_repeat = db.exec(
+        select(Project).where(Project.name == project_data.name)
+    )
+    if project_name_repeat is None:
+        logger.warning('func="create_project" warning="Database entry already exists"')
+        raise HTTPException(status_code=409, detail="Database entry already exists")
 
     # Check the new record
     db.refresh(project_db)

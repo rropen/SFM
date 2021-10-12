@@ -21,6 +21,9 @@ dependencies = [
     "bcrypt~=3.2",
     "opencensus~=0.7",
     "opencensus.ext.azure~=1.0",
+    "pytest~=6.2",
+    "pytest-cov~=3.0",
+    "psycopg2~=2.9",
 ]
 requires-python = ">=3.8"
 dynamic = ["classifiers"]

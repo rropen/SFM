@@ -8,10 +8,9 @@ from sqlmodel import SQLModel, create_engine, Session
 from sqlmodel.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
-
 from sfm.main import app
 from sfm.dependencies import get_db
-
+from sfm.config import get_settings
 from sfm.models import WorkItem, Project, Commit, ProjectCreate, WorkItemCreate
 
 
@@ -102,7 +101,12 @@ def init_database(session):
             "category": "Deployment",
             "start_time": datetime.datetime(2021, 8, 23, 9, 37, 17, 94309),
             "end_time": datetime.datetime(2021, 9, 23, 9, 37, 17, 94309),
-            "duration_open": datetime.timedelta(days=31),
+            "duration_open": int(
+                (
+                    datetime.datetime(2021, 9, 23, 9, 37, 17, 94309)
+                    - datetime.datetime(2021, 8, 23, 9, 37, 17, 94309)
+                ).total_seconds()
+            ),
             "comments": "Test description for test work item in the database",
             "project_id": 1,
         }
@@ -116,7 +120,12 @@ def init_database(session):
             "category": "Pull Request",
             "start_time": datetime.datetime(2021, 7, 23, 9, 37, 17, 94309),
             "end_time": datetime.datetime(2021, 8, 23, 9, 37, 17, 94309),
-            "duration_open": datetime.timedelta(days=31),
+            "duration_open": int(
+                (
+                    datetime.datetime(2021, 8, 23, 9, 37, 17, 94309)
+                    - datetime.datetime(2021, 7, 23, 9, 37, 17, 94309)
+                ).total_seconds()
+            ),
             "comments": "new Test description for test work item in the database",
             "project_id": 2,
         }
@@ -262,8 +271,8 @@ def init_database(session):
                 "date": date + time_shift,
                 "author": "Gabe Geiger",
                 "work_item_id": item_id,
-                "time_to_pull": (proj_iter + i)
-                * 1000,  # not representative of acutal time to pull
+                "time_to_pull": (proj_iter + i) * 1000,
+                # not representative of acutal time to pull
             }
 
             commit_data = Commit(**commit_dict)
@@ -272,5 +281,17 @@ def init_database(session):
     proj_iter += 1
 
     session.commit()
+
+    # failure_dict = {
+    #     "category": "Production Defect",
+    #     "issue": 2,
+    #     "open_time": datetime.datetime(2021, 7, 1) + time_shift, # when it is flagged with label
+    #     "end_time": datetime.datetime(2021, 7, 4) + time_shift, # when the issue with the label is closed via linked pull request in GitHub
+    #     "project_id": 1
+    # }
+
+    # prod_failure = WorkItem(**failure_dict)
+
+    # session.add(prod_failure)
 
     yield session

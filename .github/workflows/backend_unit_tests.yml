@@ -31,4 +31,7 @@ jobs:
 
       - name: Pytest Unit Tests
         run: |
+          cd src/backend
+          mv .env.example .env
+          cd ../../
           pytest

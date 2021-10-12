@@ -4,6 +4,10 @@ from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
+from sfm.config import get_settings
+
+
+app_settings = get_settings()
 
 logging.basicConfig(
     filename="logs.log",
@@ -13,11 +17,9 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
-)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 
 def get_all(
@@ -48,14 +50,11 @@ def get_all(
             raise HTTPException(status_code=404, detail="Project not found")
 
     if project:
-        return db.exec(
-            select(WorkItem)
-            .where(WorkItem.project_id == project.id)
-            .offset(skip)
-            .limit(limit)
-        ).all()
+        return db.exec(select(WorkItem).where(WorkItem.project_id == project.id)).all()
 
-    return db.exec(select(WorkItem).offset(skip).limit(limit)).all()
+    return db.exec(
+        select(WorkItem).order_by(WorkItem.id).offset(skip).limit(limit)
+    ).all()
 
 
 def get_by_id(db: Session, work_item_id):
@@ -78,7 +77,14 @@ def create_work_item(db: Session, work_item_data, project_auth_token):
         project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
-        work_item_db = WorkItem.from_orm(work_item_data)
+        work_temp = work_item_data.dict()
+        if work_temp["start_time"] and work_temp["end_time"]:
+            duration_open = int(
+                (work_temp["end_time"] - work_temp["start_time"]).total_seconds()
+            )
+            work_temp.update({"duration_open": duration_open})
+
+        work_item_db = WorkItem(**work_temp)
         db.add(work_item_db)
         db.commit()
     else:
@@ -151,6 +157,14 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
 
         db.add(work_item)
         db.commit()
+        db.refresh(work_item)
+        if work_item.start_time and work_item.end_time:
+            work_item.duration_open = int(
+                (work_item.end_time - work_item.start_time).total_seconds()
+            )
+            db.add(work_item)
+            db.commit()
+
     else:
         logger.warning('func="update_work_item" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")

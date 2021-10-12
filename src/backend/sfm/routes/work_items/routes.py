@@ -7,6 +7,9 @@ from fastapi import APIRouter, HTTPException, Depends, Path, Header
 from sfm.database import engine
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
+from sfm.config import get_settings
+
+app_settings = get_settings()
 
 logging.basicConfig(
     filename="logs.log",
@@ -17,11 +20,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=b3e5cfbd-f5c1-fd7c-be44-651da5dfa00b"
-    )
-)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 
 @router.get("/", response_model=List[WorkItemRead])
@@ -108,6 +109,8 @@ def create_work_item(
         1. "Deployment"
         2. "Issue"
         3. "Pull Request"
+        4. "Production Defect"
+    - **issue**: sets the issue number that the workItem is associated with
     - **start_time**: sets the start time of the WorkItem
     - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
     - **duration_open**: sets duration of WorkItem being open
@@ -205,6 +208,8 @@ def update_work_item(
         1. "Deployment"
         2. "Issue"
         3. "Pull Request"
+        4. "Production Defect"
+    - **issue**: sets the issue number that the workItem is associated with
     - **start_time**: sets the start time of the WorkItem
     - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
     - **project_id**: sets project the WorkItem belongs to
