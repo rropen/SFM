@@ -7,7 +7,7 @@
       </h1>
       <p class="text-rrgrey-800 text-md mt-4">
         You have attempted to access a page for which you are not authorized.<br />Please
-        check the password you entered, or return home.
+        check the credentials you entered, or return home.
       </p>
       <router-link :to="{ name: 'Home' }">
         <button
