@@ -31,6 +31,22 @@ export interface leadTimeItem {
   daily_lead_times: number[];
 }
 
+export interface timeToRestoreItem {
+  project_name: string;
+  time_to_restore: number;
+  performance: string;
+  time_to_restore_description: string;
+  performance_description: string;
+  daily_times_to_restore: number[];
+}
+
+export interface changeFailureRateItem {
+  project_name: string;
+  change_failure_rate: number;
+  change_faiure_rate_description: string;
+  daily_change_failure_rates: number[];
+}
+
 export interface infoForStatusItem {
   deployments: {
     [Daily: string]: {
@@ -55,6 +71,33 @@ export interface infoForStatusItem {
       info: string;
     };
     "Greater Than One Month": {
+      info: string;
+    };
+  };
+
+  timeToRestore: {
+    "One Day": {
+      info: string;
+    };
+    "One Week": {
+      info: string;
+    };
+    "One Month": {
+      info: string;
+    };
+    "Greater Than One Month": {
+      info: string;
+    };
+  };
+
+  changeFailureRate: {
+    "0 - 15%": {
+      info: string;
+    };
+    "16-45%": {
+      info: string;
+    };
+    "Greater than 45%": {
       info: string;
     };
   };
