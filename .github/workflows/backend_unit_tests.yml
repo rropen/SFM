@@ -7,4 +7,4 @@ on: workflow_dispatch
 
 jobs:
   backend-unit-tests:
-    uses: rropen/reusable-workflows/.github/workflows/backend_unit_tests_pytest.yml@latest
+    uses: rropen/reusable-workflows/.github/workflows/backend_unit_tests_pytest.yml@main
