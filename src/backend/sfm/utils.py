@@ -1,20 +1,30 @@
-import config
 from datetime import datetime, timedelta
 from typing import Optional
 from passlib.context import CryptContext
-
 import string
 import random
+import logging
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+from sfm.config import get_settings
 
-# SECRET_KEY = config.SECRET_KEY
-# ALGORITHM = config.ALGORITHM
-ADMIN_KEY = config.ADMIN_KEY
-
+app_settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+# logger.addHandler(
+#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
+# )
 
 
 def create_project_auth_token():
-    # creates 10 character string of random letters, numbers, symbols.
+    # creates 20 character string of random letters, numbers, symbols.
+    logger.info("Created new project auth token")
     low_letters = string.ascii_lowercase
     up_letters = string.ascii_uppercase
     digits = string.digits
@@ -62,4 +72,12 @@ def verify_project_auth_token(attempt: str, target: str):
 
 
 def verify_admin_key(attempt):
-    return attempt == ADMIN_KEY
+    return attempt == app_settings.ADMIN_KEY
+
+
+epoch = datetime.utcfromtimestamp(0)
+
+
+def unix_time_seconds(date):
+    dt = datetime.combine(date, datetime.min.time())
+    return (dt - epoch).total_seconds()
