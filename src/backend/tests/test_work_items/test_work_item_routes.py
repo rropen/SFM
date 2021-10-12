@@ -48,7 +48,7 @@ def test_get_all_endpoint(client: TestClient, db: Session):
     # Testing giving project id returns only data in that project
     response = client.get("/workItems/?project_id=1")
     print(response.json())
-    assert len(response.json()) == 35
+    assert len(response.json()) == 37
     work_item = response.json()[0]
     assert work_item["category"] == "Deployment"
 
@@ -98,7 +98,7 @@ def test_work_item_post(client: TestClient, db: Session):
     assert response.status_code == 200
     assert response.json() == {
         "code": "success",
-        "id": 44,
+        "id": 46,
     }
 
 

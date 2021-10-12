@@ -598,14 +598,24 @@ def test_get_lead_time_endpoint(client: TestClient, db: Session):
 #     }
 #
 #
-# def test_change_failure_rate(client: TestClient, db: Session):
-#     """Testing that the endpoint is working as expected"""
-#     response = client.get("/TimeToRestore")
-#     assert response.status_code == 200
-#     assert response.json() == {
-#         "project_name": "",
-#         "change_failure_rate": 0,
-#         "performance": "",
-#         "daily_change_failure_rate": [[unixdate, 0.15]],
-#         "change_failure_rate_description": "number of failed deployments per total number of deployments",
-#     }
+def test_change_failure_rate(client: TestClient, db: Session):
+    """Testing that the endpoint is working as expected"""
+    response = client.get("/metrics/ChangeFailureRate")
+    assert response.status_code == 200
+    assert response.json()["project_name"] == "org"
+
+    response = client.get("/metrics/ChangeFailureRate", params={"project_id": "1"})
+    assert response.status_code == 200
+    print(response.json())
+    assert response.json()["daily_change_failure_rate"][:3] == [
+        [1627344000.0, 1.0],
+        [1627430400.0, 0],
+        [1627516800.0, 0],
+    ]
+
+    assert response.json()["change_failure_rate"] == 0.5
+    assert response.json()["project_name"] == "Test Project 1"
+    assert (
+        response.json()["change_failure_rate_description"]
+        == "Number of failed deployments per total number of deployments"
+    )

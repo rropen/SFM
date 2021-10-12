@@ -43,19 +43,25 @@ def test_github_backpopulate(client: TestClient, db: Session):
     ).all()
     assert len(commits) == 1
     assert commits[0].sha == "6c25310a034145701775e620895c7b36d16fc1c4"
-    assert commits[0].work_item_id == 44
+    assert commits[0].work_item_id == 46
     assert commits[0].time_to_pull == 373
 
     defects = db.exec(
         select(WorkItem).where(WorkItem.category == "Production Defect")
     ).all()
-    assert len(defects) == 2
-    assert defects[0].issue_num == 5
-    assert defects[0].start_time == datetime(2021, 10, 11, 15, 17, 35, 0)
-    assert defects[0].end_time == datetime(2021, 10, 11, 15, 22, 33, 0)
-    assert defects[0].duration_open == int(
+    assert len(defects) == 3
+    assert defects[1].issue_num == 5
+    assert defects[1].start_time == datetime(2021, 10, 11, 15, 17, 35, 0)
+    assert defects[1].end_time == datetime(2021, 10, 11, 15, 22, 33, 0)
+    assert defects[1].duration_open == int(
         (
             datetime(2021, 10, 11, 15, 22, 33, 0)
             - datetime(2021, 10, 11, 15, 17, 35, 0)
         ).total_seconds()
     )
+
+    failed_deploy1 = db.get(WorkItem, 47)
+    failed_deploy2 = db.get(WorkItem, 48)
+
+    assert failed_deploy1.failed is True
+    assert failed_deploy2.failed is True

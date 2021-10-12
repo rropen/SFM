@@ -282,16 +282,28 @@ def init_database(session):
 
     session.commit()
 
-    # failure_dict = {
-    #     "category": "Production Defect",
-    #     "issue": 2,
-    #     "open_time": datetime.datetime(2021, 7, 1) + time_shift, # when it is flagged with label
-    #     "end_time": datetime.datetime(2021, 7, 4) + time_shift, # when the issue with the label is closed via linked pull request in GitHub
-    #     "project_id": 1
-    # }
+    failed_deploy = {
+        "category": "Pull Request",
+        "end_time": datetime.datetime(2021, 6, 3) + time_shift,
+        "project_id": 1,
+        "failed": True,
+    }
+    deploy_failure = WorkItem(**failed_deploy)
 
-    # prod_failure = WorkItem(**failure_dict)
+    session.add(deploy_failure)
 
-    # session.add(prod_failure)
+    failure_dict = {
+        "category": "Production Defect",
+        "issue_num": 2,
+        "open_time": datetime.datetime(2021, 6, 5)
+        + time_shift,  # when it is flagged with label
+        "end_time": datetime.datetime(2021, 6, 10)
+        + time_shift,  # when the issue with the label is closed via linked pull request in GitHub
+        "project_id": 1,
+    }
+
+    prod_failure = WorkItem(**failure_dict)
+
+    session.add(prod_failure)
 
     yield session

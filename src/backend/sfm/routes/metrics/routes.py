@@ -6,12 +6,19 @@ from sfm.config import get_settings
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
 from sfm.dependencies import get_db
-from sfm.models import WorkItem, Project, DeploymentData, LeadTimeData
+from sfm.models import (
+    WorkItem,
+    Project,
+    DeploymentData,
+    LeadTimeData,
+    ChangeFailureRateData,
+    TimeToRestoreData,
+)
 from typing import List, Optional
 from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
 from sfm.database import engine
-from sfm.utils import unix_time_seconds
+from sfm.utils import unix_time_seconds, project_selector
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 
 app_settings = get_settings()
@@ -171,6 +178,33 @@ def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
     return [daily_commits, daily_lead_times]
 
 
+def group_failures(deployments):
+    deployment_dates = [deploy.end_time.date() for deploy in deployments]
+    failed_deployment_dates = [
+        deploy.end_time.date() for deploy in deployments if deploy.failed is True
+    ]
+    initial_date = min(deployment_dates)  # date
+
+    total_days = (datetime.now().date() - initial_date).days  # number of days
+    daily_failure_rate = []
+
+    for iter_day in range(0, total_days):  # loops through every day
+        day = initial_date + timedelta(days=iter_day)  # date
+
+        if day in failed_deployment_dates:
+            num_failed_deploys = failed_deployment_dates.count(day)
+            num_deploys = deployment_dates.count(day)
+            daily_failure_rate.append(
+                [unix_time_seconds(day), num_failed_deploys / num_deploys]
+            )  # calcs failure rate and puts it with UNIX
+        else:
+            daily_failure_rate.append(
+                [unix_time_seconds(day), 0]
+            )  # if not in list then failure must not have happened on this day, add 0
+
+    return daily_failure_rate
+
+
 @router.get("/deployments", response_model=List[DeploymentData])
 def get_deployments(
     project_id: Optional[int] = None,
@@ -194,41 +228,8 @@ def get_deployments(
 
     """
     logger.info('method="GET" path="metrics/deployments"')
-    project = None
-    if project_name and not project_id:
-        project = db.exec(select(Project).where(Project.name == project_name)).first()
-        if not project:
-            logger.warning(
-                'method="GET" path="metrics/deployments" warning="No project found with the specified name"'
-            )
-            raise HTTPException(
-                status_code=404,
-                detail=f"No project found with the specified name: {project_name}",
-            )
-    elif project_id and not project_name:
-        project = db.get(Project, project_id)
-        if not project:
-            logger.warning(
-                'method="GET" path="metrics/deployments" warning="No project found with the specified id"'
-            )
-            raise HTTPException(
-                status_code=404,
-                detail=f"No project found with the specified id: {project_id}",
-            )
-    elif project_id and project_name:
-        project = db.exec(
-            select(Project).where(
-                and_(Project.id == project_id, Project.name == project_name)
-            )
-        ).first()
-        if not project:
-            logger.warning(
-                'method="GET" path="metrics/deployments" warning="Either project_id and project_name do not match or no matching project"'
-            )
-            raise HTTPException(
-                status_code=404,
-                detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
-            )
+
+    project = project_selector(db, project_name, project_id)
 
     if project:
         # return specific project deployment frequency json object
@@ -321,41 +322,8 @@ def get_lead_time_to_change(
 
     """
     logger.info('method="GET" path="metrics/LeadTimeToChange"')
-    project = None
-    if project_name and not project_id:
-        project = db.exec(select(Project).where(Project.name == project_name)).first()
-        if not project:
-            logger.warning(
-                'method="GET" path="metrics/LeadTimeToChange" warning="No Project found with the specified name"'
-            )
-            raise HTTPException(
-                status_code=404,
-                detail=f"No project found with the specified name: {project_name}",
-            )
-    elif project_id and not project_name:
-        project = db.get(Project, project_id)
-        if not project:
-            logger.warning(
-                'method="GET" path="metrics/LeadTimeToChange" warning="No Project found with the specified id"'
-            )
-            raise HTTPException(
-                status_code=404,
-                detail=f"No project found with the specified id: {project_id}",
-            )
-    elif project_id and project_name:
-        project = db.exec(
-            select(Project).where(
-                and_(Project.id == project_id, Project.name == project_name)
-            )
-        ).first()
-        if not project:
-            logger.warning(
-                'method="GET" path="metrics/LeadTimeToChange" warning="Either project_id and project_name do not match or no matching project"'
-            )
-            raise HTTPException(
-                status_code=404,
-                detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
-            )
+
+    project = project_selector(db, project_name, project_id)
 
     if project:
         pullRequests = [
@@ -515,30 +483,70 @@ def get_lead_time_to_change(
 #     }
 
 
-# @router.get("/ChangeFailureRate", response_model=ChangeFailureRateData)
-# def get_change_failure_rate(
-#     project_id: Optional[int] = None,
-#     project_name: Optional[str] = None,
-#     db: Session = Depends(get_db),
-# ):
-#     pass
-#     """
-#     ## Get Change Failure Rate Metric
-#
-#     Get json data describing change failure rate metric
-#
-#     ---
-#
-#     #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
-#     - **project_id**: sets project data to be used for calculation
-#     - **project_name**: sets project data to be used for calculation
-#
-#     """
-#
-#     change_failure_rate_dict = {
-#         "change_failure_rate": change_failure_rate,
-#         "daily_change_failure_rate": daily_restores,
-#         "performance": performance,
-#         "project_name": project_name,
-#         "change_failure_rate_description": "number of failed deployments per total number of deployments",
-#     }
+@router.get("/ChangeFailureRate", response_model=ChangeFailureRateData)
+def get_change_failure_rate(
+    project_id: Optional[int] = None,
+    project_name: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    """
+    ## Get Change Failure Rate Metric
+
+    Get json data describing change failure rate metric
+
+    ---
+
+    #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
+    - **project_id**: sets project data to be used for calculation
+    - **project_name**: sets project data to be used for calculation
+
+    """
+    project = project_selector(db, project_name, project_id)
+
+    if project:
+        deployments = db.exec(
+            select(WorkItem).where(
+                and_(
+                    WorkItem.project_id == project.id,
+                    WorkItem.category == "Pull Request",
+                    WorkItem.end_time >= (datetime.now() - timedelta(days=84)),
+                )
+            )
+        ).all()  # last 3 months for metric calculation
+        all_deployments = db.exec(
+            select(WorkItem).where(
+                and_(
+                    WorkItem.project_id == project.id,
+                    WorkItem.category == "Pull Request",
+                )
+            )
+        ).all()  # all time for daily calculation for charts
+        project_name = project.name
+    else:
+        deployments = db.exec(
+            select(WorkItem).where(
+                and_(
+                    WorkItem.category == "Pull Request",
+                    WorkItem.end_time >= (datetime.now() - timedelta(days=84)),
+                )
+            )
+        ).all()  # last 3 months for metric calculation
+        all_deployments = db.exec(
+            select(WorkItem).where(WorkItem.category == "Pull Request")
+        ).all()  # all time for daily calculation for charts
+        project_name = "org"
+
+    failed_deploys = [deploy for deploy in deployments if deploy.failed is True]
+
+    change_failure_rate = len(failed_deploys) / len(deployments)
+
+    daily_failure_rate = group_failures(all_deployments)
+
+    change_failure_rate_dict = {
+        "change_failure_rate": change_failure_rate,
+        "daily_change_failure_rate": daily_failure_rate,
+        "project_name": project_name,
+        "change_failure_rate_description": "Number of failed deployments per total number of deployments",
+    }
+
+    return change_failure_rate_dict
