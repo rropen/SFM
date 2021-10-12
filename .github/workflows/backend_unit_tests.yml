@@ -1,37 +1,10 @@
-# Runs Unit Test on every commit
+# Runs Unit Test on every committ
 
 name: Backend Unit Tests
 
-on: push
+# on: push
+on: workflow_dispatch
 
 jobs:
-  # Runs Unit Tests w/ pytest
-  Unit-Tests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-
-      - uses: actions/cache@v2
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
-
-      - name: Install dependencies
-        working-directory: src/backend
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Pytest Unit Tests
-        run: |
-          cd src/backend
-          mv .env.example .env
-          cd ../../
-          pytest
+  backend-unit-tests:
+    uses: rropen/reusable-workflows/.github/workflows/backend_unit_tests_pytest.yml@main
