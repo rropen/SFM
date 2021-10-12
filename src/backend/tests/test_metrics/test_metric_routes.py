@@ -584,20 +584,58 @@ def test_get_lead_time_endpoint(client: TestClient, db: Session):
     assert response.status_code == 404
 
 
-# def test_lead_time_to_restore(client: TestClient, db: Session):
-#     """Testing that the endpoint is working as expected"""
-#     response = client.get("/TimeToRestore")
-#     assert response.status_code == 200
-#     assert response.json() == {
-#         "project_name": "org";
-#         "time_to_restore": int;
-#         "performance": "";
-#         "time_to_restore_description": "";
-#         "performance_description": "";
-#         "daily_times_to_restore": [[unixdate, 2]]
-#     }
-#
-#
+def test_time_to_restore(client: TestClient, db: Session):
+    """Testing that the endpoint is working as expected"""
+    response = client.get("metrics/TimeToRestore")
+    assert response.status_code == 200
+
+    result = response.json()
+    result["daily_times_to_restore"] = result["daily_times_to_restore"][:5]
+    print(result["daily_times_to_restore"])
+
+    assert result["project_name"] == "org"
+    assert result["time_to_restore"] == float(timedelta(days=5).total_seconds() / 3600)
+    assert result["performance"] == "Less than one week"
+    assert result["daily_times_to_restore"] == [
+        [1627948800.0, 120.0],
+        [1628035200.0, 0],
+        [1628121600.0, 0],
+        [1628208000.0, 0],
+        [1628294400.0, 0],
+    ]
+
+    response = client.get(
+        "/metrics/TimeToRestore", params={"project_name": "Test Project 1"}
+    )
+    result2 = response.json()
+    result2["daily_times_to_restore"] = result2["daily_times_to_restore"][:5]
+
+    assert result2["project_name"] == "Test Project 1"
+    assert result2["time_to_restore"] == float(timedelta(days=5).total_seconds() / 3600)
+    assert result2["performance"] == "Less than one week"
+    assert result2["daily_times_to_restore"] == [
+        [1627948800.0, 120.0],
+        [1628035200.0, 0],
+        [1628121600.0, 0],
+        [1628208000.0, 0],
+        [1628294400.0, 0],
+    ]
+
+    response = client.get(
+        "/metrics/TimeToRestore", params={"project_name": "Test Project 2"}
+    )
+
+    result3 = response.json()
+
+    assert result3["project_name"] == "Test Project 2"
+    assert result3["time_to_restore"] == -1.0
+    assert (
+        result3["performance"]
+        == "No closed production defects exist in the last 3 months"
+    )
+    assert result3["daily_times_to_restore"] == []
+
+
 def test_change_failure_rate(client: TestClient, db: Session):
     """Testing that the endpoint is working as expected"""
     response = client.get("/metrics/ChangeFailureRate")

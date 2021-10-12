@@ -108,7 +108,7 @@ class LeadTimeData(SQLModel):
 
 
 class TimeToRestoreData(SQLModel):
-    time_to_restore: int
+    time_to_restore: float
     performance: str
     daily_times_to_restore: List
     project_name: str

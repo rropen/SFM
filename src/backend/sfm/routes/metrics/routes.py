@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from time import mktime
 from statistics import median
 from sfm.config import get_settings
 from sfm.routes.work_items import crud
@@ -179,6 +178,9 @@ def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
 
 
 def group_failures(deployments):
+    if deployments == []:
+        logger.debug('func="group_failures" debug="deployments is empty"')
+        return []
     deployment_dates = [deploy.end_time.date() for deploy in deployments]
     failed_deployment_dates = [
         deploy.end_time.date() for deploy in deployments if deploy.failed is True
@@ -203,6 +205,41 @@ def group_failures(deployments):
             )  # if not in list then failure must not have happened on this day, add 0
 
     return daily_failure_rate
+
+
+def group_restores(db, closed_prod_defects):
+    if closed_prod_defects == []:
+        logger.debug('func="group_restores" debug="closed_prod_defects is empty"')
+        return []
+    restore_dates = [restore.end_time.date() for restore in closed_prod_defects]
+    initial_date = min(restore_dates)  # date
+
+    total_days = (datetime.now().date() - initial_date).days  # number of days
+    daily_restores = []
+
+    for iter_day in range(0, total_days):  # loops through every day
+        day = initial_date + timedelta(days=iter_day)  # date
+
+        if day in restore_dates:
+            median_restore_time = (
+                median(
+                    [
+                        defect.duration_open
+                        for defect in closed_prod_defects
+                        if (defect.end_time.date() == day)
+                    ]
+                )
+                / 3600
+            )
+            daily_restores.append(
+                [unix_time_seconds(day), median_restore_time]
+            )  # calcs median restore time for that day and puts it with UNIX
+        else:
+            daily_restores.append(
+                [unix_time_seconds(day), 0]
+            )  # if not in list then restore must not have happened on this day, add 0
+
+    return daily_restores
 
 
 @router.get("/deployments", response_model=List[DeploymentData])
@@ -394,93 +431,106 @@ def get_lead_time_to_change(
     return lead_time_dict
 
 
-# @router.get("/TimeToRestore", response_model=TimeToRestoreData)
-# def get_time_to_restore(
-#     project_id: Optional[int] = None,
-#     project_name: Optional[str] = None,
-#     db: Session = Depends(get_db),
-# ):
-#     """
-#     ## Get Time to Restore Metric
-#
-#     Get json data describing time to restore metric
-#
-#     ---
-#
-#     #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
-#     - **project_id**: sets project data to be used for calculation
-#     - **project_name**: sets project data to be used for calculation
-#
-#     """
-#     logger.info('method="GET" path="metrics/TimeToRestore"')
-#     project = None
-#     if project_name and not project_id:
-#         project = db.exec(select(Project).where(Project.name == project_name)).first()
-#         if not project:
-#             logger.warning(
-#                 'method="GET" path="metrics/TimeToRestore" warning="No Project found with the specified name"'
-#             )
-#             raise HTTPException(
-#                 status_code=404,
-#                 detail=f"No project found with the specified name: {project_name}",
-#             )
-#     elif project_id and not project_name:
-#         project = db.get(Project, project_id)
-#         if not project:
-#             logger.warning(
-#                 'method="GET" path="metrics/TimeToRestore" warning="No Project found with the specified id"'
-#             )
-#             raise HTTPException(
-#                 status_code=404,
-#                 detail=f"No project found with the specified id: {project_id}",
-#             )
-#     elif project_id and project_name:
-#         project = db.exec(
-#             select(Project).where(
-#                 and_(Project.id == project_id, Project.name == project_name)
-#             )
-#         ).first()
-#         if not project:
-#             logger.warning(
-#                 'method="GET" path="metrics/TimeToRestore" warning="Either project_id and project_name do not match or no matching project"'
-#             )
-#             raise HTTPException(
-#                 status_code=404,
-#                 detail="Either the project_name and project_id do not match, or there is not a project with the specified details. Try passing just one of the parameters instead of both.",
-#             )
-#
-#     if project:
-#         productionDefects = [
-#             item for item in project.work_items if (item.category == "Production Defect")
-#         ]
-#         if not productionDefects:
-#             time_to_restore = None
-#             performance = "No production defects"
-#
-#         project_name = project.name
-#
-#     else:
-#         all_items = crud.get_all(db)
-#         productionDefects = [item for item in all_items if (item.category == "Production Defect")]
-#         if not pullRequests:
-#             logger.warning(
-#                 'method="GET" path="metrics/TimeToRestore" warning="No pull requests to main in record for any project"'
-#             )
-#             raise HTTPException(
-#                 status_code=404,
-#                 detail="No pull requests to main in record for any project",
-#             )
-#         project_name = "org"
-#
-#     time_to_restore_dict = {
-#         "time_to_restore": median_time_to_restore, # only for last 3 months
-#         "performance": performance,
-#         "daily_times_to_restore": daily_restores,
-#         "project_name": project_name,
-#         "time_to_restore_description": "median time to restore service in hours (time from bug noticed to pull request to main with fix) over the past three months ",
-#         "performance_description": "Elite = less than one hour, High = less than one day, Medium = less than one week, Low = between one week and one month",
-#         "daily_times_to_restore_description": "list of lists, where each item in the list consists of [unix date, median time to restore for all bugs logged on that date, in hours]",
-#     }
+@router.get("/TimeToRestore", response_model=TimeToRestoreData)
+def get_time_to_restore(
+    project_id: Optional[int] = None,
+    project_name: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    """
+    ## Get Time to Restore Metric
+
+    Get json data describing time to restore metric
+
+    ---
+
+    #### Either **project_id** or **project_name** being present causes returned items to only be associated with specified project. *If neither field is present, return data for all projects*
+    - **project_id**: sets project data to be used for calculation
+    - **project_name**: sets project data to be used for calculation
+
+    """
+    logger.info('method="GET" path="metrics/TimeToRestore"')
+
+    project = project_selector(db, project_name, project_id)
+    performance = None
+
+    if project:
+        closed_prod_defects = db.exec(
+            select(WorkItem).where(
+                and_(
+                    WorkItem.project_id == project.id,
+                    WorkItem.category == "Production Defect",
+                    WorkItem.end_time is not None,
+                )
+            )
+        ).all()
+        recent_prod_defects = [
+            defect
+            for defect in closed_prod_defects
+            if defect.end_time >= (datetime.now() - timedelta(days=84))
+        ]
+        recent_prod_defect_times = [item.duration_open for item in recent_prod_defects]
+        if recent_prod_defect_times != []:
+            time_to_restore = median(recent_prod_defect_times) / 3600
+        else:
+            time_to_restore = -1
+            performance = "No closed production defects exist in the last 3 months"
+
+        daily_time_to_restore = group_restores(db, closed_prod_defects)
+
+        project_name = project.name
+    else:
+        closed_prod_defects = db.exec(
+            select(WorkItem).where(
+                and_(
+                    WorkItem.category == "Production Defect",
+                    WorkItem.end_time is not None,
+                )
+            )
+        ).all()
+        recent_prod_defects = [
+            defect
+            for defect in closed_prod_defects
+            if defect.end_time >= (datetime.now() - timedelta(days=84))
+        ]
+        recent_prod_defect_times = [item.duration_open for item in recent_prod_defects]
+        if recent_prod_defect_times != []:
+            time_to_restore = median(recent_prod_defect_times) / 3600
+        else:
+            time_to_restore = -1
+            performance = "No closed production defects in last 3 months"
+            logger.warning(
+                'method="GET" path="metrics/TimeToRestore" warning="No closed production defects exist in the last 3 months"'
+            )
+            raise HTTPException(
+                status_code=404,
+                detail="No closed production defects exist",
+            )
+
+        daily_time_to_restore = group_restores(db, closed_prod_defects)
+        project_name = "org"
+
+    if not performance:
+        if time_to_restore < 1:
+            performance = "Less than one hour"
+        elif time_to_restore < 24:
+            performance = "Less than one day"
+        elif time_to_restore < 24 * 7:
+            performance = "Less than one week"
+        else:
+            performance = "Between one week and one month"
+
+    time_to_restore_dict = {
+        "time_to_restore": time_to_restore,  # only for last 3 months
+        "performance": performance,
+        "daily_times_to_restore": daily_time_to_restore,
+        "project_name": project_name,
+        "time_to_restore_description": "median time to restore service in hours (time from bug noticed to pull request to main with fix) over the past three months ",
+        "performance_description": "Elite = less than one hour, High = less than one day, Medium = less than one week, Low = between one week and one month",
+        "daily_times_to_restore_description": "list of lists, where each item in the list consists of [unix date, median time to restore for all bugs logged on that date, in hours]",
+    }
+
+    return time_to_restore_dict
 
 
 @router.get("/ChangeFailureRate", response_model=ChangeFailureRateData)

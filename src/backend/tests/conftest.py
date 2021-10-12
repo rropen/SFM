@@ -295,10 +295,11 @@ def init_database(session):
     failure_dict = {
         "category": "Production Defect",
         "issue_num": 2,
-        "open_time": datetime.datetime(2021, 6, 5)
+        "start_time": datetime.datetime(2021, 6, 5)
         + time_shift,  # when it is flagged with label
         "end_time": datetime.datetime(2021, 6, 10)
         + time_shift,  # when the issue with the label is closed via linked pull request in GitHub
+        "duration_open": int(datetime.timedelta(days=5).total_seconds()),
         "project_id": 1,
     }
 
