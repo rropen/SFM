@@ -136,6 +136,27 @@ def project_processor(db, project):
     return project_db, proj_auth_token
 
 
+def deployment_flagger(db, defect_id, proj_auth_token):
+    defect = db.get(WorkItem, defect_id)
+    deployment = db.exec(
+        select(WorkItem)
+        .where(
+            and_(
+                WorkItem.project_id == defect.project_id,
+                WorkItem.category == "Pull Request",
+                WorkItem.end_time <= defect.start_time,
+            )
+        )
+        .order_by(WorkItem.end_time.desc())
+    ).first()
+
+    update_dict = {"failed": True}
+    work_item_update = WorkItemUpdate(**update_dict)
+    work_item_crud.update_work_item(
+        db, deployment.id, work_item_update, proj_auth_token
+    )
+
+
 def defect_processor(db, issue, project, proj_auth_token, closed=False):
     # closed=True signifies this was a "closed" event and not a "labeled" event
     logger.info('func="defect_processor" info="entered"')
@@ -193,6 +214,9 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
 
     work_item_data = WorkItemCreate(**create_defect_dict)
     defect_id = work_item_crud.create_work_item(db, work_item_data, proj_auth_token)
+
+    deployment_flagger(db, defect_id, proj_auth_token)
+
     logger.info(f'func="defect_processor" info="defect WorkItem Id = {defect_id}"')
 
 
