@@ -17,64 +17,76 @@
     <br />
     <p></p>
     <br />
-    <table class="border-separate border border-blue-800">
+    <table class="w-1/2 mx-auto border-separate border border-blue-800">
       <thead>
         <tr>
           <th class="border border-blue-600">Software Delivery Metric</th>
-          <th class="border border-blue-600">Elite</th>
-          <th class="border border-blue-600">High</th>
-          <th class="border border-blue-600">Medium</th>
-          <th class="border border-blue-600">Low</th>
+          <th class="border border-blue-600 bg-green-600 text-white">Elite</th>
+          <th class="border border-blue-600 bg-yellow-400 text-rrgrey-800">
+            High
+          </th>
+          <th class="border border-blue-600 bg-orange-500 text-white">
+            Medium
+          </th>
+          <th class="border border-blue-600 bg-red-600 text-white">Low</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="border border-blue-600">
+          <td class="border border-blue-600 px-2 py-1">
             <b>Deployment Frequency:</b> How often we as an organization
             successfully releases to production
           </td>
-          <td class="border border-blue-600">Multiple deploys per day</td>
-          <td class="border border-blue-600">
+          <td class="border border-blue-600 px-2 py-1">
+            Multiple deploys per day
+          </td>
+          <td class="border border-blue-600 px-2 py-1">
             Between once per day and once per week
           </td>
-          <td class="border border-blue-600">
+          <td class="border border-blue-600 px-2 py-1">
             Between once per week and once per month
           </td>
-          <td class="border border-blue-600">
+          <td class="border border-blue-600 px-2 py-1">
             Between once per month and once every six months
           </td>
         </tr>
         <tr class="bg-emerald-200">
-          <td class="border border-blue-600">
+          <td class="border border-blue-600 px-2 py-1">
             <b>Time for Changes:</b> The amount of time it takes a commit to get
             into production
           </td>
-          <td class="border border-blue-600">Less than one day</td>
-          <td class="border border-blue-600">Between one day and one week</td>
-          <td class="border border-blue-600">Between one week and one month</td>
-          <td class="border border-blue-600">
+          <td class="border border-blue-600 px-2 py-1">Less than one day</td>
+          <td class="border border-blue-600 px-2 py-1">
+            Between one day and one week
+          </td>
+          <td class="border border-blue-600 px-2 py-1">
+            Between one week and one month
+          </td>
+          <td class="border border-blue-600 px-2 py-1">
             Between one month and six months
           </td>
         </tr>
         <tr>
-          <td class="border border-blue-600">
+          <td class="border border-blue-600 px-2 py-1">
             <b>Time to Restore Service:</b> How long it takes an organization to
             recover from a failure in production
           </td>
-          <td class="border border-blue-600">Less than one hour</td>
-          <td class="border border-blue-600">Less than one day</td>
-          <td class="border border-blue-600">Less than one day</td>
-          <td class="border border-blue-600">Between one week and one month</td>
+          <td class="border border-blue-600 px-2 py-1">Less than one hour</td>
+          <td class="border border-blue-600 px-2 py-1">Less than one day</td>
+          <td class="border border-blue-600 px-2 py-1">Less than one day</td>
+          <td class="border border-blue-600 px-2 py-1">
+            Between one week and one month
+          </td>
         </tr>
         <tr>
-          <td class="border border-blue-600">
+          <td class="border border-blue-600 px-2 py-1">
             <b>Change failure rate:</b> The percentage of deployments causing a
             failure in production
           </td>
-          <td class="border border-blue-600">0-15%</td>
-          <td class="border border-blue-600">0-15%</td>
-          <td class="border border-blue-600">0-15%</td>
-          <td class="border border-blue-600">46-60%</td>
+          <td class="border border-blue-600 px-2 py-1">0-15%</td>
+          <td class="border border-blue-600 px-2 py-1">0-15%</td>
+          <td class="border border-blue-600 px-2 py-1">0-15%</td>
+          <td class="border border-blue-600 px-2 py-1">46-60%</td>
         </tr>
       </tbody>
     </table>
