@@ -1,4 +1,4 @@
-# Runs Unit Test on every commit
+# Runs Unit Test on every committ
 
 name: Backend Unit Tests
 
