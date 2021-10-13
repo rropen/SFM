@@ -21,13 +21,15 @@
         justify-apart
       "
       :class="{
-        'bg-green-600 text-white': perfStatus == '0-15%',
-        'bg-yellow-400 text-rrgrey-800': perfStatus == '16-45%',
-        'bg-red-600 text-white': perfStatus == 'Greater Than 45%',
+        'bg-green-600 text-white': perfStatus == 'High',
+        'bg-yellow-400 text-rrgrey-800': perfStatus == 'Medium',
+        'bg-red-600 text-white': perfStatus == 'Low',
       }"
     >
       <div class="spacer"></div>
-      <h1 class="mx-auto text-xl">{{ perfStatus }}</h1>
+      <h1 class="mx-auto text-xl">
+        {{ Math.round(changeFailureRate?.change_failure_rate * 100) / 100 }}
+      </h1>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="mr-4 h-8 w-8 text-white inline-block hover:text-rrgrey-400"
@@ -142,7 +144,13 @@ function fetchChangeFailureRate() {
     })
     .then((response) => {
       changeFailureRate.value = response.data;
-      perfStatus.value = response.data.performance;
+      if (response.data.change_failure_rate <= 0.15) {
+        perfStatus.value = "High";
+      } else if (response.data.change_failure_rate <= 0.45) {
+        perfStatus.value = "Medium";
+      } else {
+        perfStatus.value = "Low";
+      }
     })
     .catch((error) => {
       console.error("GET Lead Time Error: ", error);

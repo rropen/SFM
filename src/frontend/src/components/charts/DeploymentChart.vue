@@ -26,6 +26,7 @@
         'bg-yellow-400 text-rrgrey-800': deploymentMetricStatus == 'Weekly',
         'bg-orange-500 text-white': deploymentMetricStatus == 'Monthly',
         'bg-red-600 text-white': deploymentMetricStatus == 'Yearly',
+        'bg-rrgrey-700 text-white': deploymentMetricStatus == 'Not Applicable',
       }"
     >
       <div class="spacer"></div>
@@ -157,8 +158,13 @@ function fetchDeployments() {
       },
     })
     .then((response) => {
+      // console.log('resp', response.data)
       deployments.value = response.data[0];
-      deploymentMetricStatus.value = response.data[0].performance;
+      if (response.data[0].deployment_dates.length == 0) {
+        deploymentMetricStatus.value = "Not Applicable";
+      } else {
+        deploymentMetricStatus.value = response.data[0].performance;
+      }
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);

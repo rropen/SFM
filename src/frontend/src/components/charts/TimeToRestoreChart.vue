@@ -25,6 +25,9 @@
         'bg-yellow-400 text-rrgrey-800': perfStatus == 'Less than one Day',
         'bg-orange-500 text-white': perfStatus == 'Less than one week',
         'bg-red-600 text-white': perfStatus == 'Between one week and one month',
+        'bg-rrgrey-700 text-white':
+          perfStatus ==
+          'No closed production defects exist in the last 3 months',
       }"
     >
       <div class="spacer"></div>
