@@ -37,9 +37,7 @@ jobs:
 #       language: python
   snyk:
 #     needs: integration-tests
-    uses: rropen/reusable-workflows/.github/workflows/snyk.yml@main
-    with:
-      language: node
+    uses: rropen/reusable-workflows/.github/workflows/snyk_node_scanning.yml@main
     secrets:
       snyk_token: ${{secrets.SNYK_TOKEN}}
 
