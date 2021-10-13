@@ -1,14 +1,15 @@
 <template>
   <div class="chartAreaWrapper flex flex-col">
-    <div class="chartWrapper shadow-lg">
+    <div v-if="loaded" class="chartWrapper shadow-lg">
       <apexchart
         ref="realtimeChart"
         type="bar"
-        height="350"
+        :height="chartOptions.chart.height"
         :options="chartOptions"
         :series="deploymentsData"
       ></apexchart>
     </div>
+    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
     <div
       class="
         mt-4
@@ -77,9 +78,9 @@ export default {
 
 import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-import { sortByMonth } from "../../utils";
 import { deploymentItem, infoForStatusItem } from "../../types";
 import infoModal from "../InfoModal.vue";
+import LoadingModal from "../LoadingModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -104,6 +105,7 @@ const deployments = ref<deploymentItem>(); // holds currently fetched deployment
 const modalType = ref("deployments");
 const deploymentMetricStatus = ref("");
 const showInfoModal = ref(false);
+const loaded = ref(false);
 
 const chartOptions = ref({
   chart: {
@@ -165,6 +167,7 @@ function fetchDeployments() {
       } else {
         deploymentMetricStatus.value = response.data.performance;
       }
+      loaded.value = true;
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);
@@ -201,6 +204,7 @@ const deploymentsData = computed(() => {
 watch(
   () => props.projectName,
   (val, oldVal) => {
+    loaded.value = false;
     fetchDeployments();
   }
 );

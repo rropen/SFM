@@ -84,11 +84,13 @@
               </p>
               <nav class="mt-5 px-2 space-y-1">
                 <rrDropdown
+                  v-if="loaded"
                   label="Project"
                   :choices="projectDropdownChoices"
                   :selected="selectedProject"
                   @updatedChoice="changeProject"
                 />
+                <LoadingModal v-else />
               </nav>
             </div>
           </div>
@@ -124,11 +126,13 @@
             </p>
             <nav class="mt-5 flex-1 px-2 bg-white space-y-1">
               <rrDropdown
+                v-if="loaded"
                 label="Project"
                 :choices="projectDropdownChoices"
                 :selected="selectedProject"
                 @updatedChoice="changeProject"
               />
+              <LoadingModal v-else />
             </nav>
           </div>
         </div>
@@ -256,6 +260,7 @@ import DeploymentChart from "../components/charts/DeploymentChart.vue";
 import LeadTimeChart from "../components/charts/LeadTimeChart.vue";
 import TimeToRestoreChart from "../components/charts/TimeToRestoreChart.vue";
 import ChangeFailureRateChart from "../components/charts/ChangeFailureRateChart.vue";
+import LoadingModal from "../components/LoadingModal.vue";
 
 /* ----------------------------------------------
                      CONSTANTS
@@ -267,7 +272,7 @@ import ChangeFailureRateChart from "../components/charts/ChangeFailureRateChart.
 
 const sidebarOpen = ref(false);
 const selectedProject = ref("All");
-const dataLoaded = ref(false);
+const loaded = ref(false);
 
 const projects = ref<projectItem[]>([]); // holds all fetched projects
 const infoForStatus: infoForStatusItem = {
@@ -363,6 +368,7 @@ const fetchProjects = () => {
     })
     .then((response) => {
       projects.value = response.data;
+      loaded.value = true;
     })
     .catch((error) => {
       console.error("GET Projects Error: ", error);
@@ -379,6 +385,6 @@ function changeProject(val: string) {
   ---------------------------------------------- */
 onMounted(() => {
   fetchProjects();
-  dataLoaded.value = true;
+  loaded.value = true;
 });
 </script>

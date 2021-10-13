@@ -40,12 +40,13 @@ jobs:
     uses: rropen/reusable-workflows/.github/workflows/snyk_node_scanning.yml@main
     secrets:
       snyk_token: ${{ secrets.SNYK_TOKEN }}
-#   snyk_python:
-#     needs: integration-tests
-#     uses: rropen/reusable-workflows/.github/workflows/snyk_python_scanning.yml@main
-#     secrets:
-#       snyk_token: ${{secrets.SNYK_TOKEN}}
+  #   snyk_python:
 
+  snyk_python:
+    #     needs: integration-tests
+    uses: rropen/reusable-workflows/.github/workflows/snyk_python_scanning.yml@main
+    secrets:
+      snyk_token: ${{secrets.SNYK_TOKEN}}
 #   backend-build:
 #     needs: codeQL
 #     uses: rropen/reusable-workflows/.github/workflows/build_deploy_azure.yml@main
