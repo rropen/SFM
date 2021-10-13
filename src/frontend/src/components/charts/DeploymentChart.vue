@@ -161,12 +161,12 @@ function fetchDeployments() {
     })
     .then((response) => {
       // console.log('resp', response.data)
-      deployments.value = response.data[0];
       loaded.value = true;
-      if (response.data[0].deployment_dates.length == 0) {
+      deployments.value = response.data;
+      if (response.data.deployment_dates.length == 0) {
         deploymentMetricStatus.value = "Not Applicable";
       } else {
-        deploymentMetricStatus.value = response.data[0].performance;
+        deploymentMetricStatus.value = response.data.performance;
       }
     })
     .catch((error) => {
