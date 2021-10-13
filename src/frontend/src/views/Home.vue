@@ -289,8 +289,8 @@ const infoForStatus: infoForStatusItem = {
     Yearly: {
       info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Yearly, this means the median number of days with deployments per month is less than one. This corresponds to a DORA rating of Low.",
     },
-    "Not Applicable": {
-      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. This project does not have any deployments over the last three months. This likely means it is in a maintenance state.",
+    "No Deployments": {
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. This project does not have any deployments over the last three months, so this metric is not applicable.",
     },
   },
   leadTime: {
@@ -305,6 +305,9 @@ const infoForStatus: infoForStatusItem = {
     },
     "Greater Than One Month": {
       info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is greater than one month. This corresponds to a DORA rating of Low.",
+    },
+    "No pull requests to main": {
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, there are no pull requests to main, so this metric is not applicable.",
     },
   },
   timeToRestore: {

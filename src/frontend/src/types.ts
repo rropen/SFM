@@ -58,6 +58,9 @@ export interface infoForStatusItem {
     Monthly: {
       info: string;
     };
+    "No Deployments": {
+      info: string;
+    };
   };
 
   leadTime: {
@@ -71,6 +74,9 @@ export interface infoForStatusItem {
       info: string;
     };
     "Greater Than One Month": {
+      info: string;
+    };
+    "No pull requests to main": {
       info: string;
     };
   };

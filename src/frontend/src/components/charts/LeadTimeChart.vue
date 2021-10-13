@@ -26,6 +26,7 @@
         'bg-yellow-400 text-rrgrey-800': perfStatus == 'One Week',
         'bg-orange-500 text-white': perfStatus == 'One Month',
         'bg-red-600 text-white': perfStatus == 'Greater Than One Month',
+        'bg-rrgrey-700 text-white': perfStatus == 'No pull requests to main',
       }"
     >
       <div class="spacer"></div>
