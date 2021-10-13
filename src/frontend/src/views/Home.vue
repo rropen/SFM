@@ -176,8 +176,8 @@
             <div class="py-4">
               <div
                 class="
-                  grid grid-flow-col grid-cols-1 grid-rows-2
-                  2xl:grid-cols-2 2xl:grid-rows-1
+                  grid grid-flow-col grid-cols-1 grid-rows-4
+                  2xl:grid-cols-2 2xl:grid-rows-2
                   gap-4
                   2xl:gap-6
                 "
@@ -191,15 +191,15 @@
                     :infoForStatus="infoForStatus"
                   />
                 </div>
-                <!-- <div class="m-4 xl:m-6 p-4">
+                <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
-                    Deployments
+                    Time to Restore
                   </h1>
-                  <DeploymentChart
+                  <TimeToRestoreChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
-                </div> -->
+                </div>
                 <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Lead Time to Change
@@ -209,15 +209,15 @@
                     :infoForStatus="infoForStatus"
                   />
                 </div>
-                <!-- <div class="m-4 xl:m-6 p-4">
+                <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
-                    Deployments
+                    Change Failure Rate
                   </h1>
-                  <DeploymentChart
+                  <ChangeFailureRateChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
-                </div> -->
+                </div>
               </div>
             </div>
             <!-- /End replace -->
@@ -254,6 +254,8 @@ import {
 } from "@heroicons/vue/outline";
 import DeploymentChart from "../components/charts/DeploymentChart.vue";
 import LeadTimeChart from "../components/charts/LeadTimeChart.vue";
+import TimeToRestoreChart from "../components/charts/TimeToRestoreChart.vue";
+import ChangeFailureRateChart from "../components/charts/ChangeFailureRate.vue";
 
 /* ----------------------------------------------
                      CONSTANTS
@@ -278,6 +280,9 @@ const infoForStatus: infoForStatusItem = {
     },
     Monthly: {
       info: "Monthly Info Here",
+    },
+    Yearly: {
+      info: "Yearly Info Here",
     },
   },
   leadTime: {

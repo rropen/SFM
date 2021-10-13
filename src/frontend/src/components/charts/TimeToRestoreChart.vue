@@ -21,10 +21,10 @@
         justify-apart
       "
       :class="{
-        'bg-green-600 text-white': perfStatus == 'One Day',
-        'bg-yellow-400 text-rrgrey-800': perfStatus == 'One Week',
-        'bg-orange-500 text-white': perfStatus == 'One Month',
-        'bg-red-600 text-white': perfStatus == 'Greater Than One Month',
+        'bg-green-600 text-white': perfStatus == 'Less than one hour',
+        'bg-yellow-400 text-rrgrey-800': perfStatus == 'Less than one Day',
+        'bg-orange-500 text-white': perfStatus == 'Less than one week',
+        'bg-red-600 text-white': perfStatus == 'Between one week and one month',
       }"
     >
       <div class="spacer"></div>
@@ -99,7 +99,7 @@ const props = defineProps({
 
 const timeToRestore = ref<timeToRestoreItem>(); // holds currently fetched deployment data
 
-const perfStatus = ref("One Day");
+const perfStatus = ref("Less than one hour");
 const showInfoModal = ref(false);
 const modalType = ref("timeToRestore");
 const chartOptions = ref({
@@ -127,10 +127,10 @@ function fetchTimeToRestore() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/LeadTimeToChange";
+    url = "metrics/TimeToRestore";
   } else {
     url =
-      "metrics/LeadTimeToChange?&project_name=" +
+      "metrics/TimeToRestore?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments
@@ -146,7 +146,7 @@ function fetchTimeToRestore() {
       perfStatus.value = response.data.performance;
     })
     .catch((error) => {
-      console.error("GET Lead Time Error: ", error);
+      console.error("GET Time To Restore Error: ", error);
     });
 }
 
