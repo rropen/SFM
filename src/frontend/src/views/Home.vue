@@ -286,6 +286,9 @@ const infoForStatus: infoForStatusItem = {
     Monthly: {
       info: "Monthly Info Here",
     },
+    Yearly: {
+      info: "Yearly Info Here",
+    },
   },
   leadTime: {
     "One Day": {

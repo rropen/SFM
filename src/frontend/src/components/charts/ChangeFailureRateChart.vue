@@ -126,10 +126,10 @@ function fetchChangeFailureRate() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/LeadTimeToChange";
+    url = "metrics/ChangeFailureRate";
   } else {
     url =
-      "metrics/LeadTimeToChange?&project_name=" +
+      "metrics/ChangeFailureRate?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments
@@ -160,7 +160,7 @@ const changeFailureRateData = computed(() => {
       {
         name: "Change Failure Rate",
         color: "#10069f",
-        data: changeFailureRate.value.daily_change_failure_rates.map(
+        data: changeFailureRate.value.daily_change_failure_rate.map(
           (a: any) => [new Date(a[0] * 1000), a[1]]
         ),
       },
