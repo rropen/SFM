@@ -2,7 +2,6 @@
   <div class="chartAreaWrapper flex flex-col">
     <div v-if="loaded" class="chartWrapper shadow-lg">
       <apexchart
-        ref="realtimeChart"
         type="bar"
         :height="chartOptions.chart.height"
         :options="chartOptions"

@@ -1,13 +1,14 @@
 <template>
   <div class="chartAreaWrapper flex flex-col">
-    <div class="chartWrapper shadow-lg">
+    <div v-if="loaded" class="chartWrapper shadow-lg">
       <apexchart
         type="line"
-        height="350"
+        :height="chartOptions.chart.height"
         :options="chartOptions"
         :series="timeToRestoreData"
       ></apexchart>
     </div>
+    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
     <div
       class="
         mt-4
@@ -79,6 +80,7 @@ import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import { infoForStatusItem, timeToRestoreItem } from "../../types";
 import infoModal from "../InfoModal.vue";
+import LoadingModal from "../LoadingModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -105,6 +107,8 @@ const timeToRestore = ref<timeToRestoreItem>(); // holds currently fetched deplo
 const perfStatus = ref("Less than one hour");
 const showInfoModal = ref(false);
 const modalType = ref("timeToRestore");
+const loaded = ref(false);
+
 const chartOptions = ref({
   chart: {
     height: 350,
@@ -118,6 +122,11 @@ const chartOptions = ref({
   },
   yaxis: {
     forceNiceScale: true,
+    labels: {
+      formatter: (val: number) => {
+        return Math.round(val * 100) / 100;
+      },
+    },
   },
 });
 
@@ -147,6 +156,7 @@ function fetchTimeToRestore() {
     .then((response) => {
       timeToRestore.value = response.data;
       perfStatus.value = response.data.performance;
+      loaded.value = true;
     })
     .catch((error) => {
       console.error("GET Time To Restore Error: ", error);
@@ -183,6 +193,7 @@ const timeToRestoreData = computed(() => {
 watch(
   () => props.projectName,
   (val, oldVal) => {
+    loaded.value = false;
     fetchTimeToRestore();
   }
 );

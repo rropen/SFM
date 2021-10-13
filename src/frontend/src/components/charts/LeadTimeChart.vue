@@ -119,6 +119,11 @@ const chartOptions = ref({
   },
   yaxis: {
     forceNiceScale: true,
+    labels: {
+      formatter: (val: number) => {
+        return Math.round(val);
+      },
+    },
   },
 });
 

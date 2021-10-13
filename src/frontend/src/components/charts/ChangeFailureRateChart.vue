@@ -1,13 +1,14 @@
 <template>
   <div class="chartAreaWrapper flex flex-col">
-    <div class="chartWrapper shadow-lg">
+    <div v-if="loaded" class="chartWrapper shadow-lg">
       <apexchart
         type="line"
-        height="350"
+        :height="chartOptions.chart.height"
         :options="chartOptions"
         :series="changeFailureRateData"
       ></apexchart>
     </div>
+    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
     <div
       class="
         mt-4
@@ -77,6 +78,7 @@ import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import { infoForStatusItem, changeFailureRateItem } from "../../types";
 import infoModal from "../InfoModal.vue";
+import LoadingModal from "../LoadingModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -103,6 +105,8 @@ const changeFailureRate = ref<changeFailureRateItem>(); // holds currently fetch
 const perfStatus = ref("0-15%");
 const showInfoModal = ref(false);
 const modalType = ref("changeFailureRate");
+const loaded = ref(false);
+
 const chartOptions = ref({
   chart: {
     height: 350,
@@ -151,6 +155,7 @@ function fetchChangeFailureRate() {
       } else {
         perfStatus.value = "Low";
       }
+      loaded.value = true;
     })
     .catch((error) => {
       console.error("GET Lead Time Error: ", error);
@@ -186,6 +191,7 @@ const changeFailureRateData = computed(() => {
 watch(
   () => props.projectName,
   (val, oldVal) => {
+    loaded.value = false;
     fetchChangeFailureRate();
   }
 );
