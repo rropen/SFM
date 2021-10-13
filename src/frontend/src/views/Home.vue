@@ -176,8 +176,8 @@
             <div class="py-4">
               <div
                 class="
-                  grid grid-flow-col grid-cols-1 grid-rows-2
-                  2xl:grid-cols-2 2xl:grid-rows-1
+                  grid grid-flow-col grid-cols-1 grid-rows-4
+                  2xl:grid-cols-2 2xl:grid-rows-2
                   gap-4
                   2xl:gap-6
                 "
@@ -191,15 +191,6 @@
                     :infoForStatus="infoForStatus"
                   />
                 </div>
-                <!-- <div class="m-4 xl:m-6 p-4">
-                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
-                    Deployments
-                  </h1>
-                  <DeploymentChart
-                    :projectName="selectedProject"
-                    :infoForStatus="infoForStatus"
-                  />
-                </div> -->
                 <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
                     Lead Time to Change
@@ -209,15 +200,24 @@
                     :infoForStatus="infoForStatus"
                   />
                 </div>
-                <!-- <div class="m-4 xl:m-6 p-4">
+                <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
-                    Deployments
+                    Time To Restore
                   </h1>
-                  <DeploymentChart
+                  <TimeToRestoreChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
-                </div> -->
+                </div>
+                <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Change Failure Rate
+                  </h1>
+                  <ChangeFailureRateChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
+                </div>
               </div>
             </div>
             <!-- /End replace -->
@@ -254,6 +254,8 @@ import {
 } from "@heroicons/vue/outline";
 import DeploymentChart from "../components/charts/DeploymentChart.vue";
 import LeadTimeChart from "../components/charts/LeadTimeChart.vue";
+import TimeToRestoreChart from "../components/charts/TimeToRestoreChart.vue";
+import ChangeFailureRateChart from "../components/charts/ChangeFailureRateChart.vue";
 
 /* ----------------------------------------------
                      CONSTANTS
@@ -292,6 +294,31 @@ const infoForStatus: infoForStatusItem = {
     },
     "Greater Than One Month": {
       info: "Greater than One Month",
+    },
+  },
+  timeToRestore: {
+    "One Day": {
+      info: "",
+    },
+    "One Week": {
+      info: "",
+    },
+    "One Month": {
+      info: "",
+    },
+    "Greater Than One Month": {
+      info: "",
+    },
+  },
+  changeFailureRate: {
+    "0 - 15%": {
+      info: "",
+    },
+    "16-45%": {
+      info: "",
+    },
+    "Greater than 45%": {
+      info: "",
     },
   },
 };
