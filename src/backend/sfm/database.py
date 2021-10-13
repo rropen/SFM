@@ -54,7 +54,7 @@ CONN_STR = generate_db_string(
 #    connect_args = {"check_same_thread": False}
 #    engine = create_engine(CONN_STR, connect_args=connect_args)
 # else:
-engine = create_engine(CONN_STR, echo=True)
+engine = create_engine(CONN_STR, echo=False)
 
 logging.basicConfig(
     filename="logs.log",

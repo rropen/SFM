@@ -4,6 +4,8 @@ from passlib.context import CryptContext
 import string
 import random
 import logging
+import hmac
+import hashlib
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
 from fastapi import HTTPException
@@ -70,8 +72,33 @@ def hash_project_auth_token(token: str, expires_delta: Optional[timedelta] = Non
     return pwd_context.hash(token)
 
 
+def calc_signature(payload):
+    digest = hmac.new(
+        key=app_settings.GITHUB_WEBHOOK_SECRET.encode("utf-8"),
+        msg=payload,
+        digestmod="sha256",
+    ).hexdigest()
+    return f"sha256={digest}"
+
+
+def validate_signature(signature, raw):
+    if signature != calc_signature(raw):
+        raise HTTPException(status_code=401, detail="Github Signature Incorrect")
+    project_auth_token = app_settings.GITHUB_WEBHOOK_SECRET
+    return project_auth_token
+
+
 def verify_project_auth_token(attempt: str, target: str):
-    return pwd_context.verify(attempt, target)
+    if pwd_context.verify(attempt, target):
+        return True
+    elif pwd_context.verify(
+        attempt, hash_project_auth_token(app_settings.GITHUB_WEBHOOK_SECRET)
+    ):
+        return True
+    else:
+        return False
+
+    return
 
 
 def verify_admin_key(attempt):

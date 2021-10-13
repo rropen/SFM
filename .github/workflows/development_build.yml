@@ -35,7 +35,7 @@ jobs:
   #     uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
   #     with:
   #       language: python
-  snyk_node:
+  Snyk:
     #     needs: integration-tests
     uses: rropen/reusable-workflows/.github/workflows/snyk_node_scanning.yml@main
     secrets:

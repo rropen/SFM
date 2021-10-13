@@ -44,6 +44,8 @@ token2 = "Catalyst2"
 hashed_token1 = pwd_context.hash(token1)
 hashed_token2 = pwd_context.hash(token2)
 
+time_shift = datetime.datetime.now().date() - datetime.datetime(2021, 8, 19).date()
+
 
 @pytest.fixture(scope="function", name="db")
 def init_database(session):
@@ -154,7 +156,6 @@ def init_database(session):
     session.commit()
 
     # time_shift = datetime.timedelta(days=32)
-    time_shift = datetime.datetime.now().date() - datetime.datetime(2021, 8, 19).date()
 
     # Creates the deployment items:
     dates = [

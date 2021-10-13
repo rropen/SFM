@@ -122,7 +122,7 @@ class ChangeFailureRateData(SQLModel):
     daily_change_failure_rate: List
     project_name: str
     change_failure_rate_description: str
-    daily_chage_failure_rate_description: str
+    daily_change_failure_rate_description: str
 
 
 class CommitBase(SQLModel):
