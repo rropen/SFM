@@ -242,11 +242,11 @@ def group_restores(db, closed_prod_defects):
     return daily_restores
 
 
-@router.get("/deployments", response_model=List[DeploymentData])
+@router.get("/deployments", response_model=DeploymentData)
 def get_deployments(
     project_id: Optional[int] = None,
     project_name: Optional[str] = None,
-    all_deployments: Optional[bool] = True,
+    # all_deployments: Optional[bool] = True,
     db: Session = Depends(get_db),
 ):
     """
@@ -279,43 +279,41 @@ def get_deployments(
         grouped_deploys = combine_deploys(deployment_dates)
         performance = calc_frequency(deployments)
 
-        deployment_data = [
-            {
-                "project_name": project_name,
-                "deployment_dates": grouped_deploys,
-                "performance": performance,
-                "deployment_dates_description": "",
-                "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
-            }
-        ]
+        deployment_data = {
+            "project_name": project_name,
+            "deployment_dates": grouped_deploys,
+            "performance": performance,
+            "deployment_dates_description": "",
+            "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
+        }
 
         return deployment_data
 
-    elif not all_deployments:
-        projects = proj_crud.get_all(db)
-        group_deployments = []
-        for project in projects:
-            project_name = project.name
-            deployments = []
-            deployment_dates = []
-            for work_item in project.work_items:
-                if work_item.category == "Deployment":
-                    deployments.append(work_item)
-                    deployment_dates.append(work_item.end_time.date())
+    # elif not all_deployments:
+    #     projects = proj_crud.get_all(db)
+    #     group_deployments = []
+    #     for project in projects:
+    #         project_name = project.name
+    #         deployments = []
+    #         deployment_dates = []
+    #         for work_item in project.work_items:
+    #             if work_item.category == "Deployment":
+    #                 deployments.append(work_item)
+    #                 deployment_dates.append(work_item.end_time.date())
 
-            grouped_deploys = combine_deploys(deployment_dates)
-            performance = calc_frequency(deployments)
-            group_deployments.append(
-                {
-                    "project_name": project_name,
-                    "deployment_dates": grouped_deploys,
-                    "performance": performance,
-                    "deployment_dates_description": "",
-                    "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
-                }
-            )
-
-        return group_deployments
+    #         grouped_deploys = combine_deploys(deployment_dates)
+    #         performance = calc_frequency(deployments)
+    #         group_deployments.append(
+    #             {
+    #                 "project_name": project_name,
+    #                 "deployment_dates": grouped_deploys,
+    #                 "performance": performance,
+    #                 "deployment_dates_description": "",
+    #                 "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
+    #             }
+    #         )
+    #
+    #     return group_deployments
 
     else:
         all_items = crud.get_all(db)
@@ -326,15 +324,13 @@ def get_deployments(
         grouped_deploys = combine_deploys(deployment_dates)
         performance = calc_frequency(deployments)
 
-        deployment_data = [
-            {
-                "project_name": project_name,
-                "deployment_dates": grouped_deploys,
-                "performance": performance,
-                "deployment_dates_description": "",
-                "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
-            }
-        ]
+        deployment_data = {
+            "project_name": project_name,
+            "deployment_dates": grouped_deploys,
+            "performance": performance,
+            "deployment_dates_description": "",
+            "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
+        }
 
         return deployment_data
 
