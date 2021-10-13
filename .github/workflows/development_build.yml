@@ -1,66 +1,76 @@
 name: Development Build
-on:
-  pull_request:
-    branches: [dev]
+# on:
+#   pull_request:
+#     branches: [dev]
 
-  push:
-    branches: [dev]
+#   push:
+#     branches: [dev]
 
-# on: workflow_dispatch
+on: workflow_dispatch
 
 jobs:
-  backend-unit-tests:
-    uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
-    with:
-      backend_directory: src/backend
+  #   backend-unit-tests:
+  #     uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
+  #     with:
+  #       backend_directory: src/backend
 
-  frontend-unit-tests:
-    uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
-    with:
-      frontend_directory: src/frontend
+  #   frontend-unit-tests:
+  #     uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
+  #     with:
+  #       frontend_directory: src/frontend
+  #     secrets:
+  #       vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+
+  #   integration-tests:
+  #     needs: [backend-unit-tests, frontend-unit-tests ]
+  #     uses: rropen/reusable-workflows/.github/workflows/cypress_E2E.yml@main
+  #     with:
+  #       backend_directory: src/backend
+  #       frontend_directory: src/frontend
+  #     secrets:
+  #       vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+
+  #   codeQL:
+  #     needs: integration-tests
+  #     uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
+  #     with:
+  #       language: python
+  snyk_node:
+    #     needs: integration-tests
+    uses: rropen/reusable-workflows/.github/workflows/snyk_node_scanning.yml@main
     secrets:
-      vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+      snyk_token: ${{ secrets.SNYK_TOKEN }}
+#   snyk_python:
+#     needs: integration-tests
+#     uses: rropen/reusable-workflows/.github/workflows/snyk_python_scanning.yml@main
+#     secrets:
+#       snyk_token: ${{secrets.SNYK_TOKEN}}
 
-  integration-tests:
-    needs: [backend-unit-tests, frontend-unit-tests ]
-    uses: rropen/reusable-workflows/.github/workflows/cypress_E2E.yml@main
-    with:
-      backend_directory: src/backend
-      frontend_directory: src/frontend
-    secrets:
-      vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+#   backend-build:
+#     needs: codeQL
+#     uses: rropen/reusable-workflows/.github/workflows/build_deploy_azure.yml@main
+#     with:
+#       dockerfile_directory: src/backend
+#       image_name: crsft.azurecr.us/sfm_backend_dev:latest
+#     secrets:
+#       crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
+#       crsft_username: ${{ secrets.CRSFT_USERNAME }}
+#       crsft_password: ${{ secrets.CRSFT_PASSWORD }}
 
-  codeQL:
-    needs: integration-tests
-    uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
-    with:
-      language: python
-
-  backend-build:
-    needs: codeQL
-    uses: rropen/reusable-workflows/.github/workflows/build_deploy_azure.yml@main
-    with:
-      dockerfile_directory: src/backend
-      image_name: crsft.azurecr.us/sfm_backend_dev:latest
-    secrets:
-      crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
-      crsft_username: ${{ secrets.CRSFT_USERNAME }}
-      crsft_password: ${{ secrets.CRSFT_PASSWORD }}
-
-#   This needs to be redone, if we switch to azure static web apps we wont need this below
-  frontend-build:
-    needs: codeQL
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Login ACR
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
-          username: ${{ secrets.CRSFT_USERNAME}}
-          password: ${{ secrets.CRSFT_PASSWORD }}
-      - name: Build/Push Frontend Container
-        run: |
-          docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
-          docker push crsft.azurecr.us/sfm_frontend_dev:latest
+# #   This needs to be redone, if we switch to azure static web apps we wont need this below
+#   frontend-build:
+#     needs: codeQL
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#       - name: Login ACR
+#         uses: azure/docker-login@v1
+#         with:
+#           login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
+#           username: ${{ secrets.CRSFT_USERNAME}}
+#           password: ${{ secrets.CRSFT_PASSWORD }}
+#       - name: Build/Push Frontend Container
+#         run: |
+#           docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
+#           docker push crsft.azurecr.us/sfm_frontend_dev:latest

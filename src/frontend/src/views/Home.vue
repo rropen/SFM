@@ -193,7 +193,7 @@
                 </div>
                 <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
-                    Time to Restore
+                    Time To Restore
                   </h1>
                   <TimeToRestoreChart
                     :projectName="selectedProject"
@@ -255,7 +255,7 @@ import {
 import DeploymentChart from "../components/charts/DeploymentChart.vue";
 import LeadTimeChart from "../components/charts/LeadTimeChart.vue";
 import TimeToRestoreChart from "../components/charts/TimeToRestoreChart.vue";
-import ChangeFailureRateChart from "../components/charts/ChangeFailureRate.vue";
+import ChangeFailureRateChart from "../components/charts/ChangeFailureRateChart.vue";
 
 /* ----------------------------------------------
                      CONSTANTS

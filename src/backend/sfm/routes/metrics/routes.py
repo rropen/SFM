@@ -242,11 +242,11 @@ def group_restores(db, closed_prod_defects):
     return daily_restores
 
 
-@router.get("/deployments", response_model=List[DeploymentData])
+@router.get("/deployments", response_model=DeploymentData)
 def get_deployments(
     project_id: Optional[int] = None,
     project_name: Optional[str] = None,
-    all_deployments: Optional[bool] = True,
+    # all_deployments: Optional[bool] = True,
     db: Session = Depends(get_db),
 ):
     """
@@ -279,43 +279,41 @@ def get_deployments(
         grouped_deploys = combine_deploys(deployment_dates)
         performance = calc_frequency(deployments)
 
-        deployment_data = [
-            {
-                "project_name": project_name,
-                "deployment_dates": grouped_deploys,
-                "performance": performance,
-                "deployment_dates_description": "",
-                "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
-            }
-        ]
+        deployment_data = {
+            "project_name": project_name,
+            "deployment_dates": grouped_deploys,
+            "performance": performance,
+            "deployment_dates_description": "",
+            "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
+        }
 
         return deployment_data
 
-    elif not all_deployments:
-        projects = proj_crud.get_all(db)
-        group_deployments = []
-        for project in projects:
-            project_name = project.name
-            deployments = []
-            deployment_dates = []
-            for work_item in project.work_items:
-                if work_item.category == "Deployment":
-                    deployments.append(work_item)
-                    deployment_dates.append(work_item.end_time.date())
+    # elif not all_deployments:
+    #     projects = proj_crud.get_all(db)
+    #     group_deployments = []
+    #     for project in projects:
+    #         project_name = project.name
+    #         deployments = []
+    #         deployment_dates = []
+    #         for work_item in project.work_items:
+    #             if work_item.category == "Deployment":
+    #                 deployments.append(work_item)
+    #                 deployment_dates.append(work_item.end_time.date())
 
-            grouped_deploys = combine_deploys(deployment_dates)
-            performance = calc_frequency(deployments)
-            group_deployments.append(
-                {
-                    "project_name": project_name,
-                    "deployment_dates": grouped_deploys,
-                    "performance": performance,
-                    "deployment_dates_description": "",
-                    "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
-                }
-            )
-
-        return group_deployments
+    #         grouped_deploys = combine_deploys(deployment_dates)
+    #         performance = calc_frequency(deployments)
+    #         group_deployments.append(
+    #             {
+    #                 "project_name": project_name,
+    #                 "deployment_dates": grouped_deploys,
+    #                 "performance": performance,
+    #                 "deployment_dates_description": "",
+    #                 "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
+    #             }
+    #         )
+    #
+    #     return group_deployments
 
     else:
         all_items = crud.get_all(db)
@@ -326,15 +324,13 @@ def get_deployments(
         grouped_deploys = combine_deploys(deployment_dates)
         performance = calc_frequency(deployments)
 
-        deployment_data = [
-            {
-                "project_name": project_name,
-                "deployment_dates": grouped_deploys,
-                "performance": performance,
-                "deployment_dates_description": "",
-                "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
-            }
-        ]
+        deployment_data = {
+            "project_name": project_name,
+            "deployment_dates": grouped_deploys,
+            "performance": performance,
+            "deployment_dates_description": "",
+            "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
+        }
 
         return deployment_data
 
@@ -527,7 +523,7 @@ def get_time_to_restore(
         "project_name": project_name,
         "time_to_restore_description": "median time to restore service in hours (time from bug noticed to pull request to main with fix) over the past three months ",
         "performance_description": "Elite = less than one hour, High = less than one day, Medium = less than one week, Low = between one week and one month",
-        "daily_times_to_restore_description": "list of lists, where each item in the list consists of [unix date, median time to restore for all bugs logged on that date, in hours]",
+        "daily_times_to_restore_description": "list of lists, where each item in the list consists of [unix date, median time to restore for all bugs logged on that date in hours]",
     }
 
     return time_to_restore_dict
@@ -600,6 +596,7 @@ def get_change_failure_rate(
         "daily_change_failure_rate": daily_failure_rate,
         "project_name": project_name,
         "change_failure_rate_description": "Number of failed deployments per total number of deployments",
+        "daily_change_failure_rate_description": "list of lists, where each item in the list consists of [unix date, change failure rate for deployments released on that date]",
     }
 
     return change_failure_rate_dict
