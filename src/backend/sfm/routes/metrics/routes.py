@@ -318,7 +318,7 @@ def get_deployments(
     else:
         all_items = crud.get_all(db)
         deployments = [item for item in all_items if (item.category == "Deployment")]
-        project_name = "org"
+        project_name = "all"
         deployment_dates = [deploy.end_time.date() for deploy in deployments]
 
         grouped_deploys = combine_deploys(deployment_dates)
@@ -359,57 +359,61 @@ def get_lead_time_to_change(
     project = project_selector(db, project_name, project_id)
 
     if project:
-        pullRequests = [
+        pull_requests = [
             item for item in project.work_items if (item.category == "Pull Request")
         ]
-        if not pullRequests:
+        if not pull_requests:
             logger.warning(
                 'method="GET" path="metrics/LeadTimeToChange" warning="No pull requests to main with specified project"'
             )
-            raise HTTPException(
-                status_code=404,
-                detail="No pull requests to main associated with specified project",
-            )
+            # raise HTTPException(
+            #     status_code=404,
+            #     detail="No pull requests to main associated with specified project",
+            # )
         project_name = project.name
 
     else:
         all_items = crud.get_all(db)
-        pullRequests = [item for item in all_items if (item.category == "Pull Request")]
-        if not pullRequests:
+        pull_requests = [
+            item for item in all_items if (item.category == "Pull Request")
+        ]
+        if not pull_requests:
             logger.warning(
                 'method="GET" path="metrics/LeadTimeToChange" warning="No pull requests to main in record for any project"'
             )
-            raise HTTPException(
-                status_code=404,
-                detail="No pull requests to main in record for any project",
-            )
-        project_name = "org"
+        project_name = "all"
 
-    lead_times = []
-    commit_dates = []
-    for request in pullRequests:
-        for commit in request.commits:
-            lead_times.append(commit.time_to_pull)
-            commit_dates.append(commit.date.date())
+    if not pull_requests:
+        median_time_to_deploy = -1
+        performance = "No pull requests to main"
+        daily_commits = []
+        daily_lead_times = []
 
-    [daily_commits, daily_lead_times] = lead_times_per_day(commit_dates, lead_times)
+    else:
+        lead_times = []
+        commit_dates = []
+        for request in pull_requests:
+            for commit in request.commits:
+                lead_times.append(commit.time_to_pull)
+                commit_dates.append(commit.date.date())
 
-    # calculate median time in minutes
-    print(median(lead_times))
-    median_time_to_deploy = int(median(lead_times) / 60)
+        [daily_commits, daily_lead_times] = lead_times_per_day(commit_dates, lead_times)
 
-    if median_time_to_deploy < (24 * 60):  # Less than one day
-        performance = "One Day"
-    elif (median_time_to_deploy >= (24 * 60)) and (
-        median_time_to_deploy < (7 * 24 * 60)
-    ):  # between one day and one week
-        performance = "One Week"
-    elif (median_time_to_deploy >= (7 * 24 * 60)) and (
-        median_time_to_deploy < (7 * 24 * 60 * 4)
-    ):  # between one week and one month
-        performance = "One Month"
-    elif median_time_to_deploy >= (7 * 24 * 60 * 4):  # greater than one month
-        performance = "Greater than One Month"
+        # calculate median time in minutes
+        median_time_to_deploy = int(median(lead_times) / 60)
+
+        if median_time_to_deploy < (24 * 60):  # Less than one day
+            performance = "One Day"
+        elif (median_time_to_deploy >= (24 * 60)) and (
+            median_time_to_deploy < (7 * 24 * 60)
+        ):  # between one day and one week
+            performance = "One Week"
+        elif (median_time_to_deploy >= (7 * 24 * 60)) and (
+            median_time_to_deploy < (7 * 24 * 60 * 4)
+        ):  # between one week and one month
+            performance = "One Month"
+        elif median_time_to_deploy >= (7 * 24 * 60 * 4):  # greater than one month
+            performance = "Greater than One Month"
 
     lead_time_dict = {
         "lead_time": median_time_to_deploy,
@@ -504,7 +508,7 @@ def get_time_to_restore(
             )
 
         daily_time_to_restore = group_restores(db, closed_prod_defects)
-        project_name = "org"
+        project_name = "all"
 
     if not performance:
         if time_to_restore < 1:
@@ -580,7 +584,7 @@ def get_change_failure_rate(
         all_deployments = db.exec(
             select(WorkItem).where(WorkItem.category == "Pull Request")
         ).all()  # all time for daily calculation for charts
-        project_name = "org"
+        project_name = "all"
 
     failed_deploys = [deploy for deploy in deployments if deploy.failed is True]
 

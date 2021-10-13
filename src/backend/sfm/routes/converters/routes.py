@@ -88,11 +88,12 @@ async def webhook_handler(
     print("THE PROJECT NAME: ", project_name)
 
     project_db = db.exec(select(Project).where(Project.name == project_name)).first()
+
     if not project_db:
         logger.warning(
-            'method=POST path="converters/github_webhooks" warning="Matching project not found"'
+            'method=POST path="converters/github_webhooks" warning="Matching project not found in db"'
         )
-        raise HTTPException(status_code=404, detail="Matching project not found")
+        raise HTTPException(status_code=404, detail="Matching project not found in db")
 
     if event_type == "deployment":
         deployment = payload.get("deployment")

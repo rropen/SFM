@@ -273,7 +273,7 @@ def test_get_deployments(client: TestClient, db: Session):
     ]
 
     expected_result4 = {
-        "project_name": "org",
+        "project_name": "all",
         "deployment_dates": deployment_dates,
         "performance": "Daily",
         "deployment_dates_description": "",
@@ -336,7 +336,7 @@ def test_get_lead_time_endpoint(client: TestClient, db: Session):
     response = client.get("/metrics/LeadTimeToChange")
     assert response is not None
     assert response.status_code == 200
-    assert response.json()["project_name"] == "org"
+    assert response.json()["project_name"] == "all"
 
     day_proj = Project(
         **{
@@ -577,7 +577,7 @@ def test_get_lead_time_endpoint(client: TestClient, db: Session):
     db.commit()
 
     response = client.get("/metrics/LeadTimeToChange")
-    assert response.status_code == 404
+    assert response.status_code == 200
 
 
 def test_time_to_restore(client: TestClient, db: Session):
@@ -589,7 +589,7 @@ def test_time_to_restore(client: TestClient, db: Session):
     result["daily_times_to_restore"] = result["daily_times_to_restore"][:5]
     print(result["daily_times_to_restore"])
 
-    assert result["project_name"] == "org"
+    assert result["project_name"] == "all"
     assert result["time_to_restore"] == float(timedelta(days=5).total_seconds() / 3600)
     assert result["performance"] == "Less than one week"
     assert result["daily_times_to_restore"] == [
@@ -636,7 +636,7 @@ def test_change_failure_rate(client: TestClient, db: Session):
     """Testing that the endpoint is working as expected"""
     response = client.get("/metrics/ChangeFailureRate")
     assert response.status_code == 200
-    assert response.json()["project_name"] == "org"
+    assert response.json()["project_name"] == "all"
 
     response = client.get("/metrics/ChangeFailureRate", params={"project_id": "1"})
     assert response.status_code == 200
