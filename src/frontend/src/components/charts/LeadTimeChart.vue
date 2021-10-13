@@ -1,13 +1,14 @@
 <template>
   <div class="chartAreaWrapper flex flex-col">
-    <div class="chartWrapper shadow-lg">
+    <div v-if="loaded" class="chartWrapper shadow-lg">
       <apexchart
         type="line"
-        height="350"
+        :height="chartOptions.chart.height"
         :options="chartOptions"
         :series="leadTimeData"
       ></apexchart>
     </div>
+    <LoadingModal v-else :modal-height="chartOptions.chart.height + 15" />
     <div
       class="
         mt-4
@@ -76,6 +77,7 @@ import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import { infoForStatusItem, leadTimeItem } from "../../types";
 import infoModal from "../InfoModal.vue";
+import LoadingModal from "../LoadingModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -102,6 +104,8 @@ const leadTime = ref<leadTimeItem>(); // holds currently fetched deployment data
 const perfStatus = ref("One Day");
 const showInfoModal = ref(false);
 const modalType = ref("leadTime");
+const loaded = ref(false);
+
 const chartOptions = ref({
   chart: {
     height: 350,
@@ -144,6 +148,7 @@ function fetchLeadTime() {
     .then((response) => {
       leadTime.value = response.data;
       perfStatus.value = response.data.performance;
+      loaded.value = true;
     })
     .catch((error) => {
       console.error("GET Lead Time Error: ", error);
@@ -180,6 +185,7 @@ const leadTimeData = computed(() => {
 watch(
   () => props.projectName,
   (val, oldVal) => {
+    loaded.value = false;
     fetchLeadTime();
   }
 );
