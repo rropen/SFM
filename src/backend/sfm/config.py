@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     DBUSER: str = os.environ.get("DBUSER") or "unset"
     DBPASS: str = os.environ.get("DBPASS") or "unset"
     AZURE_LOGGING_CONN_STR: str = os.environ.get("AZURE_LOGGING_CONN_STR") or "unset"
+    GITHUB_WEBHOOK_SECRET: str = os.environ.get("GITHUB_WEBHOOK_SECRET") or "unset"
 
 
 #     CONN_STR: str = generate_db_string(ENV, DBHOST, DBNAME, DBUSER, DBPASS)
