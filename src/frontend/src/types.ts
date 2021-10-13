@@ -76,28 +76,31 @@ export interface infoForStatusItem {
   };
 
   timeToRestore: {
-    "One Day": {
+    "Less than one hour": {
       info: string;
     };
-    "One Week": {
+    "Less than one day": {
       info: string;
     };
-    "One Month": {
+    "Less than one week": {
       info: string;
     };
-    "Greater Than One Month": {
+    "Between one week and one month": {
+      info: string;
+    };
+    "No closed production defects exist in the last 3 months": {
       info: string;
     };
   };
 
   changeFailureRate: {
-    "0 - 15%": {
+    High: {
       info: string;
     };
-    "16-45%": {
+    Medium: {
       info: string;
     };
-    "Greater than 45%": {
+    Low: {
       info: string;
     };
   };
