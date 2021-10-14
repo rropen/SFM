@@ -130,7 +130,7 @@ def combine_deploys(deployment_dates):  # [date, date, date]
     initial_date = min(deployment_dates)  # date
     total_days = (datetime.now().date() - initial_date).days  # number of days
     grouped_deploys = []
-    for iter_day in range(0, total_days):  # loops through every day
+    for iter_day in range(0, total_days + 1):  # loops through every day
         day = initial_date + timedelta(days=iter_day)  # date
         if day in deployment_dates:
             grouped_deploys.append(
@@ -152,7 +152,7 @@ def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
     daily_commits = []
     daily_lead_times = []
 
-    for iter_day in range(0, total_days):  # loops through every day
+    for iter_day in range(0, total_days + 1):  # loops through every day
         day = initial_date + timedelta(days=iter_day)  # date
 
         indicies = [i for i, date in enumerate(commit_dates) if date == day]
@@ -190,7 +190,7 @@ def group_failures(deployments):
     total_days = (datetime.now().date() - initial_date).days  # number of days
     daily_failure_rate = []
 
-    for iter_day in range(0, total_days):  # loops through every day
+    for iter_day in range(0, total_days + 1):  # loops through every day
         day = initial_date + timedelta(days=iter_day)  # date
 
         if day in failed_deployment_dates:
@@ -217,7 +217,7 @@ def group_restores(db, closed_prod_defects):
     total_days = (datetime.now().date() - initial_date).days  # number of days
     daily_restores = []
 
-    for iter_day in range(0, total_days):  # loops through every day
+    for iter_day in range(0, total_days + 1):  # loops through every day
         day = initial_date + timedelta(days=iter_day)  # date
 
         if day in restore_dates:
