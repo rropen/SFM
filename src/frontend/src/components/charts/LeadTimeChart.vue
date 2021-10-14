@@ -26,6 +26,7 @@
         'bg-yellow-400 text-rrgrey-800': perfStatus == 'One Week',
         'bg-orange-500 text-white': perfStatus == 'One Month',
         'bg-red-600 text-white': perfStatus == 'Greater Than One Month',
+        'bg-rrgrey-700 text-white': perfStatus == 'No pull requests to main',
       }"
     >
       <div class="spacer"></div>
@@ -119,6 +120,11 @@ const chartOptions = ref({
   },
   yaxis: {
     forceNiceScale: true,
+    labels: {
+      formatter: (val: number) => {
+        return Math.round(val);
+      },
+    },
   },
 });
 
@@ -131,10 +137,10 @@ function fetchLeadTime() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/LeadTimeToChange";
+    url = "/metrics/LeadTimeToChange";
   } else {
     url =
-      "metrics/LeadTimeToChange?&project_name=" +
+      "/metrics/LeadTimeToChange?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments

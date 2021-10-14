@@ -2,7 +2,6 @@
   <div class="chartAreaWrapper flex flex-col">
     <div v-if="loaded" class="chartWrapper shadow-lg">
       <apexchart
-        ref="realtimeChart"
         type="bar"
         :height="chartOptions.chart.height"
         :options="chartOptions"
@@ -27,6 +26,7 @@
         'bg-yellow-400 text-rrgrey-800': deploymentMetricStatus == 'Weekly',
         'bg-orange-500 text-white': deploymentMetricStatus == 'Monthly',
         'bg-red-600 text-white': deploymentMetricStatus == 'Yearly',
+        'bg-rrgrey-700 text-white': deploymentMetricStatus == 'No Deployments',
       }"
     >
       <div class="spacer"></div>
@@ -144,10 +144,10 @@ function fetchDeployments() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/deployments";
+    url = "/metrics/deployments";
   } else {
     url =
-      "metrics/deployments?&project_name=" +
+      "/metrics/deployments?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments
@@ -159,8 +159,12 @@ function fetchDeployments() {
       },
     })
     .then((response) => {
-      deployments.value = response.data[0];
-      deploymentMetricStatus.value = response.data[0].performance;
+      deployments.value = response.data;
+      if (response.data.deployment_dates.length == 0) {
+        deploymentMetricStatus.value = "No Deployments";
+      } else {
+        deploymentMetricStatus.value = response.data.performance;
+      }
       loaded.value = true;
     })
     .catch((error) => {

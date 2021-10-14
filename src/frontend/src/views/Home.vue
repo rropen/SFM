@@ -197,18 +197,18 @@
                 </div>
                 <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
-                    Lead Time to Change
+                    Time To Restore
                   </h1>
-                  <LeadTimeChart
+                  <TimeToRestoreChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
                 </div>
                 <div class="m-4 xl:m-6 p-4">
                   <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
-                    Time To Restore
+                    Lead Time to Change
                   </h1>
-                  <TimeToRestoreChart
+                  <LeadTimeChart
                     :projectName="selectedProject"
                     :infoForStatus="infoForStatus"
                   />
@@ -278,52 +278,64 @@ const projects = ref<projectItem[]>([]); // holds all fetched projects
 const infoForStatus: infoForStatusItem = {
   deployments: {
     Daily: {
-      info: 'Daily deployment frequency suggests a team can deploy <span class="italic text-rrpink-400">on-demand</span> and <span class="italic text-rrpink-400">at will</span>.  This is the elite value for this metric and demonstrates understand and implementation of most DevOps practices.',
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Daily, this means the median number of days with deployments per month is at least three; i.e. most working days have deployments. This corresponds to a DORA rating of Elite.",
     },
     Weekly: {
-      info: "Weekly Info Here",
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Weekly, this means the median number of days with deployments per week is at least 1; i.e. most weeks have at least one deployment. This corresponds to a DORA rating of High.",
     },
     Monthly: {
-      info: "Monthly Info Here",
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Monthly, this means the median number of days with deployments per month is at least one; i.e. most months have at least one deployment. This corresponds to a DORA rating of Medium.",
+    },
+    Yearly: {
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Yearly, this means the median number of days with deployments per month is less than one. This corresponds to a DORA rating of Low.",
+    },
+    "No Deployments": {
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. This project does not have any deployments over the last three months, so this metric is not applicable.",
     },
   },
   leadTime: {
     "One Day": {
-      info: "Less than One Day",
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one day. This corresponds to a DORA rating of Elite.",
     },
     "One Week": {
-      info: "Less than One Week",
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one week. This corresponds to a DORA rating of High.",
     },
     "One Month": {
-      info: "Less than One Month",
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one month. This corresponds to a DORA rating of Medium.",
     },
     "Greater Than One Month": {
-      info: "Greater than One Month",
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is greater than one month. This corresponds to a DORA rating of Low.",
+    },
+    "No pull requests to main": {
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, there are no pull requests to main, so this metric is not applicable.",
     },
   },
   timeToRestore: {
-    "One Day": {
-      info: "",
+    "Less than one hour": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one hour. This corresponds to a DORA rating of Elite.",
     },
-    "One Week": {
-      info: "",
+    "Less than one day": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one day. This corresponds to a DORA rating of High.",
     },
-    "One Month": {
-      info: "",
+    "Less than one week": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one week. This corresponds to a DORA rating of Medium.",
     },
-    "Greater Than One Month": {
-      info: "",
+    "Between one week and one month": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is between one week and one month. This corresponds to a DORA rating of Low.",
+    },
+    "No closed production defects exist in the last 3 months": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, there are no closed production defects in the last 3 months, so this metric is not relevant.",
     },
   },
   changeFailureRate: {
-    "0 - 15%": {
-      info: "",
+    High: {
+      info: "The Change Failure Rate Metric is calculated as the number of failed deployments per total number of deployments over the last three months. A rate of 0-15% corresponds to DORA Elite/High, A rate of 16-45% corresponds to DORA Medium, and a rate higher than 45% corresponds to DORA Low.",
     },
-    "16-45%": {
-      info: "",
+    Medium: {
+      info: "The Change Failure Rate Metric is calculated as the number of failed deployments per total number of deployments over the last three months. A rate of 0-15% corresponds to DORA Elite/High, A rate of 16-45% corresponds to DORA Medium, and a rate higher than 45% corresponds to DORA Low.",
     },
-    "Greater than 45%": {
-      info: "",
+    Low: {
+      info: "The Change Failure Rate Metric is calculated as the number of failed deployments per total number of deployments over the last three months. A rate of 0-15% corresponds to DORA Elite/High, A rate of 16-45% corresponds to DORA Medium, and a rate higher than 45% corresponds to DORA Low.",
     },
   },
 };
