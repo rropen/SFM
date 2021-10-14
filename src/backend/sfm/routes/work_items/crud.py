@@ -149,9 +149,13 @@ def update_work_item(db: Session, work_item_id, work_item_data, project_auth_tok
         project_auth_token, intended_project.project_auth_token_hashed
     )
     if verified:
-        work_item_newdata = work_item_data.dict(
-            exclude_unset=True, exclude_defaults=True
-        )
+        # work_item_dict = work_item.dict()
+
+        # for key, value in work_item_dict:
+        #     if work_item_data[key]:
+        #         setattr(work_item_dict, key, work_item_data[key])
+
+        work_item_newdata = work_item_data.dict(exclude_unset=True)
         for key, value in work_item_newdata.items():
             setattr(work_item, key, value)
 

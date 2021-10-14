@@ -1,4 +1,3 @@
-input_json = """
 {
   "action": "opened",
   "number": 2,
@@ -34,11 +33,11 @@ input_json = """
       "type": "User",
       "site_admin": false
     },
-    "body": "This is a pretty simple change that we need to pull into master.",
-    "created_at": "2019-05-15T15:20:33Z",
+    "body": "This is a pretty simple change that we need to pull into main.",
+    "created_at": "2021-09-01T12:00:00Z",
     "updated_at": "2019-05-15T15:20:33Z",
     "closed_at": null,
-    "merged_at": null,
+    "merged_at": "2021-09-05T12:00:00Z",
     "merge_commit_sha": null,
     "assignee": null,
     "assignees": [],
@@ -76,9 +75,9 @@ input_json = """
         "site_admin": false
       },
       "repo": {
-        "id": 186853002,
+        "id": 123456789,
         "node_id": "MDEwOlJlcG9zaXRvcnkxODY4NTMwMDI=",
-        "name": "Hello-World",
+        "name": "Webhook Testing Repo",
         "full_name": "Codertocat/Hello-World",
         "private": false,
         "owner": {
@@ -167,7 +166,7 @@ input_json = """
         "forks": 0,
         "open_issues": 2,
         "watchers": 0,
-        "default_branch": "master",
+        "default_branch": "main",
         "allow_squash_merge": true,
         "allow_merge_commit": true,
         "allow_rebase_merge": true,
@@ -175,8 +174,8 @@ input_json = """
       }
     },
     "base": {
-      "label": "Codertocat:master",
-      "ref": "master",
+      "label": "Codertocat:main",
+      "ref": "main",
       "sha": "f95f852bd8fca8fcc58a9a2d6c842781e32a215e",
       "user": {
         "login": "Codertocat",
@@ -199,9 +198,9 @@ input_json = """
         "site_admin": false
       },
       "repo": {
-        "id": 186853002,
+        "id": 123456789,
         "node_id": "MDEwOlJlcG9zaXRvcnkxODY4NTMwMDI=",
-        "name": "Hello-World",
+        "name": "Webhook Testing Repo",
         "full_name": "Codertocat/Hello-World",
         "private": false,
         "owner": {
@@ -290,7 +289,7 @@ input_json = """
         "forks": 0,
         "open_issues": 2,
         "watchers": 0,
-        "default_branch": "master",
+        "default_branch": "main",
         "allow_squash_merge": true,
         "allow_merge_commit": true,
         "allow_rebase_merge": true,
@@ -339,9 +338,9 @@ input_json = """
     "changed_files": 1
   },
   "repository": {
-    "id": 186853002,
+    "id": 123456789,
     "node_id": "MDEwOlJlcG9zaXRvcnkxODY4NTMwMDI=",
-    "name": "Hello-World",
+    "name": "Webhook Testing Repo",
     "full_name": "Codertocat/Hello-World",
     "private": false,
     "owner": {
@@ -430,7 +429,7 @@ input_json = """
     "forks": 0,
     "open_issues": 2,
     "watchers": 0,
-    "default_branch": "master"
+    "default_branch": "main"
   },
   "sender": {
     "login": "Codertocat",
@@ -453,4 +452,3 @@ input_json = """
     "site_admin": false
   }
 }
-"""

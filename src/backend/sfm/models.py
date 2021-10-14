@@ -3,6 +3,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 from pyasn1_modules.rfc2459 import IssuerAltName
 from sqlmodel import Field, SQLModel, Relationship
+from pydantic import BaseModel
 
 
 class ProjectBase(SQLModel):
@@ -31,7 +32,7 @@ class ProjectCreate(ProjectBase):
     pass
 
 
-class ProjectUpdate(SQLModel):
+class ProjectUpdate(BaseModel):
     name: Optional[str] = Field(default=None, index=False)
     lead_name: Optional[str] = Field(default=None, index=False)
     lead_email: Optional[str] = Field(default=None, index=False)
@@ -76,7 +77,7 @@ class WorkItemCreate(WorkItemBase):
     pass
 
 
-class WorkItemUpdate(SQLModel):
+class WorkItemUpdate(BaseModel):
     category: Optional[str] = Field(default=None, index=False)
     issue_num: Optional[int] = Field(default=None, index=False)
     start_time: Optional[datetime] = Field(default=None, index=False)

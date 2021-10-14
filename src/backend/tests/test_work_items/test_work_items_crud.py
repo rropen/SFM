@@ -1,6 +1,7 @@
 from typing import List
 from fastapi.testclient import TestClient
-from sqlmodel import Session
+from sqlmodel import Session, SQLModel
+from pydantic import BaseModel
 from sfm.routes.work_items import crud
 from sfm.routes.projects import crud as proj_crud
 import pytest
@@ -202,9 +203,22 @@ def test_update_work_item(db):
     assert workitem.project.name == "Test Project 1"
 
     # Test unset parameters do not get overwritten
-    work_item_data = WorkItemUpdate(
-        **{"category": "Issue", "comments": "new different comment"}
-    )
+    # work_item_data = WorkItemUpdate(
+    #     **{"category": "Issue", "comments": "new different comment"}
+    # )
+    # class MyModel(BaseModel):
+    #     a: int
+    #     b: int = 2
+
+    # m = MyModel(a=5)
+    # assert m.dict(exclude_unset=True) == {'a': 5}
+
+    # m = MyModel(a=5, b=3)
+    # assert m.dict(exclude_unset=True) == {'a': 5, 'b': 3}
+
+    work_item_data = WorkItemUpdate(category="Issue", comments="new different comment")
+
+    print("LOOK AT ME:", work_item_data.dict(exclude_unset=True))
 
     response = crud.update_work_item(
         db, 1, work_item_data, project_auth_token="Catalyst1"

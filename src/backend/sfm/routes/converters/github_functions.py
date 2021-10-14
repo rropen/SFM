@@ -218,11 +218,11 @@ def unlabeled_processor(db, issue, proj_auth_token):
                 WorkItem.project_id == unlabeled_prod_defect_item.project_id,
                 WorkItem.category == "Pull Request",
                 WorkItem.end_time <= unlabeled_prod_defect_item.start_time,
-                WorkItem.failed == "True",
+                WorkItem.failed == True,  # noqa: E712
             )
         )
         .order_by(WorkItem.end_time.desc())
-    ).first
+    ).first()
     update_dict = {"failed": None}
     work_item_update = WorkItemUpdate(**update_dict)
     work_item_crud.update_work_item(
@@ -242,7 +242,9 @@ def reopened_processor(db, issue, proj_auth_token):
         raise HTTPException(
             status_code=404, detail="No matching WorkItem in db for reopened issue"
         )
-    comment_string = f'Issue reopened at {issue["updated_at"]}'
+    comment_string = f'Issue reopened at {issue["updated_at"]},'
+    if reopened_item.comments is not None:
+        comment_string = comment_string + reopened_item.comments
     update_dict = {
         "end_time": None,
         "comments": comment_string,

@@ -133,7 +133,7 @@ def test_work_item_patch(client: TestClient, db: Session):
     }
 
     response = client.patch(
-        "/workItems/1", work_item_data, headers={"project-auth-token": "Catalyst1"}
+        "/workItems/1", json=work_item_data, headers={"project-auth-token": "Catalyst1"}
     )
     assert response.status_code == 200
     assert response.json() == {

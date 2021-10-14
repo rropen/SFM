@@ -49,10 +49,7 @@ router = APIRouter()
 
 @router.post("/github_webhooks/")  # pragma: no cover
 async def webhook_handler(
-    request: Request,
-    # project_auth_token: str = Header(...),
-    X_GitHub_Event: str = Header(...),  # DELETE ME WHEN DONE
-    db: Session = Depends(get_db),
+    request: Request, db: Session = Depends(get_db), test_int: Optional[int] = None
 ):
     """
     ## Github Webhook Handler
@@ -61,7 +58,6 @@ async def webhook_handler(
     Currently, endpoint processes two different event types: "Deployment" and "Pull Request".
     The payload data is parsed and data needed to calculate the DORA metrics is stored in the db tables.
     """
-
     if app_settings.GITHUB_WEBHOOK_SECRET in ["", "XXXXXXXXXXX"]:
         raise HTTPException(
             status_code=412,
@@ -71,14 +67,46 @@ async def webhook_handler(
     logger.info('method="POST" path="converters/github_webhooks"')
     # handle events
 
-    raw = await request.body()
-    signature = request.headers.get("X-Hub-Signature-256")
+    if app_settings.ENV == "test":
+        file_list = [
+            ["./test_converters/testing_files/wh_repo_created.json", "repository"],
+            [
+                "./test_converters/testing_files/wh_pull_request_dev.json",
+                "pull_request",
+            ],
+            [
+                "./test_converters/testing_files/wh_pull_request_main_not_merged.json",
+                "pull_request",
+            ],
+            [
+                "./test_converters/testing_files/wh_pull_request_main_merged.json",
+                "pull_request",
+            ],
+            [
+                "./test_converters/testing_files/wh_issue_opened.json",
+                "issues",
+            ],  # not currently important until flow metrics
+            ["./test_converters/testing_files/wh_issue_labeled_prodDef.json", "issues"],
+            ["./test_converters/testing_files/wh_issue_closed.json", "issues"],
+            ["./test_converters/testing_files/wh_issue_reopened.json", "issues"],
+            ["./test_converters/testing_files/wh_issue_unlabeled.json", "issues"],
+            # ["./test_converters/testing_files/wh_deployment.json", "deployment"],
+            ["./test_converters/testing_files/wh_repo_renamed.json", "repository"],
+            ["./test_converters/testing_files/wh_repo_deleted.json", "repository"],
+        ]
+        payload = json.load(open(file_list[test_int][0]))
+        proj_auth_token = app_settings.GITHUB_WEBHOOK_SECRET
+        event_type = file_list[test_int][1]
 
-    proj_auth_token = validate_signature(signature, raw)
+    if app_settings.ENV != "test":
+        raw = await request.body()
+        signature = request.headers.get("X-Hub-Signature-256")
 
-    payload = await request.json()
+        proj_auth_token = validate_signature(signature, raw)
 
-    event_type = request.headers.get("X-Github-Event")
+        payload = await request.json()
+
+        event_type = request.headers.get("X-Github-Event")
 
     # gather common payload object properties
     if event_type != "push":  # push events are the exception to common properties
@@ -122,18 +150,27 @@ async def webhook_handler(
         issue = payload.get("issue")
         if action == "closed":
             defect_processor(db, issue, project_db, proj_auth_token, closed=True)
-        elif action == "labeled" and issue["label"]["name"] == "production defect":
+        elif action == "labeled" and "production defect" in [
+            lbl["name"] for lbl in issue["labels"]
+        ]:
             defect_processor(db, issue, project_db, proj_auth_token, closed=False)
         elif action == "reopened":
             reopened_processor(db, issue, proj_auth_token)
-        elif action == "unlabeled":
+        elif action == "unlabeled" and "production defect" not in [
+            lbl["name"] for lbl in issue["labels"]
+        ]:
             unlabeled_processor(db, issue, proj_auth_token)
+        else:
+            logger.info(
+                'method=POST path="converters/github_webhooks" info="Issues event type that is unhandled is passed"'
+            )
 
     else:
         logger.warning(
             'method=POST path="converters/github_webhooks" warning="Event type not handled."'
         )
-        raise HTTPException(status_code=404, detail="Event type not handled.")
+        return {"code": "event type not handled"}
+        # raise HTTPException(status_code=404, detail="Event type not handled.")
 
     return {"code": "success"}
 
