@@ -443,9 +443,9 @@ def populate_past_github(db, org, include_list):
                 )
 
     not_included_projects = []
-    for proj in include_list:
-        in_database = db.exec(select(Project).where(Project.name == proj)).first()
-        if in_database is None:
-            not_included_projects.append(proj)
+    if include_list is not None:
+        in_database = db.exec(select(Project)).all()
+        project_names_in_db = [proj.name for proj in in_database]
+        not_included_projects = list(set(project_names_in_db) - set(include_list))
 
     return not_included_projects

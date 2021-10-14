@@ -19,6 +19,7 @@ def test_get_all_endpoint(client: TestClient, db: Session):
             "repo_url": "github.com/starkEnterprises",
             "on_prem": False,
             "id": 1,
+            "github_id": None,
         },
         {
             "name": "Test Project 2",
@@ -29,6 +30,7 @@ def test_get_all_endpoint(client: TestClient, db: Session):
             "repo_url": "github.com/pgaGolf",
             "on_prem": False,
             "id": 2,
+            "github_id": None,
         },
         {
             "name": "Test Project with no WorkItems",
@@ -39,6 +41,7 @@ def test_get_all_endpoint(client: TestClient, db: Session):
             "repo_url": "github.com/pgaGolf",
             "on_prem": False,
             "id": 3,
+            "github_id": None,
         },
     ]
 
@@ -57,6 +60,7 @@ def test_get_proj_id(client: TestClient, db: Session):
         "repo_url": "github.com/starkEnterprises",
         "on_prem": False,
         "id": 1,
+        "github_id": None,
     }
 
     """Testing that the endpoint raises exception when string passed"""
