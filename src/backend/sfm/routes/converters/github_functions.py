@@ -1,5 +1,7 @@
 import json
 import logging
+
+from sqlalchemy.sql.expression import update
 from sfm.routes.work_items import crud as work_item_crud
 from sfm.routes.commits import crud as commit_crud
 from sfm.routes.projects import crud as project_crud
@@ -11,6 +13,7 @@ from sfm.models import (
     ProjectCreate,
     CommitCreate,
     Project,
+    ProjectUpdate,
 )
 from sfm.database import engine
 from urllib.request import urlopen
@@ -35,6 +38,43 @@ logger = logging.getLogger(__name__)
 # logger.addHandler(
 #     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
 # )
+
+
+def webhook_project_processor(db, repo_data, action):
+    if action == "created":
+        project_create_data = {
+            "name": repo_data["name"],
+            "repo_url": repo_data["html_url"],
+            "description": repo_data["description"],
+            "github_id": repo_data["id"],
+        }
+        project_db = ProjectCreate(**project_create_data)
+        [project, _] = project_crud.create_project(
+            db, project_db, app_settings.ADMIN_KEY
+        )
+
+    elif action == "deleted":
+        project = db.exec(
+            select(Project).where(Project.name == repo_data["name"])
+        ).first()
+        if not project:
+            logger.warning(
+                'func="project_processor" warning="project to be deleted does not have matching entry in database"'
+            )
+        else:
+            project_crud.delete_project(db, project.id, app_settings.ADMIN_KEY)
+
+    elif action == "renamed":
+        renamed_project = db.exec(
+            select(Project).where(Project.github_id == repo_data["id"])
+        ).first()
+        update_dict = {"name": repo_data["name"]}
+        project_update_data = ProjectUpdate(**update_dict)
+        project_crud.update_project(
+            db, renamed_project.id, project_update_data, app_settings.ADMIN_KEY
+        )
+
+    return
 
 
 def deployment_processor(
@@ -103,12 +143,18 @@ def pull_request_processor(
         commit_crud.create_commit(db, commit_obj, project_auth_token)
 
 
-def project_processor(db, project):
+def project_processor(db, project, include_list):
     logger.info('func="project_processor" info="entered"')
-
     if project["name"][0] == ".":
         logger.info(
-            'func="project_processor" info="project starts with a . and will not be tracked"'
+            'func="project_processor" info="project starts with a . or is not in the include list and will not be tracked"'
+        )
+        project_db = "unset"
+        proj_auth_token = "unset"
+        return project_db, proj_auth_token
+    elif include_list is not None and project["name"] not in include_list:
+        logger.info(
+            'func="project_processor" info="project not in the include list and will not be tracked"'
         )
         project_db = "unset"
         proj_auth_token = "unset"
@@ -118,6 +164,7 @@ def project_processor(db, project):
         "name": project["name"],
         "lead_name": project["owner"]["login"],
         "repo_url": project["html_url"],
+        "github_id": project["id"],
     }
     logger.info(
         f'func="project_processor" info="project name = {project_dict["name"]}"'
@@ -154,6 +201,55 @@ def deployment_flagger(db, defect_id, proj_auth_token):
     work_item_update = WorkItemUpdate(**update_dict)
     work_item_crud.update_work_item(
         db, deployment.id, work_item_update, proj_auth_token
+    )
+
+
+def unlabeled_processor(db, issue, proj_auth_token):
+    unlabeled_prod_defect_item = db.exec(
+        select(WorkItem).where(
+            and_(WorkItem.issue_num == issue["number"]),
+            (WorkItem.category == "Production Defect"),
+        )
+    ).first()
+    failed_pull_request = db.exec(
+        select(WorkItem)
+        .where(
+            and_(
+                WorkItem.project_id == unlabeled_prod_defect_item.project_id,
+                WorkItem.category == "Pull Request",
+                WorkItem.end_time <= unlabeled_prod_defect_item.start_time,
+                WorkItem.failed == "True",
+            )
+        )
+        .order_by(WorkItem.end_time.desc())
+    ).first
+    update_dict = {"failed": None}
+    work_item_update = WorkItemUpdate(**update_dict)
+    work_item_crud.update_work_item(
+        db, failed_pull_request.id, work_item_update, proj_auth_token
+    )
+    work_item_crud.delete_work_item(db, unlabeled_prod_defect_item.id, proj_auth_token)
+
+
+def reopened_processor(db, issue, proj_auth_token):
+    reopened_item = db.exec(
+        select(WorkItem).where(WorkItem.issue_num == issue["number"])
+    ).first()
+    if not reopened_item:
+        logger.warning(
+            'method=POST path="converters/github_webhooks" warning="No matching WorkItem in db for reopened issue"'
+        )
+        raise HTTPException(
+            status_code=404, detail="No matching WorkItem in db for reopened issue"
+        )
+    comment_string = f'Issue reopened at {issue["updated_at"]}'
+    update_dict = {
+        "end_time": None,
+        "comments": comment_string,
+    }
+    work_item_update = WorkItemUpdate(**update_dict)
+    work_item_crud.update_work_item(
+        db, reopened_item.id, work_item_update, proj_auth_token
     )
 
 
@@ -220,7 +316,7 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
     logger.info(f'func="defect_processor" info="defect WorkItem Id = {defect_id}"')
 
 
-def populate_past_github(db, org):
+def populate_past_github(db, org, include_list):
     """
     PSEUDOCODE:
         - 1. Query github api for org string that was passed
@@ -280,7 +376,7 @@ def populate_past_github(db, org):
             proj_auth_token = key_dict[repo["name"]]
             project = project_exist
         else:
-            project, proj_auth_token = project_processor(db, repo)
+            project, proj_auth_token = project_processor(db, repo, include_list)
 
         if project == "unset":
             continue
@@ -345,3 +441,11 @@ def populate_past_github(db, org):
                 defect_processor(
                     db, i_event["issue"], project, proj_auth_token, closed=True
                 )
+
+    not_included_projects = []
+    for proj in include_list:
+        in_database = db.exec(select(Project).where(Project.name == proj)).first()
+        if in_database is None:
+            not_included_projects.append(proj)
+
+    return not_included_projects

@@ -13,6 +13,7 @@ class ProjectBase(SQLModel):
     location: Optional[str] = Field(default=None, index=False)
     repo_url: str = Field(..., index=False)
     on_prem: Optional[bool] = Field(default=None, index=False)
+    github_id: Optional[int] = Field(default=None, index=False)
 
 
 class Project(ProjectBase, table=True):
