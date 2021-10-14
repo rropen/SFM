@@ -1,13 +1,14 @@
 <template>
   <div class="chartAreaWrapper flex flex-col">
-    <div class="chartWrapper shadow-lg">
+    <div v-if="loaded" class="chartWrapper shadow-lg">
       <apexchart
         type="line"
-        height="350"
+        :height="chartOptions.chart.height"
         :options="chartOptions"
         :series="changeFailureRateData"
       ></apexchart>
     </div>
+    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
     <div
       class="
         mt-4
@@ -21,13 +22,15 @@
         justify-apart
       "
       :class="{
-        'bg-green-600 text-white': perfStatus == '0-15%',
-        'bg-yellow-400 text-rrgrey-800': perfStatus == '16-45%',
-        'bg-red-600 text-white': perfStatus == 'Greater Than 45%',
+        'bg-green-600 text-white': perfStatus == 'High',
+        'bg-yellow-400 text-rrgrey-800': perfStatus == 'Medium',
+        'bg-red-600 text-white': perfStatus == 'Low',
       }"
     >
       <div class="spacer"></div>
-      <h1 class="mx-auto text-xl">{{ perfStatus }}</h1>
+      <h1 class="mx-auto text-xl">
+        {{ Math.round(changeFailureRate?.change_failure_rate * 100) }}%
+      </h1>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="mr-4 h-8 w-8 text-white inline-block hover:text-rrgrey-400"
@@ -75,6 +78,7 @@ import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import { infoForStatusItem, changeFailureRateItem } from "../../types";
 import infoModal from "../InfoModal.vue";
+import LoadingModal from "../LoadingModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -101,6 +105,8 @@ const changeFailureRate = ref<changeFailureRateItem>(); // holds currently fetch
 const perfStatus = ref("0-15%");
 const showInfoModal = ref(false);
 const modalType = ref("changeFailureRate");
+const loaded = ref(false);
+
 const chartOptions = ref({
   chart: {
     height: 350,
@@ -126,10 +132,10 @@ function fetchChangeFailureRate() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/LeadTimeToChange";
+    url = "/metrics/ChangeFailureRate";
   } else {
     url =
-      "metrics/LeadTimeToChange?&project_name=" +
+      "/metrics/ChangeFailureRate?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments
@@ -142,7 +148,14 @@ function fetchChangeFailureRate() {
     })
     .then((response) => {
       changeFailureRate.value = response.data;
-      perfStatus.value = response.data.performance;
+      if (response.data.change_failure_rate <= 0.15) {
+        perfStatus.value = "High";
+      } else if (response.data.change_failure_rate <= 0.45) {
+        perfStatus.value = "Medium";
+      } else {
+        perfStatus.value = "Low";
+      }
+      loaded.value = true;
     })
     .catch((error) => {
       console.error("GET Lead Time Error: ", error);
@@ -160,7 +173,7 @@ const changeFailureRateData = computed(() => {
       {
         name: "Change Failure Rate",
         color: "#10069f",
-        data: changeFailureRate.value.daily_change_failure_rates.map(
+        data: changeFailureRate.value.daily_change_failure_rate.map(
           (a: any) => [new Date(a[0] * 1000), a[1]]
         ),
       },
@@ -178,6 +191,7 @@ const changeFailureRateData = computed(() => {
 watch(
   () => props.projectName,
   (val, oldVal) => {
+    loaded.value = false;
     fetchChangeFailureRate();
   }
 );

@@ -1,13 +1,14 @@
 <template>
   <div class="chartAreaWrapper flex flex-col">
-    <div class="chartWrapper shadow-lg">
+    <div v-if="loaded" class="chartWrapper shadow-lg">
       <apexchart
         type="line"
-        height="350"
+        :height="chartOptions.chart.height"
         :options="chartOptions"
         :series="timeToRestoreData"
       ></apexchart>
     </div>
+    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
     <div
       class="
         mt-4
@@ -21,10 +22,13 @@
         justify-apart
       "
       :class="{
-        'bg-green-600 text-white': perfStatus == 'One Day',
-        'bg-yellow-400 text-rrgrey-800': perfStatus == 'One Week',
-        'bg-orange-500 text-white': perfStatus == 'One Month',
-        'bg-red-600 text-white': perfStatus == 'Greater Than One Month',
+        'bg-green-600 text-white': perfStatus == 'Less than one hour',
+        'bg-yellow-400 text-rrgrey-800': perfStatus == 'Less than one Day',
+        'bg-orange-500 text-white': perfStatus == 'Less than one week',
+        'bg-red-600 text-white': perfStatus == 'Between one week and one month',
+        'bg-rrgrey-700 text-white':
+          perfStatus ==
+          'No closed production defects exist in the last 3 months',
       }"
     >
       <div class="spacer"></div>
@@ -76,6 +80,7 @@ import { defineProps, PropType, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import { infoForStatusItem, timeToRestoreItem } from "../../types";
 import infoModal from "../InfoModal.vue";
+import LoadingModal from "../LoadingModal.vue";
 
 /* ----------------------------------------------
                   PROPS
@@ -99,9 +104,11 @@ const props = defineProps({
 
 const timeToRestore = ref<timeToRestoreItem>(); // holds currently fetched deployment data
 
-const perfStatus = ref("One Day");
+const perfStatus = ref("Less than one hour");
 const showInfoModal = ref(false);
 const modalType = ref("timeToRestore");
+const loaded = ref(false);
+
 const chartOptions = ref({
   chart: {
     height: 350,
@@ -115,6 +122,11 @@ const chartOptions = ref({
   },
   yaxis: {
     forceNiceScale: true,
+    labels: {
+      formatter: (val: number) => {
+        return Math.round(val * 100) / 100;
+      },
+    },
   },
 });
 
@@ -127,10 +139,10 @@ function fetchTimeToRestore() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/LeadTimeToChange";
+    url = "/metrics/TimeToRestore";
   } else {
     url =
-      "metrics/LeadTimeToChange?&project_name=" +
+      "/metrics/TimeToRestore?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments
@@ -144,9 +156,10 @@ function fetchTimeToRestore() {
     .then((response) => {
       timeToRestore.value = response.data;
       perfStatus.value = response.data.performance;
+      loaded.value = true;
     })
     .catch((error) => {
-      console.error("GET Lead Time Error: ", error);
+      console.error("GET Time To Restore Error: ", error);
     });
 }
 
@@ -180,6 +193,7 @@ const timeToRestoreData = computed(() => {
 watch(
   () => props.projectName,
   (val, oldVal) => {
+    loaded.value = false;
     fetchTimeToRestore();
   }
 );
