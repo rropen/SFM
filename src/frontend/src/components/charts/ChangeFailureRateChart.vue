@@ -132,10 +132,10 @@ function fetchChangeFailureRate() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/ChangeFailureRate";
+    url = "/metrics/ChangeFailureRate";
   } else {
     url =
-      "metrics/ChangeFailureRate?&project_name=" +
+      "/metrics/ChangeFailureRate?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments

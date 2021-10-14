@@ -160,13 +160,13 @@ function fetchDeployments() {
     })
     .then((response) => {
       // console.log('resp', response.data)
-      loaded.value = true;
       deployments.value = response.data;
       if (response.data.deployment_dates.length == 0) {
         deploymentMetricStatus.value = "No Deployments";
       } else {
         deploymentMetricStatus.value = response.data.performance;
       }
+      loaded.value = true;
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);

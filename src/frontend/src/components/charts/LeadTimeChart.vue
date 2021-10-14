@@ -137,10 +137,10 @@ function fetchLeadTime() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/LeadTimeToChange";
+    url = "/metrics/LeadTimeToChange";
   } else {
     url =
-      "metrics/LeadTimeToChange?&project_name=" +
+      "/metrics/LeadTimeToChange?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments

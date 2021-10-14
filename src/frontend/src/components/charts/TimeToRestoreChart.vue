@@ -139,10 +139,10 @@ function fetchTimeToRestore() {
   //set url string
   let url = "";
   if (props.projectName == "All") {
-    url = "metrics/TimeToRestore";
+    url = "/metrics/TimeToRestore";
   } else {
     url =
-      "metrics/TimeToRestore?&project_name=" +
+      "/metrics/TimeToRestore?&project_name=" +
       encodeURIComponent(props.projectName);
   }
   // retrieve deployments
