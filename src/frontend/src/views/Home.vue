@@ -338,31 +338,6 @@ const infoForStatus: infoForStatusItem = {
       info: "The Change Failure Rate Metric is calculated as the number of failed deployments per total number of deployments over the last three months. A rate of 0-15% corresponds to DORA Elite/High, A rate of 16-45% corresponds to DORA Medium, and a rate higher than 45% corresponds to DORA Low.",
     },
   },
-  timeToRestore: {
-    "One Day": {
-      info: "",
-    },
-    "One Week": {
-      info: "",
-    },
-    "One Month": {
-      info: "",
-    },
-    "Greater Than One Month": {
-      info: "",
-    },
-  },
-  changeFailureRate: {
-    "0 - 15%": {
-      info: "",
-    },
-    "16-45%": {
-      info: "",
-    },
-    "Greater than 45%": {
-      info: "",
-    },
-  },
 };
 
 /* ----------------------------------------------
