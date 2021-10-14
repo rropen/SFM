@@ -142,7 +142,6 @@ const chartOptions = ref({
 /* GET request to /metrics/deployments to retrieve array of deployments. */
 function fetchDeployments() {
   //set url string
-  console.log("in fetch function");
   let url = "";
   if (props.projectName == "All") {
     url = "/metrics/deployments";
@@ -151,7 +150,6 @@ function fetchDeployments() {
       "/metrics/deployments?&project_name=" +
       encodeURIComponent(props.projectName);
   }
-  console.log(url);
   // retrieve deployments
   axios
     .get(url, {
@@ -161,7 +159,6 @@ function fetchDeployments() {
       },
     })
     .then((response) => {
-      console.log("resp", response.data);
       deployments.value = response.data;
       if (response.data.deployment_dates.length == 0) {
         deploymentMetricStatus.value = "No Deployments";
@@ -169,7 +166,6 @@ function fetchDeployments() {
         deploymentMetricStatus.value = response.data.performance;
       }
       loaded.value = true;
-      console.log("loaded val", loaded.value);
     })
     .catch((error) => {
       console.error("GET Deployments Error: ", error);

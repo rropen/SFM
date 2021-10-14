@@ -1,20 +1,14 @@
 /// <reference types="cypress" />
 import { mount } from "@cypress/vue";
-import DeploymentChart from "./DeploymentChart.vue";
+import ChangeFailureRateChart from "./ChangeFailureRateChart.vue";
 import "../../index.css";
 import { infoForStatusItem } from "../../types";
 import { walkIdentifiers } from "@vue/compiler-core";
 
 beforeEach(() => {
-  // cy.intercept("GET", "**/metrics/**", {
-  //   fixture: "./deployments.json",
-  // }).as("deployments");
-
-  cy.intercept("GET", "**metrics/deployments*", {
-    fixture: "deployments.json",
-  }).as("deploymentsData");
-
-  // cy.visit('http://localhost:3000')
+  cy.intercept("GET", "**metrics/ChangeFailureRate*", {
+    fixture: "changefailurerate.json",
+  }).as("changefailurerateData");
 
   const projectName = "All";
   const infoForStatusValue: infoForStatusItem = {
@@ -82,7 +76,7 @@ beforeEach(() => {
     },
   };
   //@ts-ignore
-  mount(DeploymentChart, {
+  mount(ChangeFailureRateChart, {
     propsData: {
       projectName: projectName,
       infoForStatus: infoForStatusValue,
@@ -93,5 +87,5 @@ beforeEach(() => {
 it("Chart is Visible", () => {
   cy.get(".chartWrapper").should("be.visible");
   cy.get(".vue-apexcharts").should("be.visible");
-  cy.get("div").contains("Daily");
+  cy.get("div").contains("13%");
 });
