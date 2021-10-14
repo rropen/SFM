@@ -72,7 +72,7 @@ def test_create(db):
     """Testing that the project works as expected"""
     project_data = ProjectCreate(
         **{
-            "name": "Test Project 2",
+            "name": "Test Project 3",
             "lead_name": "Patrick Stark",
             "lead_email": "starfish-person@stark.com",
             "description": "A test project for testing creation",
@@ -85,7 +85,7 @@ def test_create(db):
     response = crud.create_project(db, project_data, admin_key="admin_key")
 
     assert len(response) == 2
-    assert response[0].name == "Test Project 2"
+    assert response[0].name == "Test Project 3"
     assert response[0].lead_name == "Patrick Stark"
     assert response[0].lead_email == "starfish-person@stark.com"
     assert response[0].description == "A test project for testing creation"
@@ -99,7 +99,7 @@ def test_create(db):
     exists in the database
     """
     with pytest.raises(Exception) as ex:
-        crud.delete_project(db, project_id=1, admin_key="admin_key")
+        response = crud.create_project(db, project_data, admin_key="admin_key")
         assert ex.value.message == "Database entry already exists"
 
     """

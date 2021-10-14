@@ -1,13 +1,16 @@
 import json
 import logging
+
+from sqlalchemy.sql.expression import update
 from sfm.utils import validate_signature, calc_signature
 from sfm.routes.work_items import crud
+from sfm.routes.projects import crud as project_crud
 from sfm.routes.commits import crud as commit_crud
 from sfm.dependencies import get_db
-from sfm.models import WorkItemCreate, Project, CommitCreate
+from sfm.models import WorkItemCreate, Project, CommitCreate, WorkItem, WorkItemUpdate
 from typing import List, Optional
-from sqlmodel import Session, select
-from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
+from sqlmodel import Session, select, and_
+from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request, Query
 from sfm.database import engine
 from urllib.request import urlopen
 import requests
@@ -16,10 +19,15 @@ from statistics import median
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
 from .github_functions import (
+    webhook_project_processor,
     deployment_processor,
     pull_request_processor,
+    project_processor,
+    deployment_flagger,
     populate_past_github,
     defect_processor,
+    reopened_processor,
+    unlabeled_processor,
 )
 
 app_settings = get_settings()
@@ -74,47 +82,52 @@ async def webhook_handler(
 
     # gather common payload object properties
     if event_type != "push":  # push events are the exception to common properties
-        # action = payload.get("action")
-        # sender = payload.get("sender")
         repository = payload.get("repository")
-        # organization = payload.get("organization")
-        # installation = payload.get("installation")
 
-    else:
-        # TODO: pull in push event information
+    else:  # TODO: pull in push event information
         pass
 
-    project_name = repository.get("name")
-    print("THE PROJECT NAME: ", project_name)
+    if event_type != "repository":
+        project_name = repository.get("name")
+        print("THE PROJECT NAME: ", project_name)
+        project_db = db.exec(
+            select(Project).where(Project.name == project_name)
+        ).first()
 
-    project_db = db.exec(select(Project).where(Project.name == project_name)).first()
+        if not project_db:
+            logger.warning(
+                'method=POST path="converters/github_webhooks" warning="Matching project not found in db"'
+            )
+            raise HTTPException(
+                status_code=404, detail="Matching project not found in db"
+            )
 
-    if not project_db:
-        logger.warning(
-            'method=POST path="converters/github_webhooks" warning="Matching project not found in db"'
-        )
-        raise HTTPException(status_code=404, detail="Matching project not found in db")
+    if event_type == "repository":
+        action = payload.get("action")
+        webhook_project_processor(db, repository, action)
 
-    if event_type == "deployment":
+    elif event_type == "deployment":
         deployment = payload.get("deployment")
         deployment_processor(db, deployment, project_db, proj_auth_token)
 
     elif event_type == "pull_request":
         pull_request = payload.get("pull_request")
-        pull_request_processor(db, pull_request, project_db, proj_auth_token)
+        if (
+            pull_request["head"]["repo"]["default_branch"] == "main"
+        ):  # process only pull requests to main
+            pull_request_processor(db, pull_request, project_db, proj_auth_token)
 
     elif event_type == "issues":
         action = payload.get("action")
         issue = payload.get("issue")
         if action == "closed":
-            project = db.exec(
-                select(Project).where(Project.name == project_name)
-            ).first()
-            defect_processor(db, issue, project, proj_auth_token, closed=True)
-        elif action == "labeled":
-            pass
+            defect_processor(db, issue, project_db, proj_auth_token, closed=True)
+        elif action == "labeled" and issue["label"]["name"] == "production defect":
+            defect_processor(db, issue, project_db, proj_auth_token, closed=False)
         elif action == "reopened":
-            pass
+            reopened_processor(db, issue, proj_auth_token)
+        elif action == "unlabeled":
+            unlabeled_processor(db, issue, proj_auth_token)
 
     else:
         logger.warning(
@@ -126,6 +139,20 @@ async def webhook_handler(
 
 
 @router.get("/github_populate")
-def populate_past_data(org: str, db: Session = Depends(get_db)):
-    populate_past_github(db, org)
-    return {"code": "success"}
+def populate_past_data(
+    org: str,
+    db: Session = Depends(get_db),
+    include_only_list: Optional[List[str]] = Query(None),
+):
+    not_included_projects = populate_past_github(db, org, include_only_list)
+    if not_included_projects != []:
+        included_projects = []
+        for proj in include_only_list:
+            if proj not in not_included_projects:
+                included_projects.append(proj)
+        return {
+            "projects_included": included_projects,
+            "projects_not_found": not_included_projects,
+        }
+    else:
+        return {"code": "success"}

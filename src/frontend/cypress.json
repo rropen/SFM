@@ -4,6 +4,7 @@
   "viewportWidth": 1440,
   "viewportHeight": 1000,
   "video": false,
+  "chromeWebSecurity": false,
   "componentFolder": "src",
   "testFiles": ["**/*.spec.js", "**/*.spec.ts", "**/*.spec.ct.ts"]
 }

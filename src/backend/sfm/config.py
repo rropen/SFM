@@ -44,9 +44,6 @@ class Settings(BaseSettings):
     GITHUB_WEBHOOK_SECRET: str = os.environ.get("GITHUB_WEBHOOK_SECRET") or "unset"
 
 
-#     CONN_STR: str = generate_db_string(ENV, DBHOST, DBNAME, DBUSER, DBPASS)
-
-
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()  # reads environment variables

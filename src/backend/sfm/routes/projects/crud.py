@@ -47,6 +47,14 @@ def get_by_id(db: Session, project_id: int):
 
 def create_project(db: Session, project_data, admin_key):
     """Take data from request and create a new project in the database."""
+    project_name_repeat = db.exec(
+        select(Project).where(Project.name == project_data.name)
+    ).first()
+
+    if project_name_repeat is not None:
+        logger.warning('func="create_project" warning="Database entry already exists"')
+        raise HTTPException(status_code=409, detail="Database entry already exists")
+
     verified_admin = verify_admin_key(admin_key)
     if verified_admin:
         project_temp = project_data.dict()
@@ -59,13 +67,6 @@ def create_project(db: Session, project_data, admin_key):
     else:
         logger.warning('func="create_project" warning="Credentials are incorrect"')
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
-
-    project_name_repeat = db.exec(
-        select(Project).where(Project.name == project_data.name)
-    )
-    if project_name_repeat is None:
-        logger.warning('func="create_project" warning="Database entry already exists"')
-        raise HTTPException(status_code=409, detail="Database entry already exists")
 
     # Check the new record
     db.refresh(project_db)
