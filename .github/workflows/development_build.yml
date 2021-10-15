@@ -42,7 +42,7 @@ jobs:
 #     secrets:
 #       snyk_token: ${{secrets.SNYK_TOKEN}}
 
-  docker_build_artifact:
+  docker-build-artifact:
     #     needs: snyk-vulnerability-scanning
     uses: rropen/reusable-workflows/.github/workflows/docker_build_artifact.yml@main
     with:
@@ -50,6 +50,7 @@ jobs:
 
   snyk-docker-vulnerability-scanning:
     #     needs: snyk-vulnerability-scanning
+    needs: docker-build-artifact
     uses: rropen/reusable-workflows/.github/workflows/snyk_docker_vulnerability_scanning.yml@main
     with:
       dockerfile_directory: src/backend
