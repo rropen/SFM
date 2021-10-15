@@ -36,11 +36,17 @@ jobs:
   #     with:
   #       language: python
 
-  snyk-vulnerability-scanning:
-    #     needs: integration-tests
-    uses: rropen/reusable-workflows/.github/workflows/snyk_vulnerability_scanning.yml@main
-    secrets:
-      snyk_token: ${{secrets.SNYK_TOKEN}}
+#   snyk-vulnerability-scanning:
+#     #     needs: integration-tests
+#     uses: rropen/reusable-workflows/.github/workflows/snyk_vulnerability_scanning.yml@main
+#     secrets:
+#       snyk_token: ${{secrets.SNYK_TOKEN}}
+
+  docker_build_artifact:
+    #     needs: snyk-vulnerability-scanning
+    uses: rropen/reusable-workflows/.github/workflows/docker_build_artifact.yml@main
+    with:
+      dockerfile_directory: src/backend
 
   snyk-docker-vulnerability-scanning:
     #     needs: snyk-vulnerability-scanning
