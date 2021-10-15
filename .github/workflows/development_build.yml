@@ -27,6 +27,8 @@ jobs:
       with:
         backend_directory: src/backend
         frontend_directory: src/frontend
+      secrets:
+        vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
 
     codeQL:
       needs: integration-tests
