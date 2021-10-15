@@ -239,7 +239,7 @@ def reopened_processor(db, issue, proj_auth_token):
         logger.warning(
             'method=POST path="converters/github_webhooks" warning="No matching WorkItem in db for reopened issue"'
         )
-        raise HTTPException(
+        raise HTTPException(  # pragma: no cover
             status_code=404, detail="No matching WorkItem in db for reopened issue"
         )
     comment_string = f'Issue reopened at {issue["updated_at"]},'
@@ -275,7 +275,7 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
             logger.warning(
                 'func="defect_processor" warning="Defect with matching issue number does not exist"'
             )
-            raise HTTPException(
+            raise HTTPException(  # pragma: no cover
                 status_code=404,
                 detail="Defect with matching issue number does not exist",
             )
@@ -337,7 +337,7 @@ def populate_past_github(db, org, include_list):
     logger.info(app_settings.ENV)
     logger.info('func="populate_past_github" info="entered"')
 
-    if app_settings.GITHUB_API_TOKEN in ["", "XXXXXXXXXXX"]:
+    if app_settings.GITHUB_API_TOKEN in ["", "XXXXXXXXXXX"]:  # pragma: no cover
         raise HTTPException(
             status_code=412,
             detail="Missing github api token.  Please specify GITHUB_API_TOKEN and try again",
@@ -361,9 +361,7 @@ def populate_past_github(db, org, include_list):
 
     else:
         org_data = json.load(open("./test_converters/testing_files/org_data.json"))
-        repo_data = [
-            json.load(open("./test_converters/testing_files/testing_repo.json"))
-        ]
+        repo_data = json.load(open("./test_converters/testing_files/testing_repo.json"))
 
     key_dict = {}
     for repo in repo_data:

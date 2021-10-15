@@ -101,7 +101,6 @@ async def webhook_handler(
     if app_settings.ENV != "test":
         raw = await request.body()
         signature = request.headers.get("X-Hub-Signature-256")
-
         proj_auth_token = validate_signature(signature, raw)
 
         payload = await request.json()
@@ -182,7 +181,7 @@ def populate_past_data(
     include_only_list: Optional[List[str]] = Query(None),
 ):
     not_included_projects = populate_past_github(db, org, include_only_list)
-    if not_included_projects != []:
+    if not_included_projects != []:  # pragma: no cover
         included_projects = []
         for proj in include_only_list:
             if proj not in not_included_projects:

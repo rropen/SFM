@@ -496,15 +496,11 @@ def get_time_to_restore(
         recent_prod_defect_times = [item.duration_open for item in recent_prod_defects]
         if recent_prod_defect_times != []:
             time_to_restore = median(recent_prod_defect_times) / 3600
-        else:
+        else:  # pragma: no cover (logic gets tested when single project specified)
             time_to_restore = -1
             performance = "No closed production defects in last 3 months"
             logger.warning(
                 'method="GET" path="metrics/TimeToRestore" warning="No closed production defects exist in the last 3 months"'
-            )
-            raise HTTPException(
-                status_code=404,
-                detail="No closed production defects exist",
             )
 
         daily_time_to_restore = group_restores(db, closed_prod_defects)

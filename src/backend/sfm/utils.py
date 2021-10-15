@@ -98,8 +98,6 @@ def verify_project_auth_token(attempt: str, target: str):
     else:
         return False
 
-    return
-
 
 def verify_admin_key(attempt):
     return attempt == app_settings.ADMIN_KEY

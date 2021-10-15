@@ -19,7 +19,8 @@ def test_github_backpopulate(client: TestClient, db: Session):
     """Clearing database so that id's are easier to test"""
     print(app_settings.ENV)
     response = client.get(
-        "/converters/github_populate", params={"org": "rropen", "repo": "testing"}
+        "/converters/github_populate",
+        params={"org": "rropen", "include_only_list": ["testing", ".nope"]},
     )
 
     print(response)
