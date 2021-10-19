@@ -39,9 +39,11 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-# logger.addHandler(
-#     AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR)
-# )
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
+    )
+)
 
 
 router = APIRouter()

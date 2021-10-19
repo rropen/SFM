@@ -62,7 +62,7 @@ logging.basicConfig(
     format="%(levelname)s %(name)s %(asctime)s %(message)s",
 )
 logger = logging.getLogger(__name__)
-# logger.addHandler(AzureLogHandler(connection_string=app_settings.AZURE_LOGGING_CONN_STR))
+# logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey='+app_settings.AZURE_LOGGING_CONN_STR))
 
 
 def create_db_and_tables():

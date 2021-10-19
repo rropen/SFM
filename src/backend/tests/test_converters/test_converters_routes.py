@@ -12,7 +12,9 @@ import os
 
 # get at "/"
 def test_webhooks(client: TestClient, db: Session):
-    client.delete("utilities/clear_local_db")
+    client.delete(
+        "utilities/clear_local_db"
+    )  # clear database so there is a clean workspace
     """
         test_int = 0:  repository created,
         test_int = 1:  pull request to dev,
@@ -85,7 +87,12 @@ def test_webhooks(client: TestClient, db: Session):
     assert issue.category == "Production Defect"
     assert issue.start_time == datetime(2021, 10, 1, 12, 0, 0, 0)
     assert issue.end_time is None
-    # TODO: Add test to make sure most recent deployment is flagged as fail
+    recent_pull_request = db.exec(
+        select(WorkItem)
+        .where(WorkItem.category == "Pull Request")
+        .order_by(-WorkItem.id)
+    ).first()
+    assert recent_pull_request.failed is True
 
     # Testing issue closed
     response = client.post(
@@ -117,7 +124,12 @@ def test_webhooks(client: TestClient, db: Session):
     print("HERE'S THE RESPONSE: \n", response)
     issue_still_exists = db.get(WorkItem, issue.id)
     assert issue_still_exists is None
-    # TODO: Add test to make sure that most recent deployment has failed flag removed
+    recent_pull_request = db.exec(
+        select(WorkItem)
+        .where(WorkItem.category == "Pull Request")
+        .order_by(-WorkItem.id)
+    ).first()
+    assert recent_pull_request.failed is None
 
     # Testing deployment
     # response = client.post("converters/github_webhooks/", json={"test": "test"}, params={"test_int": 9})
