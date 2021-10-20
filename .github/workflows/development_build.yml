@@ -56,19 +56,19 @@ jobs:
       secrets:
         snyk_token: ${{secrets.SNYK_TOKEN}}
       
-    backend-build:
+    backend-deploy-azure:
       needs: docker-build-artifact
-      uses: rropen/reusable-workflows/.github/workflows/build_deploy_azure.yml@main
+      uses: rropen/reusable-workflows/.github/workflows/docker_deploy_azure.yml@main
       with:
         dockerfile_directory: src/backend
-        image_name: ${{ secrets.IMAGE_BACKEND }}
       secrets:
+        image_name: ${{ secrets.IMAGE_BACKEND }}
         crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
         crsft_username: ${{ secrets.CRSFT_USERNAME }}
         crsft_password: ${{ secrets.CRSFT_PASSWORD }}
 
 #   This needs to be redone, if we switch to azure static web apps we wont need this below
-    frontend-build:
+    frontend-build-deploy-azure:
       needs: codeQL
       runs-on: ubuntu-latest
       steps:
