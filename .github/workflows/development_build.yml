@@ -1,12 +1,12 @@
 name: Development Build
-# on:
-#   pull_request:
-#     branches: [dev]
+on:
+  pull_request:
+    branches: [dev]
 
-#   push:
-#     branches: [dev]
+  push:
+    branches: [dev]
 
-on: workflow_dispatch
+# on: workflow_dispatch
 
 jobs:
     backend-unit-tests:
@@ -61,7 +61,7 @@ jobs:
       uses: rropen/reusable-workflows/.github/workflows/build_deploy_azure.yml@main
       with:
         dockerfile_directory: src/backend
-        image_name: crsft.azurecr.us/sfm_backend_dev:latest
+        image_name: ${{ secrets.IMAGE_BACKEND }}
       secrets:
         crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
         crsft_username: ${{ secrets.CRSFT_USERNAME }}
@@ -82,5 +82,5 @@ jobs:
             password: ${{ secrets.CRSFT_PASSWORD }}
         - name: Build/Push Frontend Container
           run: |
-            docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t crsft.azurecr.us/sfm_frontend_dev:latest src/frontend
-            docker push crsft.azurecr.us/sfm_frontend_dev:latest
+            docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t ${{ secrets.IMAGE_FRONTEND }} src/frontend
+            docker push ${{ secrets.IMAGE_FRONTEND }}
