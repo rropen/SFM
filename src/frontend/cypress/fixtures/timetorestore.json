@@ -1,0 +1,12 @@
+{
+  "time_to_restore": 45.746805555555554,
+  "performance": "Less than one week",
+  "daily_times_to_restore": [
+    [1634083200, 45.746805555555554],
+    [1634169600, 0]
+  ],
+  "project_name": "all",
+  "time_to_restore_description": "median time to restore service in hours (time from bug noticed to pull request to main with fix) over the past three months ",
+  "performance_description": "Elite = less than one hour, High = less than one day, Medium = less than one week, Low = between one week and one month",
+  "daily_times_to_restore_description": "list of lists, where each item in the list consists of [unix date, median time to restore for all bugs logged on that date in hours]"
+}

@@ -1,9 +1,9 @@
 [project]
-name = "SFM Backend"
+name = ""
 version = ""
-description = "FastAPI-based API for the SFM App"
+description = ""
 authors = [
-    {name = "Rolls-Royce Software Factory", email = "Josh.Haines@Rolls-Royce.com"},
+    {name = "Gabe Geiger", email = "gabe.geiger@gmail.com"},
 ]
 dependencies = [
     "sqlalchemy~=1.4",
@@ -12,11 +12,18 @@ dependencies = [
     "msal==1.11.0",
     "pyodbc==4.0.30",
     "alembic==1.6.2",
-    "python-dotenv~=0.18",
+    "python-dotenv~=0.19",
     "uvicorn~=0.14",
     "fastapi~=0.66",
     "icecream~=2.1",
     "sqlmodel~=0.0",
+    "passlib~=1.7",
+    "bcrypt~=3.2",
+    "opencensus~=0.7",
+    "opencensus.ext.azure~=1.0",
+    "pytest~=6.2",
+    "pytest-cov~=3.0",
+    "psycopg2~=2.9",
 ]
 requires-python = ">=3.8"
 dynamic = ["classifiers"]
@@ -25,26 +32,9 @@ license = {text = "MIT"}
 [project.urls]
 homepage = ""
 
-
-[project.optional-dependencies]
 [build-system]
 requires = ["pdm-pep517"]
 build-backend = "pdm.pep517.api"
 
 [tool]
 [tool.pdm]
-[[tool.pdm.source]]
-name = "pypi"
-url = "https://pypi.org/simple"
-verify_ssl = true
-[[tool.pdm.source]]
-name = "pypi"
-url = "https://pypi.org/simple"
-verify_ssl = true
-
-[tool.pdm.dev-dependencies]
-test = [
-    "pytest~=6.2",
-    "coverage~=5.5",
-    "pytest-cov~=2.12",
-]

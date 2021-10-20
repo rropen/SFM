@@ -69,7 +69,7 @@
                   text-rrgrey-800
                 "
               >
-                Dora<br />Metrics
+                DORA<br />Metrics
               </h1>
               <p
                 class="
@@ -83,29 +83,14 @@
                 Learn More
               </p>
               <nav class="mt-5 px-2 space-y-1">
-                <a
-                  v-for="item in navigation"
-                  :key="item.name"
-                  :href="item.href"
-                  :class="[
-                    item.current
-                      ? 'bg-white text-rrgrey-800'
-                      : 'text-rrgrey-600 ',
-                    'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-                  ]"
-                >
-                  <component
-                    :is="item.icon"
-                    :class="[
-                      item.current
-                        ? 'text-rrgrey-800'
-                        : 'text-rrgrey-600 group-hover:text-rrgrey-600',
-                      'mr-3 flex-shrink-0 h-6 w-6',
-                    ]"
-                    aria-hidden="true"
-                  />
-                  {{ item.name }}
-                </a>
+                <rrDropdown
+                  v-if="loaded"
+                  label="Project"
+                  :choices="projectDropdownChoices"
+                  :selected="selectedProject"
+                  @updatedChoice="changeProject"
+                />
+                <LoadingModal v-else />
               </nav>
             </div>
           </div>
@@ -132,7 +117,7 @@
                 text-rrgrey-800
               "
             >
-              Dora<br />Metrics
+              DORA<br />Metrics
             </h1>
             <p
               class="mx-auto mt-2 text-center text-rrblue-800 underline text-sm"
@@ -140,35 +125,14 @@
               Learn More
             </p>
             <nav class="mt-5 flex-1 px-2 bg-white space-y-1">
-              <a
-                v-for="item in navigation"
-                :key="item.name"
-                :href="item.href"
-                :class="[
-                  item.current
-                    ? 'bg-white text-rrgrey-800'
-                    : 'text-rrgrey-600 ',
-                  'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-                ]"
-              >
-                <component
-                  :is="item.icon"
-                  :class="[
-                    item.current
-                      ? 'text-rrgrey-800'
-                      : 'text-rrgrey-600 group-hover:text-rrgrey-600',
-                    'mr-3 flex-shrink-0 h-6 w-6',
-                  ]"
-                  aria-hidden="true"
-                />
-                {{ item.name }}
-              </a>
               <rrDropdown
+                v-if="loaded"
                 label="Project"
                 :choices="projectDropdownChoices"
-                :selected="initialProjectChoice"
-                @updatedChoice="onChange"
+                :selected="selectedProject"
+                @updatedChoice="changeProject"
               />
+              <LoadingModal v-else />
             </nav>
           </div>
         </div>
@@ -212,15 +176,52 @@
       >
         <div class="py-6">
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
-            <h1 class="text-2xl font-semibold text-rrgrey-900">Project Name</h1>
-          </div>
-          <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->
             <div class="py-4">
               <div
-                class="border-4 border-dashed border-gray-200 rounded-lg h-96"
+                class="
+                  grid grid-flow-col grid-cols-1 grid-rows-4
+                  2xl:grid-cols-2 2xl:grid-rows-2
+                  gap-4
+                  2xl:gap-6
+                "
               >
-                Project Dropdown Value: {{ initialProjectChoice }}
+                <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Deployments
+                  </h1>
+                  <DeploymentChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
+                </div>
+                <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Time To Restore
+                  </h1>
+                  <TimeToRestoreChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
+                </div>
+                <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Lead Time to Change
+                  </h1>
+                  <LeadTimeChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
+                </div>
+                <div class="m-4 xl:m-6 p-4">
+                  <h1 class="text-3xl font-semibold text-rrgrey-700 mb-2">
+                    Change Failure Rate
+                  </h1>
+                  <ChangeFailureRateChart
+                    :projectName="selectedProject"
+                    :infoForStatus="infoForStatus"
+                  />
+                </div>
               </div>
             </div>
             <!-- /End replace -->
@@ -232,8 +233,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+/* ----------------------------------------------
+                  IMPORTS
+---------------------------------------------- */
+import { ref, onMounted, computed, watch, onBeforeMount } from "vue";
+import { deploymentItem, infoForStatusItem, projectItem } from "../types";
 import { rrDropdown } from "@rrglobal/vue-cobalt";
+import axios from "axios";
 import {
   Dialog,
   DialogOverlay,
@@ -250,20 +256,138 @@ import {
   UsersIcon,
   XIcon,
 } from "@heroicons/vue/outline";
+import DeploymentChart from "../components/charts/DeploymentChart.vue";
+import LeadTimeChart from "../components/charts/LeadTimeChart.vue";
+import TimeToRestoreChart from "../components/charts/TimeToRestoreChart.vue";
+import ChangeFailureRateChart from "../components/charts/ChangeFailureRateChart.vue";
+import LoadingModal from "../components/LoadingModal.vue";
 
-const projectDropdownChoices = ["All", "SFM", "MEC"];
-const initialProjectChoice = ref("SFM");
-function onChange(val: string) {
-  initialProjectChoice.value = val;
-}
-const navigation = [
-  { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
-  { name: "Team", href: "#", icon: UsersIcon, current: false },
-  { name: "Projects", href: "#", icon: FolderIcon, current: false },
-  { name: "Calendar", href: "#", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "#", icon: InboxIcon, current: false },
-  { name: "Reports", href: "#", icon: ChartBarIcon, current: false },
-];
+/* ----------------------------------------------
+                     CONSTANTS
+// ---------------------------------------------- */
+
+/* ----------------------------------------------
+                  VARIABLES
+---------------------------------------------- */
 
 const sidebarOpen = ref(false);
+const selectedProject = ref("All");
+const loaded = ref(false);
+
+const projects = ref<projectItem[]>([]); // holds all fetched projects
+const infoForStatus: infoForStatusItem = {
+  deployments: {
+    Daily: {
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Daily, this means the median number of days with deployments per month is at least three; i.e. most working days have deployments. This corresponds to a DORA rating of Elite.",
+    },
+    Weekly: {
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Weekly, this means the median number of days with deployments per week is at least 1; i.e. most weeks have at least one deployment. This corresponds to a DORA rating of High.",
+    },
+    Monthly: {
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Monthly, this means the median number of days with deployments per month is at least one; i.e. most months have at least one deployment. This corresponds to a DORA rating of Medium.",
+    },
+    Yearly: {
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Yearly, this means the median number of days with deployments per month is less than one. This corresponds to a DORA rating of Low.",
+    },
+    "No Deployments": {
+      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. This project does not have any deployments over the last three months, so this metric is not applicable.",
+    },
+  },
+  leadTime: {
+    "One Day": {
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one day. This corresponds to a DORA rating of Elite.",
+    },
+    "One Week": {
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one week. This corresponds to a DORA rating of High.",
+    },
+    "One Month": {
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one month. This corresponds to a DORA rating of Medium.",
+    },
+    "Greater Than One Month": {
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is greater than one month. This corresponds to a DORA rating of Low.",
+    },
+    "No pull requests to main": {
+      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, there are no pull requests to main, so this metric is not applicable.",
+    },
+  },
+  timeToRestore: {
+    "Less than one hour": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one hour. This corresponds to a DORA rating of Elite.",
+    },
+    "Less than one day": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one day. This corresponds to a DORA rating of High.",
+    },
+    "Less than one week": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one week. This corresponds to a DORA rating of Medium.",
+    },
+    "Between one week and one month": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is between one week and one month. This corresponds to a DORA rating of Low.",
+    },
+    "No closed production defects exist in the last 3 months": {
+      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, there are no closed production defects in the last 3 months, so this metric is not relevant.",
+    },
+  },
+  changeFailureRate: {
+    High: {
+      info: "The Change Failure Rate Metric is calculated as the number of failed deployments per total number of deployments over the last three months. A rate of 0-15% corresponds to DORA Elite/High, A rate of 16-45% corresponds to DORA Medium, and a rate higher than 45% corresponds to DORA Low.",
+    },
+    Medium: {
+      info: "The Change Failure Rate Metric is calculated as the number of failed deployments per total number of deployments over the last three months. A rate of 0-15% corresponds to DORA Elite/High, A rate of 16-45% corresponds to DORA Medium, and a rate higher than 45% corresponds to DORA Low.",
+    },
+    Low: {
+      info: "The Change Failure Rate Metric is calculated as the number of failed deployments per total number of deployments over the last three months. A rate of 0-15% corresponds to DORA Elite/High, A rate of 16-45% corresponds to DORA Medium, and a rate higher than 45% corresponds to DORA Low.",
+    },
+  },
+};
+
+/* ----------------------------------------------
+                      COMPUTED
+  ---------------------------------------------- */
+
+/* List of Strings including "All" then all fetched project names */
+const projectDropdownChoices = computed(() => {
+  let dropdownChoices = projects.value.map((a) => a.name);
+  dropdownChoices.unshift("All");
+  selectedProject.value = dropdownChoices[0]; //set initial value
+  return dropdownChoices;
+});
+
+/* ----------------------------------------------
+                     WATCHERS
+  ---------------------------------------------- */
+
+/* ----------------------------------------------
+                    FUNCTIONS
+---------------------------------------------- */
+
+/* GET request to /projects to retrieve array of projects. */
+const fetchProjects = () => {
+  axios
+    .get("projects", {
+      params: { skip: 0, limit: 100 },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      projects.value = response.data;
+      loaded.value = true;
+    })
+    .catch((error) => {
+      console.error("GET Projects Error: ", error);
+    });
+};
+
+/* Manage changes from project dropdown  */
+function changeProject(val: string) {
+  selectedProject.value = val;
+}
+
+/* ----------------------------------------------
+               VUE BUILT-IN FUNCTIONS
+  ---------------------------------------------- */
+onMounted(() => {
+  fetchProjects();
+  loaded.value = true;
+});
 </script>

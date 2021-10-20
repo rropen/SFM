@@ -1,17 +1,29 @@
 from sfm.routes.work_items import crud
+from sfm.dependencies import get_db
 from sfm.models import WorkItemRead, WorkItemCreate, WorkItemUpdate
 from typing import List, Optional
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Header
 from sfm.database import engine
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+import logging
+from sfm.config import get_settings
 
-# Create a database connection we can use
-def get_db():
-    with Session(engine) as db:
-        yield db
+app_settings = get_settings()
 
+logging.basicConfig(
+    filename="logs.log",
+    level=logging.DEBUG,
+    format="%(levelname)s %(name)s %(asctime)s %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
+logger.addHandler(
+    AzureLogHandler(
+        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
+    )
+)
 
 
 @router.get("/", response_model=List[WorkItemRead])
@@ -25,26 +37,51 @@ def get_work_items(
     """
     ## Get WorkItems
 
-    Get a list of all the WorkItems stored in the database
+    Get a list of all the WorkItems stored in the database.
+
+    Query Parmeters:
+
+    ---
+
+    - **skip**: sets the number of items to skip at the beginning of the listing
+    - **limit**: sets the max number of items to be displayed when called
+    - **project_id**: specifying **project_id** returns only work items in a given project
+    - **project_name**: specifying **project_name** returns only work items in a given project
     """
+    logger.info('method=GET path="workItems/"')
     work_items = crud.get_all(
         db, skip=skip, limit=limit, project_id=project_id, project_name=project_name
     )
     if not work_items:
-        raise HTTPException(status_code=404, detail="WorkItems not found")
+        raise HTTPException(
+            status_code=404, detail="WorkItems not found"
+        )  # pragma: no cover
     return work_items
 
 
 @router.get("/{work_item_id}")
 def get_work_item(work_item_id: int, db: Session = Depends(get_db)):
     """
-    ## Get WorkItem Specified by ID
+    ## Get WorkItem by ID
 
-    Get a WorkItem stored in the database
+    Get a specific WorkItem by specifying the ID in the path.
+
+    ---
+
+    Path Parameters:
+
+    -**work_item_id**: id of the work item to be requested
+
     """
+    logger.info('method=GET path="workItem/{work_item_id}"')
     work_item = crud.get_by_id(db, work_item_id)
     if not work_item:
-        raise HTTPException(status_code=404, detail="WorkItem not found")
+        logger.warning(
+            'method=GET path="workItem/{work_item_id}"', "WorkItem not found"
+        )
+        raise HTTPException(
+            status_code=404, detail="WorkItem not found"
+        )  # pragma: no cover
     return work_item
 
 
@@ -55,13 +92,33 @@ def create_work_item(
     db: Session = Depends(get_db),
 ):
     """
-    ## Create WorkItem
+    ## Create WorkItem entry in db
 
-    Create a new WorkItem in the database from the data provided in the request.
+    Create a new WorkItem in the database by specifying data in the request.
+
+    ---
+
+    Request Headers:
+
+    - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
+
+    ---
+
+    Request Body Parameters:
+
+    - **category**: event category for the work item. Must be one of the following options:
+        1. "Deployment"
+        2. "Issue"
+        3. "Pull Request"
+        4. "Production Defect"
+    - **issue**: sets the issue number that the workItem is associated with
+    - **start_time**: sets the start time of the WorkItem
+    - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
+    - **duration_open**: sets duration of WorkItem being open
+    - **project_id**: sets project the WorkItem belongs to
+
     """
-    if not work_item_data:
-        raise HTTPException(status_code=404, detail="WorkItem data not provided")
-
+    logger.info('method=POST path="workItems/"')
     # Creates the database row and stores it in the table
 
     new_work_item_success = crud.create_work_item(
@@ -74,7 +131,8 @@ def create_work_item(
             "id": new_work_item_success,
         }
     else:
-        return {"code": "error", "message": "Row Not Created"}
+        logger.error('method=POST path="workItems/" error="Row Not Created"')
+        return {"code": "error", "message": "Row Not Created"}  # pragma: no cover
 
 
 # Since  WorkItem has no name, use database id to delete item
@@ -87,11 +145,21 @@ def delete_work_item(
     """
     ## Delete a WorkItem
 
-    Pass a WorkItem database id value and the WorkItem will be deleted from the database.
-    """
-    if not work_item_id:
-        raise HTTPException(status_code=404, detail="work_item_id not provided")
+    Pass a WorkItem database id value in the path and the WorkItem will be deleted from the database.
 
+    ---
+
+    Path Parameters:
+
+    - **work_item_id**: selects WorkItem being open
+
+    ---
+
+    Request Headers:
+
+    - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
+    """
+    logger.info('method=DELETE path="workItems/{work_item_id}"')
     response = crud.delete_work_item(db, work_item_id, project_auth_token)
 
     if response:
@@ -99,7 +167,10 @@ def delete_work_item(
             "code": "success",
             "message": "WorkItem {} Deleted".format(work_item_id),
         }
-    else:
+    else:  # pragma: no cover
+        logger.error(
+            'method=POST path="workItems/{work_item_id}" error="WorkItem not deleted or multiple WorkItems with same work_item_id existed."'
+        )
         return {
             "code": "error",
             "message": "WorkItem not deleted or multiple WorkItems with same work_item_id existed.",
@@ -117,18 +188,45 @@ def update_work_item(
     ## Update WorkItem
 
     Update an existing WorkItem in the database from the data provided in the request.
-    """
-    if not work_item_data:
-        raise HTTPException(status_code=404, detail="WorkItem data not provided")
 
-    update_work_item_success = crud.update_work_item(
+    ---
+
+    Path Parameters:
+
+    - **work_item_id**: selects WorkItem being open
+
+    ---
+
+    Request Headers:
+
+    - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
+
+    ---
+
+    Request Body Parameters:
+
+    - **category**: event category for the work item. Must be one of the following options:
+        1. "Deployment"
+        2. "Issue"
+        3. "Pull Request"
+        4. "Production Defect"
+    - **issue**: sets the issue number that the workItem is associated with
+    - **start_time**: sets the start time of the WorkItem
+    - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
+    - **project_id**: sets project the WorkItem belongs to
+    """
+    logger.info('method=PATCH path="workItems/{work_item_id}"')
+    updated_work_item = crud.update_work_item(
         db, work_item_id, work_item_data, project_auth_token
     )
 
-    if update_work_item_success:
+    if update_work_item:
         return {
             "code": "success",
-            "id": update_work_item_success,
+            "id": updated_work_item.id,
         }
     else:
-        return {"code": "error", "message": "Row not updated"}
+        logger.error(
+            'method=PATCH path="workItems/{work_item_id}" error="Row not updated"'
+        )
+        return {"code": "error", "message": "Row not updated"}  # pragma: no cover
