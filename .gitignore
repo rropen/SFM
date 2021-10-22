@@ -110,7 +110,7 @@ out
 # Nuxt.js build / generate output
 
 .nuxt
-dist
+dist/
 
 # Gatsby files
 
@@ -169,3 +169,4 @@ src/backend/*.db
 *.local
 screenshots/
 PAT.txt
+dist

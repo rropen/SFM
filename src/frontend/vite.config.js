@@ -2,7 +2,6 @@ import vue from "@vitejs/plugin-vue";
 import istanbul from "vite-plugin-istanbul";
 
 export default {
-  base: "/sfm/",
   plugins: [
     vue(),
     istanbul({
