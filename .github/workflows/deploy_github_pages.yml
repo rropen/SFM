@@ -1,4 +1,12 @@
-name: Development Build
-on:
-  pull_request:
-    branches: [dev]
+name: deploy_github_pages
+
+on: workflow_dispatch
+
+jobs:
+    backend-unit-tests:
+      uses: rropen/reusable-workflows/.github/workflows/deploy_github_pages.yml@main
+      with:
+        vue_directory: src/backend
+        build_folder: dist
+      secrets: 
+        vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
