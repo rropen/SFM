@@ -278,53 +278,53 @@ const projects = ref<projectItem[]>([]); // holds all fetched projects
 const infoForStatus: infoForStatusItem = {
   deployments: {
     Daily: {
-      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Daily, this means the median number of days with deployments per month is at least three; i.e. most working days have deployments. This corresponds to a DORA rating of Elite.",
+      info: "For this project, the median number of days with deployments per week is at least three, i.e. the majority of working days have a deployment. This corresponds to a DORA rating of <span class='text-green-600 font-bold'>Elite </span>. <br><br> The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months.",
     },
     Weekly: {
-      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Weekly, this means the median number of days with deployments per week is at least 1; i.e. most weeks have at least one deployment. This corresponds to a DORA rating of High.",
+      info: "For this project, the median number of days with deployments per week is at least one. This corresponds to a DORA rating of <span class='text-yellow-300 font-bold'>High </span>. <br><br> The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months.",
     },
     Monthly: {
-      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Monthly, this means the median number of days with deployments per month is at least one; i.e. most months have at least one deployment. This corresponds to a DORA rating of Medium.",
+      info: "For this project, the median number of days with deployments per week is less than one. This corresponds to a DORA rating of <span class='text-orange-600 font-bold'>Medium</span>. <br><br> The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months.",
     },
     Yearly: {
-      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. For Yearly, this means the median number of days with deployments per month is less than one. This corresponds to a DORA rating of Low.",
+      info: "For this project, the median number of days with deployments per month is less than one. This corresponds to a DORA rating of <span class='text-red-600 font-bold'>Low</span>. <br><br> The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months.",
     },
     "No Deployments": {
-      info: "The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months. This project does not have any deployments over the last three months, so this metric is not applicable.",
+      info: "This project does not have any deployments over the last three months, so this metric is <span class='text-black font-bold'> not relevant</span>.<br><br>The Deployments Metric is calculated using the number of days that have had a successful deployment, or accepted pull request, to the main branch over the last three months.",
     },
   },
   leadTime: {
     "One Day": {
-      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one day. This corresponds to a DORA rating of Elite.",
+      info: "For this project, the median lead time to deploy is less than one day. This corresponds to a DORA rating of <span class='text-green-600 font-bold'>Elite</span>. <br><br> The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months.",
     },
     "One Week": {
-      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one week. This corresponds to a DORA rating of High.",
+      info: "For this project, the median lead time to deploy is less than one week. This corresponds to a DORA rating of <span class='text-yellow-300 font-bold'>High</span>. <br><br> The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months.",
     },
     "One Month": {
-      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is less than one month. This corresponds to a DORA rating of Medium.",
+      info: "For this project, the median lead time to deploy is less than one month. This corresponds to a DORA rating of <span class='text-orange-600 font-bold'>Medium</span>. <br><br> The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months.",
     },
     "Greater Than One Month": {
-      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, the median time is greater than one month. This corresponds to a DORA rating of Low.",
+      info: "For this project, the median lead time to deploy is greater than one month. This corresponds to a DORA rating of <span class='text-red-600 font-bold'>Low</span>. <br><br> The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months.",
     },
     "No pull requests to main": {
-      info: "The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months. For this project, there are no pull requests to main, so this metric is not applicable.",
+      info: "For this project, there are no pull requests to main, so this metric is <span class='text-black font-bold'>not relevant</span>. <br><br> The Lead Time Metric is calculated using the median amount of time for a commit to be deployed into production over the last three months.",
     },
   },
   timeToRestore: {
     "Less than one hour": {
-      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one hour. This corresponds to a DORA rating of Elite.",
+      info: "For this project, the median time to restore is less than one hour. This corresponds to a DORA rating of <span class='text-green-600 font-bold'>Elite</span>. <br><br> The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident).",
     },
     "Less than one day": {
-      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one day. This corresponds to a DORA rating of High.",
+      info: "For this project, the median time to restore is less than one day. This corresponds to a DORA rating of <span class='text-yellow-300 font-bold'>High</span>. <br><br> The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident).",
     },
     "Less than one week": {
-      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is less than one week. This corresponds to a DORA rating of Medium.",
+      info: "For this project, the median time to restore is less than one week. This corresponds to a DORA rating of <span class='text-orange-600 font-bold'>Medium</span>. <br><br> The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident).",
     },
     "Between one week and one month": {
-      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, the median time is between one week and one month. This corresponds to a DORA rating of Low.",
+      info: "For this project, the median time to restore is between one week and one month. This corresponds to a DORA rating of <span class='text-red-600 font-bold'>Low</span>. <br><br> The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident).",
     },
     "No closed production defects exist in the last 3 months": {
-      info: "The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident). For this project, there are no closed production defects in the last 3 months, so this metric is not relevant.",
+      info: "For this project, there are no closed production defects in the last 3 months, so this metric is <span class='text-black font-bold'>not relevant</span>. <br><br> The Time To Restore Metric is calculated using the median amount of time between the deployment which caused the failure and the remediation (closing the associated bug or incident).",
     },
   },
   changeFailureRate: {
