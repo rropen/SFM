@@ -9,4 +9,4 @@ jobs:
   backend-unit-tests:
       uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
       with:
-        testing_directory: src/backend/tests
+        backend_directory: src/backend
