@@ -48,7 +48,7 @@ def test_webhooks(client: TestClient, db: Session):
     print("HERE'S THE RESPONSE: \n", response)
     assert len(db.exec(select(WorkItem)).all()) == pre_work_item_length
 
-    # Testing pull_request to main not merged
+    # Testing pull_request to main not merged.
     pre_work_item_length = len(db.exec(select(WorkItem)).all())
     response = client.post(
         "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 2}
