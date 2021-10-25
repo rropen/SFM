@@ -1,9 +1,7 @@
 from pydantic import BaseSettings
 import os
 from dotenv import load_dotenv
-import urllib
 from functools import lru_cache
-import psycopg2
 
 load_dotenv()
 

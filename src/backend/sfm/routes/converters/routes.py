@@ -1,21 +1,12 @@
 import json
 import logging
 
-from sqlalchemy.sql.expression import update
 from sfm.utils import validate_signature, calc_signature
-from sfm.routes.work_items import crud
-from sfm.routes.projects import crud as project_crud
-from sfm.routes.commits import crud as commit_crud
 from sfm.dependencies import get_db
 from sfm.models import WorkItemCreate, Project, CommitCreate, WorkItem, WorkItemUpdate
 from typing import List, Optional
 from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request, Query
-from sfm.database import engine
-from urllib.request import urlopen
-import requests
-from datetime import datetime
-from statistics import median
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
 from .github_functions import (

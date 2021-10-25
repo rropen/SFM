@@ -11,7 +11,6 @@ import logging
 
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Query
-from sfm.database import engine
 from sfm.config import get_settings
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 

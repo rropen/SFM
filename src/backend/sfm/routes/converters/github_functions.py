@@ -1,11 +1,9 @@
 import json
 import logging
 
-from sqlalchemy.sql.expression import update
 from sfm.routes.work_items import crud as work_item_crud
 from sfm.routes.commits import crud as commit_crud
 from sfm.routes.projects import crud as project_crud
-from sfm.dependencies import get_db
 from sfm.models import (
     WorkItem,
     WorkItemUpdate,
@@ -16,12 +14,10 @@ from sfm.models import (
     ProjectUpdate,
 )
 from sfm.database import engine
-from urllib.request import urlopen
 import requests
 from fastapi import HTTPException
 from sqlmodel import select, and_
 from datetime import datetime
-from statistics import median
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
 

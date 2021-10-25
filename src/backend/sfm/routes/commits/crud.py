@@ -1,11 +1,8 @@
-from os import stat
 from fastapi.exceptions import HTTPException
-from sqlalchemy.sql.expression import false
 from sfm.models import WorkItem, Project, Commit
 from sqlmodel import Session, select, and_
 from sfm.utils import verify_project_auth_token
 from sfm.config import get_settings
-from datetime import datetime, time, timedelta
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 

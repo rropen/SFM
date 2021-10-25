@@ -1,19 +1,18 @@
 from enum import Enum
 from typing import List, Optional
 from datetime import datetime, timedelta
-from pyasn1_modules.rfc2459 import IssuerAltName
 from sqlmodel import Field, SQLModel, Relationship
 from pydantic import BaseModel
 
 
 class ProjectBase(SQLModel):
     name: str = Field(..., index=False)
+    repo_url: str = Field(..., index=False)
+    on_prem: Optional[bool] = Field(default=None, index=False)
     lead_name: Optional[str] = Field(default=None, index=False)
     lead_email: Optional[str] = Field(default=None, index=False)
     description: Optional[str] = Field(default=None, index=False)
     location: Optional[str] = Field(default=None, index=False)
-    repo_url: str = Field(..., index=False)
-    on_prem: Optional[bool] = Field(default=None, index=False)
     github_id: Optional[int] = Field(default=None, index=False)
 
 
@@ -34,12 +33,12 @@ class ProjectCreate(ProjectBase):
 
 class ProjectUpdate(BaseModel):
     name: Optional[str] = Field(default=None, index=False)
+    on_prem: Optional[bool] = Field(default=None, index=False)
     lead_name: Optional[str] = Field(default=None, index=False)
     lead_email: Optional[str] = Field(default=None, index=False)
     description: Optional[str] = Field(default=None, index=False)
     location: Optional[str] = Field(default=None, index=False)
     repo_url: Optional[str] = Field(default=None, index=False)
-    on_prem: Optional[bool] = Field(default=None, index=False)
 
 
 class WorkItemCategory(str, Enum):
@@ -51,12 +50,12 @@ class WorkItemCategory(str, Enum):
 
 class WorkItemBase(SQLModel):
     category: WorkItemCategory = Field(..., index=False)
-    issue_num: Optional[int] = Field(default=None, index=False)
     start_time: Optional[datetime] = Field(default=None, index=False)
     end_time: Optional[datetime] = Field(default=None, index=False)
-    duration_open: Optional[int] = Field(default=None, index=False)
-    comments: Optional[str] = Field(default=None, index=False)
     failed: Optional[bool] = Field(default=None, index=False)
+    comments: Optional[str] = Field(default=None, index=False)
+    issue_num: Optional[int] = Field(default=None, index=False)
+    duration_open: Optional[int] = Field(default=None, index=False)
     project_id: Optional[int] = Field(
         default=None, foreign_key="project.id", index=False
     )
@@ -78,14 +77,14 @@ class WorkItemCreate(WorkItemBase):
 
 
 class WorkItemUpdate(BaseModel):
-    category: Optional[str] = Field(default=None, index=False)
-    issue_num: Optional[int] = Field(default=None, index=False)
     start_time: Optional[datetime] = Field(default=None, index=False)
     end_time: Optional[datetime] = Field(default=None, index=False)
-    # duration_open not needed as it can be calculated and stored if given start and end
-    comments: Optional[str] = Field(default=None, index=False)
     failed: Optional[bool] = Field(default=None, index=False)
+    comments: Optional[str] = Field(default=None, index=False)
+    category: Optional[str] = Field(default=None, index=False)
+    issue_num: Optional[int] = Field(default=None, index=False)
     project_id: Optional[int] = Field(default=None, index=False)
+    # duration_open not needed as it can be calculated and stored if given start and end
 
 
 class DeploymentData(SQLModel):
@@ -139,8 +138,9 @@ class CommitBase(SQLModel):
 
 class Commit(CommitBase, table=True):
     id: int = Field(primary_key=True)
-    work_item: Optional[WorkItem] = Relationship(back_populates="commits")
     time_to_pull: int = Field(..., index=False)
+
+    work_item: Optional[WorkItem] = Relationship(back_populates="commits")
 
 
 class CommitRead(CommitBase):
@@ -159,6 +159,6 @@ class CommitCreate(CommitBase):
 
 class ProductionDefect(SQLModel):
     issue: int = Field(..., index=False)
+    deployment_id: int = Field(..., foreign_key="workItem.id", index=False)
     start_time: datetime = Field(..., index=False)
     end_time: Optional[datetime] = Field(default=None, index=False)
-    deployment_id: int = Field(..., foreign_key="workItem.id", index=False)

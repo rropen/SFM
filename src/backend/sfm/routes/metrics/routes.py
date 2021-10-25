@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from statistics import median
 from sfm.config import get_settings
 from sfm.routes.work_items import crud
-from sfm.routes.projects import crud as proj_crud
 from sfm.dependencies import get_db
 from sfm.models import (
     WorkItem,
@@ -16,7 +15,6 @@ from sfm.models import (
 from typing import List, Optional
 from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request
-from sfm.database import engine
 from sfm.utils import unix_time_seconds, project_selector
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 

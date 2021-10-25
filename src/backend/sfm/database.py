@@ -1,5 +1,4 @@
 from sqlmodel import SQLModel, Session, create_engine
-import os
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 from sfm.config import get_settings

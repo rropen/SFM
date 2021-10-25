@@ -5,7 +5,6 @@ import string
 import random
 import logging
 import hmac
-import hashlib
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
 from fastapi import HTTPException

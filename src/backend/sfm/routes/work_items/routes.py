@@ -4,7 +4,6 @@ from sfm.models import WorkItemRead, WorkItemCreate, WorkItemUpdate
 from typing import List, Optional
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Header
-from sfm.database import engine
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import logging
 from sfm.config import get_settings
