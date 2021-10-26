@@ -1,21 +1,19 @@
 # build stage
-FROM node:15-alpine as build
-ADD ./vite.config.js /frontend/
-ADD ./package*.json /frontend/
+FROM node:16-slim as build
+ARG NODE_AUTH_TOKEN
+# ADD ./vite.config.js /src/
+ADD ./package.json /frontend/
 ADD ./yarn.lock /frontend/
-ADD ./.npmrc  /frontend/
+ADD ./.npmrc.ci /frontend/.npmrc
 WORKDIR /frontend
 RUN yarn
 COPY . .
+ENV PATH ./node_modules/.bin:$PATH
 ARG NODE_ENV
-ARG ENV
 RUN yarn build
+ARG ENV
 
-FROM nginx:1.21-alpine as deploy
-RUN rm /etc/nginx/conf.d/default.conf && rm /etc/nginx/nginx.conf
-COPY nginx/nginx.conf /etc/nginx/nginx.conf
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+FROM nginx:alpine as deploy
 COPY --from=build /frontend/dist /usr/share/nginx/html
-RUN chown -R nginx:nginx /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
