@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     DBUSER: Username used in building a connection string
     DBPASS: User's Password used in building a connection string
     AZURELOGGING_CONN_STR: Connection string to azure log handler
+    GITHUB_WEBHOOK_SECRET: ??
     """
 
     APP_NAME: str = "sfm"
