@@ -1,13 +1,17 @@
 <template>
   <div class="bg-rrblue-800 min-h-full overflow-auto">
-    <div id="app" class="h-full font-sans bg-rrgrey-200" style="top: 50%">
+    <div
+      id="app"
+      class="flex flex-col min-h-screen font-sans bg-rrgrey-200"
+      style="top: 50%"
+    >
       <rrHeader
         :appTitleShort="appTitleShort"
         :appTitleLong="appTitleLong"
         :tabsText="tabsText"
         :tabLinks="tabLinks"
       />
-      <div class="page bg-rrgrey-200 h-full">
+      <div class="page bg-rrgrey-200 min-h-full">
         <router-view />
       </div>
       <rrFooter appTitle="SFM" :appText="appText" />

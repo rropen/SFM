@@ -28,7 +28,7 @@
       }"
     >
       <div class="spacer"></div>
-      <h1 class="mx-auto text-xl">
+      <h1 class="mx-auto text-xl px-2 w-3/4">
         {{ Math.round(changeFailureRate?.change_failure_rate * 100) }}%
       </h1>
       <svg

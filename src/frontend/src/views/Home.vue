@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex overflow-hidden bg-gray-100">
+  <div class="flex bg-gray-100">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog
         as="div"
@@ -49,12 +49,12 @@
                     w-10
                     rounded-full
                     bg-rrgrey-800
-                    ring-2 ring-inset ring-rrblue-400
+                    ring-2 ring-inset ring-white
                   "
                   @click="sidebarOpen = false"
                 >
                   <span class="sr-only">Close sidebar</span>
-                  <XIcon class="h-6 w-6 text-rrblue-400" aria-hidden="true" />
+                  <XIcon class="h-6 w-6 text-white" aria-hidden="true" />
                 </button>
               </div>
             </TransitionChild>
@@ -138,7 +138,7 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-col w-0 flex-1 overflow-hidden">
+    <div class="flex flex-col w-0 flex-1 overflow-auto">
       <div class="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3">
         <button
           type="button"
@@ -164,16 +164,7 @@
           <MenuIcon class="h-6 w-6" aria-hidden="true" />
         </button>
       </div>
-      <main
-        class="
-          flex-1
-          relative
-          z-0
-          overflow-y-auto
-          focus:outline-none
-          bg-rrgrey-200
-        "
-      >
+      <main class="flex-1 relative z-0 focus:outline-none bg-rrgrey-200">
         <div class="py-6">
           <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-14">
             <!-- Replace with your content -->

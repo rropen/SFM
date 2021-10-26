@@ -29,8 +29,7 @@
         'bg-rrgrey-700 text-white': perfStatus == 'No pull requests to main',
       }"
     >
-      <div class="spacer"></div>
-      <h1 class="mx-auto text-xl">{{ perfStatus }}</h1>
+      <h1 class="mx-auto text-xl px-2 w-3/4">{{ perfStatus }}</h1>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="mr-4 h-8 w-8 text-white inline-block hover:text-rrgrey-400"
