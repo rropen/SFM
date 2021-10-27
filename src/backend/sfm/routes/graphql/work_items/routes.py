@@ -77,6 +77,9 @@ class Query(graphene.ObjectType):
         return jsonable_encoder(retrieved_item)
 
 
+query = graphene.Schema(query=Query)
+
+
 @router.post("/")
 def graph_endpoint(query_str: str = Body(default=None)):
     query = graphene.Schema(query=Query)

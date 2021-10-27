@@ -24,7 +24,8 @@ dependencies = [
     "pytest~=6.2",
     "pytest-cov~=3.0",
     "psycopg2~=2.9",
-    "graphene~=2.1",
+    "graphene>=2.1",
+    "starlette-graphene3>=0.5.1"
 ]
 requires-python = ">=3.8"
 dynamic = ["classifiers"]
