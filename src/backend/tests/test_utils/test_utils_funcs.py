@@ -19,7 +19,7 @@ app_settings = get_settings()
 
 def test_signatures(client: TestClient, db: Session):
     """Clearing database so that id's are easier to test"""
-    json_obj = json.load(open("./test_utils/real_payload.json"))
+    json_obj = json.load(open("test_utils/real_payload.json"))
     byte_obj = json.dumps(json_obj).encode("utf-8")
     signature = "jklhnvkljansdkjhvsauhefhoitpyqejknv"
 

@@ -25,8 +25,8 @@ logger.addHandler(
 
 def get_all(
     db: Session,
-    skip: int = None,
-    limit: int = None,
+    skip: int = 0,
+    limit: int = 1000,
     project_id: int = None,
     project_name: str = None,
 ):
@@ -51,7 +51,13 @@ def get_all(
             raise HTTPException(status_code=404, detail="Project not found")
 
     if project:
-        return db.exec(select(WorkItem).where(WorkItem.project_id == project.id)).all()
+        return db.exec(
+            select(WorkItem)
+            .where(WorkItem.project_id == project.id)
+            .order_by(WorkItem.id)
+            .offset(skip)
+            .limit(limit)
+        ).all()
 
     return db.exec(
         select(WorkItem).order_by(WorkItem.id).offset(skip).limit(limit)

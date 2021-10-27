@@ -13,6 +13,7 @@ from sfm.routes.projects import routes as projects
 from sfm.routes.converters import routes as converters
 from sfm.routes.metrics import routes as metrics
 from sfm.routes.utilities import routes as utilities
+from sfm.routes.graphql.work_items import routes as graphQL
 from sfm.routes import root
 from .config import get_settings
 
@@ -78,3 +79,4 @@ app.include_router(projects.router, prefix="/projects", tags=["projects"])
 app.include_router(converters.router, prefix="/converters", tags=["converters"])
 app.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
 app.include_router(utilities.router, prefix="/utilities", tags=["utilities"])
+app.include_router(graphQL.router, prefix="/graph", tags=["graph"])
