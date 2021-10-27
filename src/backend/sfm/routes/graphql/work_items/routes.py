@@ -78,7 +78,7 @@ class Query(graphene.ObjectType):
 
 
 @router.post("/")
-def get_work_items_graph(query_str: str = Body(default=None)):
+def graph_endpoint(query_str: str = Body(default=None)):
     query = graphene.Schema(query=Query)
     results = query.execute(query_str)
     return results.data
