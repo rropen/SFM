@@ -1,6 +1,7 @@
 import pytest
 from time import mktime
 from sfm.routes.metrics import routes
+from sfm.routes.metrics import crud
 from sfm.routes.utilities.routes import random_sha
 from sqlmodel import Session, select
 from sfm.models import Project, WorkItem, Commit
@@ -131,10 +132,10 @@ def test_calc_frequency(db: Session):
     db.add_all(yearly_deploys)
     db.commit()
 
-    assert routes.calc_frequency(day_proj.work_items) == "Daily"
-    assert routes.calc_frequency(week_proj.work_items) == "Weekly"
-    assert routes.calc_frequency(month_proj.work_items) == "Monthly"
-    assert routes.calc_frequency(year_proj.work_items) == "Yearly"
+    assert crud.calc_frequency(day_proj.work_items) == "Daily"
+    assert crud.calc_frequency(week_proj.work_items) == "Weekly"
+    assert crud.calc_frequency(month_proj.work_items) == "Monthly"
+    assert crud.calc_frequency(year_proj.work_items) == "Yearly"
 
 
 # Test combine_deploys function
@@ -147,7 +148,7 @@ def test_combine_deploys():
         datetime(2021, 6, 3).date(),
     ]
 
-    result = routes.combine_deploys(deployment_list)[:4]
+    result = crud.combine_deploys(deployment_list)[:4]
     print(result)
     expected_result = [
         [unix_time_seconds(datetime(2021, 5, 31).date()), 3],
@@ -170,7 +171,7 @@ def test_lead_time_per_day():
     ]
     lead_time = [60, 120, 180, 240, 300]
 
-    result = routes.lead_times_per_day(commit_list, lead_time)
+    result = crud.lead_times_per_day(commit_list, lead_time)
     result[0] = result[0][:4]
     result[1] = result[1][:4]
     print(result)
@@ -225,7 +226,7 @@ def test_get_deployments(client: TestClient, db: Session):
         "project_name": "Test Project 2",
         "deployment_dates": deployment_dates,
         "performance": "Monthly",
-        "deployment_dates_description": "",
+        "deployment_dates_description": "List of lists, where each sublist consits of [unix date, number of deploys on that date]",
         "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
     }
 
@@ -276,7 +277,7 @@ def test_get_deployments(client: TestClient, db: Session):
         "project_name": "all",
         "deployment_dates": deployment_dates,
         "performance": "Daily",
-        "deployment_dates_description": "",
+        "deployment_dates_description": "List of lists, where each sublist consits of [unix date, number of deploys on that date]",
         "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
     }
 
