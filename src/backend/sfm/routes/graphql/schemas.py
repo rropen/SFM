@@ -33,3 +33,52 @@ class ProjectOutput(graphene.ObjectType):
     description = graphene.String()
     location = graphene.String()
     github_id = graphene.Int()
+
+
+class CommitOutput(graphene.ObjectType):
+    id = graphene.Int()
+    sha = graphene.String()
+    date = graphene.String()
+    message = graphene.String()
+    author = graphene.String()
+    work_item_id = graphene.String()
+    time_to_pull = graphene.Int()
+
+
+class DeploymentOutput(graphene.ObjectType):
+    project_name = graphene.String()
+    deployment_dates = graphene.List(graphene.List(graphene.Int))
+    performance = graphene.String()
+    deployment_dates_description = graphene.String()
+    performance_description = graphene.String()
+
+
+class LeadTimeOutput(graphene.ObjectType):
+    lead_time = graphene.Int()
+    time_units = graphene.String()
+    performance = graphene.String()
+    daily_commits = graphene.List(graphene.List)
+    daily_lead_times = graphene.List(graphene.List)
+    project_name = graphene.String()
+    lead_time_description = graphene.String()
+    performance_description = graphene.String()
+    daily_commits_description = graphene.String()
+    daily_lead_times_description = graphene.String()
+
+
+class TimeToRestoreOutput(graphene.ObjectType):
+    time_to_restore = graphene.Float()
+    performance = graphene.String()
+    daily_times_to_restore = graphene.List(graphene.List)
+    project_name = graphene.String()
+    time_to_restore_description = graphene.String()
+    performance_description = graphene.String()
+    daily_times_to_restore_description = graphene.String()
+
+
+class ChangeFailureRateOutput(graphene.ObjectType):
+    change_failure_rate = graphene.Float()
+    daily_change_failure_rate = graphene.List(graphene.List)
+    project_name = graphene.String()
+    change_failure_rate_description = graphene.String()
+    daily_change_failure_rate_description = graphene.String()

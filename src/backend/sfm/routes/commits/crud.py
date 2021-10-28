@@ -56,6 +56,7 @@ def get_all(
         project_commits = []
         for item in workitems:
             project_commits.extend(item.commits)
+        project_commits = project_commits[skip:limit]
         return project_commits
 
     return db.exec(select(Commit).order_by(Commit.id).offset(skip).limit(limit)).all()
@@ -64,6 +65,11 @@ def get_all(
 def get_by_sha(db: Session, commit_sha):
     """Get a specified Commit and return it."""
     return db.exec(select(Commit).where(Commit.sha == commit_sha)).first()
+
+
+def get_by_id(db: Session, commit_id):
+    """Get a specified Commit and return it."""
+    return db.get(Commit, commit_id)
 
 
 def create_commit(db: Session, commit_data, project_auth_token):

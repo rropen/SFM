@@ -283,7 +283,7 @@ def get_deployments(
             "project_name": project_name,
             "deployment_dates": grouped_deploys,
             "performance": performance,
-            "deployment_dates_description": "",
+            "deployment_dates_description": "List of lists, where each sublist consits of [unix date, number of deploys on that date]",
             "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
         }
 
@@ -328,7 +328,7 @@ def get_deployments(
             "project_name": project_name,
             "deployment_dates": grouped_deploys,
             "performance": performance,
-            "deployment_dates_description": "",
+            "deployment_dates_description": "List of lists, where each sublist consits of [unix date, number of deploys on that date]",
             "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
         }
 
