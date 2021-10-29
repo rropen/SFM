@@ -38,8 +38,8 @@ router = APIRouter()
 
 def calc_frequency(
     deployments: List,
-):  # generates the DORA metric based on only deployments in the last 3 months
-    three_months_ago = datetime.now() - timedelta(days=84)
+):  # generates deployment frequency based on only deployments in the last 3 months
+    three_months_ago = datetime.now() - timedelta(days=84)  # 3 months ~= 12 weeks
     recent_deploy_dates = [
         deployment.end_time
         for deployment in deployments
@@ -48,7 +48,7 @@ def calc_frequency(
 
     days_deployed = (
         []
-    )  # list of 12 integers that represent the number of days during that week a deployment occurred
+    )  # list of 12 integers that represent the number of days that a deployment occured during each of the 12 weeks
     weekly_deployed = (
         []
     )  # list of 12 integers(1,0) that represent if a deploy happened during that week
@@ -56,17 +56,22 @@ def calc_frequency(
     for i in range(12):  # 12 weeks in 3 months
         week_end = week_start + timedelta(days=7)
         deploys_in_week = []
-        for deploy_date in recent_deploy_dates:
+        for (
+            deploy_date
+        ) in recent_deploy_dates:  # the last 3 months (12 weeks) of deployments
             if (
                 (deploy_date >= week_start)
                 and (deploy_date < week_end)
-                and (deploy_date.date() not in deploys_in_week)
+                and (
+                    deploy_date.date() not in deploys_in_week
+                )  # count each day 1 time even if multiple deployments occur on that day
             ):
-                # only one deploy per day counts
-                deploys_in_week.append(deploy_date)
+                # only one deploy per day counts, track deploys
+                deploys_in_week.append(deploy_date.date())
 
         days_deployed.append(len(deploys_in_week))
 
+        # set integer (0 or 1) for if a week contained at least 1 deployment
         if deploys_in_week:
             weekly_deployed.append(1)
         else:
@@ -74,23 +79,14 @@ def calc_frequency(
 
         week_start += timedelta(days=7)
 
-    monthly_deploys = []
-    # list of 3 integers that represent if a deploy happened during that month
-    # for i, week in enumerate(weekly_deployed):
-    #     monthly_deploys[i % 3] += week
-
+    monthly_deploys = (
+        []
+    )  # list of 3 integers (0 or 1) that represent if a deploy happened during that month
     for i in range(0, 12, 4):
         if any(weekly_deployed[i : i + 4]):
             monthly_deploys.append(1)
         else:
             monthly_deploys.append(0)
-
-    # print("DAILY DEPLOYS:", days_deployed)
-    # print("WEEKLY DEPLOYS:", weekly_deployed)
-    # print("MONTHLY DEPLOYS:", monthly_deploys)
-
-    # for i, week in enumerate(days_deployed):
-    #    print(i + 1, "th Week had:", week, "deploys")
 
     if median(days_deployed) >= 3:
         performance = "Daily"
@@ -101,37 +97,21 @@ def calc_frequency(
     else:
         performance = "Yearly"
 
-    # print("DEPLOYMENT FREQUENCY VALUE:", median(days_deployed))
-
-    # print("DEPLOYMENT FREQUENCY:", deploy_frequency)
-
     return performance
 
-    # Google Pseudocode:
-    # 1. Grab deployments from the past 3 months from today's date.
-    #   - Calculate Monthly deploys
-    #   - Calculate Weekly deploys
-    #   - Calculate Daily deploys
-    # 2. Get median values for each category of deploys
-    # 3. Go through Calc logic
-    #   - If the **median** number of monthly deploys over the past 3 months is greater than 1 then "monthly"
-    #       - If less than 1, then "yearly"
-    #   - If the **median** number of *days per week* where a deployment occured is greater than 3, then "daily"
-    #   - If the **median** number of *deployments per month* for the past 3 months is greater than
-    # deployInWeek = deployments.split(weeks or weekdays)
-    # deployFreq = average(deployInWeek)
-    # jsonData.append({"week-range": deployFreq})
 
-
-def combine_deploys(deployment_dates):  # [date, date, date]
+def combine_deploys(deployment_dates):  # deployment_dates: [date, date, date]
     if deployment_dates == []:
         logger.debug('func="combine_deploys" debug="deployment_dates was empty"')
         return []
-    initial_date = min(deployment_dates)  # date
-    total_days = (datetime.now().date() - initial_date).days  # number of days
+    initial_date = min(deployment_dates)
+    total_days = (datetime.now().date() - initial_date).days
     grouped_deploys = []
-    for iter_day in range(0, total_days + 1):  # loops through every day
-        day = initial_date + timedelta(days=iter_day)  # date
+    for iter_day in range(0, total_days + 1):
+        day = initial_date + timedelta(days=iter_day)
+
+        # if the current day has a deployment, store number of deployments on that day with the unix time
+        # for days with no deployment, store a 0 with the unix time
         if day in deployment_dates:
             grouped_deploys.append(
                 [unix_time_seconds(day), deployment_dates.count(day)]
@@ -145,26 +125,32 @@ def combine_deploys(deployment_dates):  # [date, date, date]
     return grouped_deploys
 
 
-def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
-    initial_date = min(commit_dates)  # date
+def lead_times_per_day(
+    commit_dates, lead_times
+):  # commit_dates: [date, date, ...], lead_times: [int, int, ...]
+    initial_date = min(commit_dates)
 
-    total_days = (datetime.now().date() - initial_date).days  # number of days
+    total_days = (datetime.now().date() - initial_date).days
     daily_commits = []
     daily_lead_times = []
 
-    for iter_day in range(0, total_days + 1):  # loops through every day
-        day = initial_date + timedelta(days=iter_day)  # date
+    for iter_day in range(0, total_days + 1):
+        day = initial_date + timedelta(days=iter_day)
 
         indicies = [i for i, date in enumerate(commit_dates) if date == day]
+        # return list of indices of commits in commit_dates where commit date == day
+        # multiple commits could happen on a single day
 
         day_lead_times = []
         for index in indicies:
             day_lead_times.append(lead_times[index])
 
+        # if there are commits on a given day, store the number commits on that date with the unix time
+        # for days without a commit, pair a 0 with the unix date
         if day in commit_dates:
             daily_commits.append(
                 [unix_time_seconds(day), commit_dates.count(day)]
-            )  # counts number dates that repeat in list and puts it with UNIX
+            )  # counts number dates that repeat in list and pair it with UNIX dates
             daily_lead_times.append(
                 [unix_time_seconds(day), int((median(day_lead_times)) / 60)]
             )  # convert seconds in db to minutes for return
@@ -177,7 +163,9 @@ def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
     return [daily_commits, daily_lead_times]
 
 
-def group_failures(deployments):
+def group_failures(
+    deployments,
+):  # deployments: [{deploy}, {deploy}, ...] where {deploy} is a WorkItem object that meets criteria to be a deployment
     if deployments == []:
         logger.debug('func="group_failures" debug="deployments is empty"')
         return []
@@ -185,20 +173,20 @@ def group_failures(deployments):
     failed_deployment_dates = [
         deploy.end_time.date() for deploy in deployments if deploy.failed is True
     ]
-    initial_date = min(deployment_dates)  # date
+    initial_date = min(deployment_dates)
 
-    total_days = (datetime.now().date() - initial_date).days  # number of days
+    total_days = (datetime.now().date() - initial_date).days
     daily_failure_rate = []
 
-    for iter_day in range(0, total_days + 1):  # loops through every day
-        day = initial_date + timedelta(days=iter_day)  # date
+    for iter_day in range(0, total_days + 1):
+        day = initial_date + timedelta(days=iter_day)
 
         if day in failed_deployment_dates:
             num_failed_deploys = failed_deployment_dates.count(day)
             num_deploys = deployment_dates.count(day)
             daily_failure_rate.append(
                 [unix_time_seconds(day), num_failed_deploys / num_deploys]
-            )  # calcs failure rate and puts it with UNIX
+            )  # calcs failure rate and puts it with UNIX time
         else:
             daily_failure_rate.append(
                 [unix_time_seconds(day), 0]
@@ -207,18 +195,20 @@ def group_failures(deployments):
     return daily_failure_rate
 
 
-def group_restores(db, closed_prod_defects):
+def group_restores(
+    closed_prod_defects,
+):  # closed_prod_defects: [{defect}, {defect}, ...] where {defect} is a WorkItem that meets the criteria of a Production Defect
     if closed_prod_defects == []:
         logger.debug('func="group_restores" debug="closed_prod_defects is empty"')
         return []
     restore_dates = [restore.end_time.date() for restore in closed_prod_defects]
-    initial_date = min(restore_dates)  # date
+    initial_date = min(restore_dates)
 
-    total_days = (datetime.now().date() - initial_date).days  # number of days
+    total_days = (datetime.now().date() - initial_date).days
     daily_restores = []
 
-    for iter_day in range(0, total_days + 1):  # loops through every day
-        day = initial_date + timedelta(days=iter_day)  # date
+    for iter_day in range(0, total_days + 1):
+        day = initial_date + timedelta(days=iter_day)
 
         if day in restore_dates:
             median_restore_time = (
@@ -230,10 +220,10 @@ def group_restores(db, closed_prod_defects):
                     ]
                 )
                 / 3600
-            )
+            )  # median of duration open time for production defects that were resolved on the current day
             daily_restores.append(
                 [unix_time_seconds(day), median_restore_time]
-            )  # calcs median restore time for that day and puts it with UNIX
+            )  # store median restore time for that day and puts it with UNIX
         else:
             daily_restores.append(
                 [unix_time_seconds(day), 0]
@@ -266,33 +256,7 @@ def get_deployments_crud(db, project_name, project_id):
 
         return deployment_data
 
-    # elif not all_deployments:
-    #     projects = proj_crud.get_all(db)
-    #     group_deployments = []
-    #     for project in projects:
-    #         project_name = project.name
-    #         deployments = []
-    #         deployment_dates = []
-    #         for work_item in project.work_items:
-    #             if work_item.category == "Deployment":
-    #                 deployments.append(work_item)
-    #                 deployment_dates.append(work_item.end_time.date())
-
-    #         grouped_deploys = combine_deploys(deployment_dates)
-    #         performance = calc_frequency(deployments)
-    #         group_deployments.append(
-    #             {
-    #                 "project_name": project_name,
-    #                 "deployment_dates": grouped_deploys,
-    #                 "performance": performance,
-    #                 "deployment_dates_description": "",
-    #                 "performance_description": "Elite: Multiple deploys per day, High: Between once per day and once per week, Medium: Between once per week and once per month, Low: More than once per month",
-    #             }
-    #         )
-    #
-    #     return group_deployments
-
-    else:
+    else:  # if project not specified, use all
         all_items = crud.get_all(db)
         deployments = [item for item in all_items if (item.category == "Deployment")]
         project_name = "all"
@@ -323,13 +287,10 @@ def lead_time_to_change_crud(db, project_name, project_id):
             logger.warning(
                 'method="GET" path="metrics/LeadTimeToChange" warning="No pull requests to main with specified project"'
             )
-            # raise HTTPException(
-            #     status_code=404,
-            #     detail="No pull requests to main associated with specified project",
-            # )
+
         project_name = project.name
 
-    else:
+    else:  # if project not specified, use all
         all_items = crud.get_all(db)
         pull_requests = [
             item for item in all_items if (item.category == "Pull Request")
@@ -340,13 +301,13 @@ def lead_time_to_change_crud(db, project_name, project_id):
             )
         project_name = "all"
 
-    if not pull_requests:
+    if not pull_requests:  # if no pull requests exist, return -1
         median_time_to_deploy = -1
         performance = "No pull requests to main"
         daily_commits = []
         daily_lead_times = []
 
-    else:
+    else:  # when pull requests do exist..
         lead_times = []
         commit_dates = []
         for request in pull_requests:
@@ -399,51 +360,40 @@ def time_to_restore_crud(db, project_name, project_id):
                 and_(
                     WorkItem.project_id == project.id,
                     WorkItem.category == "Production Defect",
-                    WorkItem.end_time != None,  # noqa: E711
+                    WorkItem.end_time
+                    != None,  # noqa: E711 # end_time != None means defect is closed
                 )
             )
-        ).all()  # noqa: E711
-        recent_prod_defects = [
-            defect
-            for defect in closed_prod_defects
-            if defect.end_time >= (datetime.now() - timedelta(days=84))
-        ]
-        recent_prod_defect_times = [item.duration_open for item in recent_prod_defects]
-        if recent_prod_defect_times != []:
-            time_to_restore = median(recent_prod_defect_times) / 3600
-        else:
-            time_to_restore = -1
-            performance = "No closed production defects exist in the last 3 months"
-
-        daily_time_to_restore = group_restores(db, closed_prod_defects)
-
+        ).all()
         project_name = project.name
     else:
         closed_prod_defects = db.exec(
             select(WorkItem).where(
                 and_(
                     WorkItem.category == "Production Defect",
-                    WorkItem.end_time != None,  # noqa: E711
+                    WorkItem.end_time
+                    != None,  # noqa: E711 # end_time != None means defect is closed
                 )
             )
         ).all()
-        recent_prod_defects = [
-            defect
-            for defect in closed_prod_defects
-            if defect.end_time >= (datetime.now() - timedelta(days=84))
-        ]
-        recent_prod_defect_times = [item.duration_open for item in recent_prod_defects]
-        if recent_prod_defect_times != []:
-            time_to_restore = median(recent_prod_defect_times) / 3600
-        else:  # pragma: no cover (logic gets tested when single project specified)
-            time_to_restore = -1
-            performance = "No closed production defects in last 3 months"
-            logger.warning(
-                'method="GET" path="metrics/TimeToRestore" warning="No closed production defects exist in the last 3 months"'
-            )
-
-        daily_time_to_restore = group_restores(db, closed_prod_defects)
         project_name = "all"
+
+    recent_prod_defects = [
+        defect
+        for defect in closed_prod_defects
+        if defect.end_time >= (datetime.now() - timedelta(days=84))
+    ]
+    recent_prod_defect_times = [item.duration_open for item in recent_prod_defects]
+    if recent_prod_defect_times != []:
+        time_to_restore = median(recent_prod_defect_times) / 3600
+    else:
+        time_to_restore = -1
+        performance = "No closed production defects exist in the last 3 months"
+        logger.warning(
+            'method="GET" path="metrics/TimeToRestore" warning="No closed production defects exist in the last 3 months"'
+        )
+
+    daily_time_to_restore = group_restores(closed_prod_defects)
 
     if not performance:
         if time_to_restore < 1:
