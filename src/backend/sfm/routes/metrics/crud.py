@@ -166,7 +166,7 @@ def lead_times_per_day(commit_dates, lead_times):  # [date, date, date]
                 [unix_time_seconds(day), commit_dates.count(day)]
             )  # counts number dates that repeat in list and puts it with UNIX
             daily_lead_times.append(
-                [unix_time_seconds(day), (median(day_lead_times)) / 60]
+                [unix_time_seconds(day), int((median(day_lead_times)) / 60)]
             )  # convert seconds in db to minutes for return
         else:
             daily_commits.append(
@@ -468,7 +468,7 @@ def time_to_restore_crud(db, project_name, project_id):
     return time_to_restore_dict
 
 
-def change_failure_rate(db, project_name, project_id):
+def change_failure_rate_crud(db, project_name, project_id):
 
     project = project_selector(db, project_name, project_id)
 

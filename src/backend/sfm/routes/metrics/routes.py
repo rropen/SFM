@@ -128,4 +128,4 @@ def get_change_failure_rate(
     - **project_name**: sets project data to be used for calculation
 
     """
-    return metrics_crud.change_failure_rate(db, project_name, project_id)
+    return metrics_crud.change_failure_rate_crud(db, project_name, project_id)
