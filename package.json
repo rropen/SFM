@@ -1,10 +1,10 @@
 {
-  "name": "project_template",
+  "name": "sfm",
   "version": "0.1.0",
-  "description": "Base template for future app templates in the Software Factory",
+  "description": "Dora metrcis tracker",
   "main": "index.js",
-  "repository": "https://github.com/rrglobal/project_template",
-  "author": "Josh Haines",
+  "repository": "https://github.com/rropen/sfm",
+  "author": "Rolls-Royce Open Source",
   "license": "MIT",
   "private": true,
   "devDependencies": {
