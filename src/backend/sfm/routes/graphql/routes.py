@@ -13,6 +13,10 @@ import json
 import requests
 from sfm.routes.metrics.routes import get_deployments
 
+################################################################################
+# THE GRAPHQL QUERYS ARE NOT TESTED, THE CRUD METHODS ARE, USE AT YOUR OWN RISK
+################################################################################
+
 
 class Query(graphene.ObjectType):
     work_items = graphene.List(
@@ -113,26 +117,69 @@ class Query(graphene.ObjectType):
             raise GraphQLError("Please specify either an ID or a SHA, not both")
         return jsonable_encoder(commit_retrieved)
 
-    deployments = graphene.List(
+    deployments = graphene.Field(
         schemas.DeploymentOutput,
         project_id=graphene.Int(),
         project_name=graphene.String(),
-        description="List all deployments",
+        description="Retrieve deployments metric data",
     )
 
     @staticmethod
     def resolve_deployments(self, info, project_id=None, project_name=None):
-        deployments_retrieved = [
-            metrics_crud.get_deployments_crud(
-                Session(engine),
-                project_id=project_id,
-                project_name=project_name,
-            )
-        ]
-        json_serialized_list = [
-            jsonable_encoder(item) for item in deployments_retrieved
-        ]
-        return json_serialized_list
+        deployments_retrieved = metrics_crud.get_deployments_crud(
+            Session(engine),
+            project_id=project_id,
+            project_name=project_name,
+        )
+        return jsonable_encoder(deployments_retrieved)
+
+    lead_time_to_change = graphene.Field(
+        schemas.LeadTimeOutput,
+        project_id=graphene.Int(),
+        project_name=graphene.String(),
+        description="Retrieve Lead Times To Change metric data",
+    )
+
+    @staticmethod
+    def resolve_lead_time_to_change(self, info, project_id=None, project_name=None):
+        lead_time_to_change_retrieved = metrics_crud.lead_time_to_change_crud(
+            Session(engine),
+            project_id=project_id,
+            project_name=project_name,
+        )
+        return jsonable_encoder(lead_time_to_change_retrieved)
+
+    time_to_restore = graphene.Field(
+        schemas.TimeToRestoreOutput,
+        project_id=graphene.Int(),
+        project_name=graphene.String(),
+        description="Retrieve Time To Restores",
+    )
+
+    @staticmethod
+    def resolve_time_to_restore(self, info, project_id=None, project_name=None):
+        lead_times_retrieved = metrics_crud.time_to_restore_crud(
+            Session(engine),
+            project_id=project_id,
+            project_name=project_name,
+        )
+        return jsonable_encoder(lead_times_retrieved)
+
+    change_failure_rate = graphene.Field(
+        schemas.ChangeFailureRateOutput,
+        project_id=graphene.Int(),
+        project_name=graphene.String(),
+        description="Retrieve Change Failure Rate",
+    )
+
+    @staticmethod
+    def resolve_change_failure_rate(self, info, project_id=None, project_name=None):
+        change_failure_rate_retrieved = metrics_crud.change_failure_rate_crud(
+            Session(engine),
+            project_id=project_id,
+            project_name=project_name,
+        )
+        return jsonable_encoder(change_failure_rate_retrieved)
 
 
 query = graphene.Schema(query=Query)
