@@ -6,13 +6,15 @@ import random
 import logging
 import hmac
 from opencensus.ext.azure.log_exporter import AzureLogHandler
+from sqlalchemy.sql.operators import is_not_distinct_from
 from sfm.config import get_settings
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from sqlmodel import Session, select, and_
 from sfm.models import Project
 
 app_settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 logging.basicConfig(
     filename="logs.log",
@@ -69,7 +71,7 @@ def create_project_auth_token():
     return "".join(rand_arr)
 
 
-def hash_project_auth_token(token: str, expires_delta: Optional[timedelta] = None):
+def hash_project_auth_token(token: str):
     return pwd_context.hash(token)
 
 
@@ -102,6 +104,10 @@ def verify_project_auth_token(attempt: str, target: str):
 
 def verify_admin_key(attempt):
     return attempt == app_settings.ADMIN_KEY
+
+
+def verify_api_auth_token(attempt):
+    return pwd_context.verify(attempt, pwd_context.hash(app_settings.API_AUTH_TOKEN))
 
 
 epoch = datetime.utcfromtimestamp(0)

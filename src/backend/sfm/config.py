@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     ADMIN_KEY: str = os.environ.get("ADMIN_KEY") or "unset"
     FRONTEND_URL: str = os.environ.get("FRONTEND_URL") or "unset"
     GITHUB_API_TOKEN: str = os.environ.get("GITHUB_API_TOKEN") or "unset"
+    API_AUTH_TOKEN: str = os.environ.get("API_AUTH_TOKEN") or "unset"
     DBHOST: str = os.environ.get("DBHOST") or "unset"
     DBNAME: str = os.environ.get("DBNAME") or "unset"
     DBUSER: str = os.environ.get("DBUSER") or "unset"

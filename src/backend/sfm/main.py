@@ -1,10 +1,12 @@
 # CD to backend > source env/Scripts/activate > pip install -r requirements.txt  > uvicron main:app --reload
 # UI http://127.0.0.1:8000/docs http://127.0.0.1:8000/openapi.json
 from fastapi import FastAPI, Depends
+from fastapi.security import HTTPBearer
 from sqlmodel import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette_graphene3 import GraphQLApp, make_graphiql_handler
 from sfm.database import create_db_and_tables, engine
+from sfm.dependencies import has_access
 import os
 import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
@@ -43,6 +45,7 @@ app = FastAPI(
     title="SFM API",
     description=description,
     version="0.0.1",
+    dependencies=[Depends(has_access)],
 )
 
 # This is how you can get access to environment configuration values throughout the application

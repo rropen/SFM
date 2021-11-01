@@ -9,7 +9,7 @@ from sqlmodel.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
 from sfm.main import app
-from sfm.dependencies import get_db
+from sfm.dependencies import get_db, has_access
 from sfm.config import get_settings
 from sfm.models import WorkItem, Project, Commit, ProjectCreate, WorkItemCreate
 
@@ -31,7 +31,11 @@ def client_fixture(session: Session):
     def get_session_override():
         return session
 
+    def test_auth_override():
+        return True
+
     app.dependency_overrides[get_db] = get_session_override
+    app.dependency_overrides[has_access] = test_auth_override
 
     client = TestClient(app)
     yield client
