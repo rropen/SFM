@@ -230,7 +230,7 @@ version = "1.1.1"
 summary = "iniconfig: brain-dead simple config-ini parsing"
 
 [[package]]
-name = "Mako"
+name = "mako"
 version = "1.1.5"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 summary = "A super-fast templating language that borrows the  best ideas from the existing templating languages."
@@ -377,7 +377,7 @@ extras = ["crypto"]
 requires_python = ">=3.6"
 summary = "JSON Web Token implementation in Python"
 dependencies = [
-    "PyJWT==2.1.0",
+    "PyJWT<3,>=1.0.0",
     "cryptography<4.0.0,>=3.3.1",
 ]
 
@@ -556,7 +556,7 @@ dependencies = [
 
 [metadata]
 lock_version = "3.1"
-content_hash = "sha256:1de0d9589ef31d825d704653e4cbaf2711d9c8684648cbda7956fbb00bfd7eb1"
+content_hash = "sha256:0ea194be894476af48734d19a8d6a03a1a1fb3f3f695d92d5c5921902c2c1537"
 
 [metadata.files]
 "alembic 1.6.2" = [

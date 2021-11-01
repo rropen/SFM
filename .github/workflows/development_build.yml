@@ -1,86 +1,95 @@
+# Test
 name: Development Build
-on:
-  pull_request:
-    branches: [dev]
+# on:
+#   pull_request:
+#     branches: [dev]
 
-  push:
-    branches: [dev]
+#   push:
+#     branches: [dev]
 
-# on: workflow_dispatch
+on: workflow_dispatch
 
 jobs:
-    backend-unit-tests:
-      uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
-      with:
-        backend_directory: src/backend
+#     backend-unit-tests:
+#       uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
+#       with:
+#         backend_directory: src/backend
 
-    frontend-unit-tests:
-      uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
+#     frontend-unit-tests:
+#       uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
+#       with:
+#         frontend_directory: src/frontend
+#       secrets:
+#         vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+    
+    docker-build:
+      uses: rropen/reusable-workflows/.github/workflows/docker_build.yml@main
       with:
-        frontend_directory: src/frontend
+        dockerfile_directory: src/backend
+        image_name: ghcr.io/rropen/sfm_backend:latest
+        container_registry: ghcr.io/rropen/sfm_backend:latest
       secrets:
-        vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
-
+        cr_username:  $ {{ secrets.GH_CR_USERNAME }}
+        cr_password: ${{ secrets.GH_CR_PASSWORD }}
+        
     integration-tests:
-      needs: [backend-unit-tests, frontend-unit-tests ]
+      needs: [docker-build]
       uses: rropen/reusable-workflows/.github/workflows/cypress_E2E.yml@main
       with:
         backend_directory: src/backend
         frontend_directory: src/frontend
+        backend_url: http://localhost:8181
       secrets:
         vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+        cr_username:  $ {{ secrets.GH_CR_USERNAME }}
+        cr_password: ${{ secrets.GH_CR_PASSWORD }}
+        
 
-    codeQL:
-      needs: integration-tests
-      uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
-      with:
-        language: python
+#     codeQL:
+#       needs: integration-tests
+#       uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
+#       with:
+#         language: python
 
-    snyk-vulnerability-scanning:
-      needs: integration-tests
-      uses: rropen/reusable-workflows/.github/workflows/snyk_vulnerability_scanning.yml@main
-      secrets:
-        snyk_token: ${{secrets.SNYK_TOKEN}}
+#     snyk-vulnerability-scanning:
+#       needs: integration-tests
+#       uses: rropen/reusable-workflows/.github/workflows/snyk_vulnerability_scanning.yml@main
+#       secrets:
+#         snyk_token: ${{secrets.SNYK_TOKEN}}
 
-    docker-build-artifact:
-      needs: [snyk-vulnerability-scanning, codeQL, integration-tests]
-      uses: rropen/reusable-workflows/.github/workflows/docker_build_artifact.yml@main
-      with:
-        dockerfile_directory: src/backend
-
-    snyk-docker-vulnerability-scanning:
-      needs: docker-build-artifact
-      uses: rropen/reusable-workflows/.github/workflows/snyk_docker_vulnerability_scanning.yml@main
-      with:
-        dockerfile_directory: src/backend
-      secrets:
-        snyk_token: ${{secrets.SNYK_TOKEN}}
+#     snyk-docker-vulnerability-scanning:
+#       needs: docker-build-artifact
+#       uses: rropen/reusable-workflows/.github/workflows/snyk_docker_vulnerability_scanning.yml@main
+#       with:
+#         dockerfile_directory: src/backend
+#       secrets:
+#         snyk_token: ${{secrets.SNYK_TOKEN}}
       
-    backend-deploy-azure:
-      needs: docker-build-artifact
-      uses: rropen/reusable-workflows/.github/workflows/docker_deploy_azure.yml@main
-      with:
-        dockerfile_directory: src/backend
-      secrets:
-        image_name: ${{ secrets.IMAGE_BACKEND }}
-        crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
-        crsft_username: ${{ secrets.CRSFT_USERNAME }}
-        crsft_password: ${{ secrets.CRSFT_PASSWORD }}
+#     backend-deploy-azure:
+#       needs: docker-build-artifact
+#       uses: rropen/reusable-workflows/.github/workflows/docker_deploy_azure.yml@main
+#       with:
+#         dockerfile_directory: src/backend
+#       secrets:
+#         image_name: ${{ secrets.IMAGE_BACKEND }}
+#         crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
+#         crsft_username: ${{ secrets.CRSFT_USERNAME }}
+#         crsft_password: ${{ secrets.CRSFT_PASSWORD }}
 
-#   This needs to be redone, if we switch to azure static web apps we wont need this below
-    frontend-build-deploy-azure:
-      needs: codeQL
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
-        - name: Login ACR
-          uses: azure/docker-login@v1
-          with:
-            login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
-            username: ${{ secrets.CRSFT_USERNAME}}
-            password: ${{ secrets.CRSFT_PASSWORD }}
-        - name: Build/Push Frontend Container
-          run: |
-            docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t ${{ secrets.IMAGE_FRONTEND }} src/frontend
-            docker push ${{ secrets.IMAGE_FRONTEND }}
+# #   This needs to be redone, if we switch to azure static web apps we wont need this below
+#     frontend-build-deploy-azure:
+#       needs: codeQL
+#       runs-on: ubuntu-latest
+#       steps:
+#         - name: Checkout repository
+#           uses: actions/checkout@v2
+#         - name: Login ACR
+#           uses: azure/docker-login@v1
+#           with:
+#             login-server: ${{ secrets.CRSFT_LOGIN_SERVER }}
+#             username: ${{ secrets.CRSFT_USERNAME}}
+#             password: ${{ secrets.CRSFT_PASSWORD }}
+#         - name: Build/Push Frontend Container
+#           run: |
+#             docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t ${{ secrets.IMAGE_FRONTEND }} src/frontend
+#             docker push ${{ secrets.IMAGE_FRONTEND }}
