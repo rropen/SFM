@@ -358,6 +358,7 @@ const fetchProjects = () => {
       params: { skip: 0, limit: 100 },
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_API_AUTH_TOKEN}`,
       },
     })
     .then((response) => {
@@ -378,6 +379,7 @@ function changeProject(val: string) {
                VUE BUILT-IN FUNCTIONS
   ---------------------------------------------- */
 onMounted(() => {
+  console.log(import.meta.env);
   fetchProjects();
   loaded.value = true;
 });
