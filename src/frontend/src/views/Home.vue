@@ -379,7 +379,6 @@ function changeProject(val: string) {
                VUE BUILT-IN FUNCTIONS
   ---------------------------------------------- */
 onMounted(() => {
-  console.log(import.meta.env);
   fetchProjects();
   loaded.value = true;
 });
