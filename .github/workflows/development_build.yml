@@ -27,6 +27,7 @@ jobs:
       with:
         dockerfile_directory: src/backend
         image: ghcr.io/rropen/sfm_backend:latest
+        registry: ghcr.io
       secrets:
         cr_username:  $ {{ secrets.GH_CR_USERNAME }}
         cr_PAT: ${{ secrets.CONTAINER_PAT }}
