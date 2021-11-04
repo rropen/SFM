@@ -69,7 +69,7 @@ jobs:
       cr_PAT: ${{ secrets.CONTAINER_PAT }}
 
   backend-build-deploy-azure:
-    needs: [snyk-docker-vulnerability-scanning]
+    needs: [snyk-docker-vulnerability-scanning, snyk-vulnerability-scanning]
     uses: rropen/reusable-workflows/.github/workflows/docker_deploy_azure.yml@main
     with:
       dockerfile_directory: src/backend
@@ -83,7 +83,7 @@ jobs:
       cr_PAT: ${{ secrets.CONTAINER_PAT }}
 
   frontend-build-deploy-azure:
-    needs: [snyk-docker-vulnerability-scanning]
+    needs: [snyk-docker-vulnerability-scanning, snyk-vulnerability-scanning]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
