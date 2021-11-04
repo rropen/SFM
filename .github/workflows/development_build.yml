@@ -74,7 +74,7 @@ jobs:
     with:
       dockerfile_directory: src/backend
     secrets:
-      image_name: ${{ secrets.IMAGE_BACKEND }}
+      image: ${{ secrets.IMAGE_BACKEND }}
       crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
       crsft_username: ${{ secrets.CRSFT_USERNAME }}
       crsft_password: ${{ secrets.CRSFT_PASSWORD }}
