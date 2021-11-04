@@ -1,4 +1,4 @@
-# Test
+# Testt
 name: Development Build
 # on:
 #   pull_request:
@@ -10,41 +10,40 @@ name: Development Build
 on: workflow_dispatch
 
 jobs:
-#     backend-unit-tests:
-#       uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
-#       with:
-#         backend_directory: src/backend
+  #     backend-unit-tests:
+  #       uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
+  #       with:
+  #         backend_directory: src/backend
 
-#     frontend-unit-tests:
-#       uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
-#       with:
-#         frontend_directory: src/frontend
-#       secrets:
-#         vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
-    
-    docker-build:
-      uses: rropen/reusable-workflows/.github/workflows/docker_build.yml@main
-      with:
-        dockerfile_directory: src/backend
-        image_name: ghcr.io/rropen/sfm_backend:latest
-        container_registry: ghcr.io/rropen/sfm_backend:latest
-      secrets:
-        cr_username:  $ {{ secrets.GH_CR_USERNAME }}
-        cr_password: ${{ secrets.GH_CR_PASSWORD }}
-        
-    integration-tests:
-      needs: [docker-build]
-      uses: rropen/reusable-workflows/.github/workflows/cypress_E2E.yml@main
-      with:
-        backend_directory: src/backend
-        frontend_directory: src/frontend
-        backend_url: http://localhost:8181
-      secrets:
-        vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
-        cr_username:  $ {{ secrets.GH_CR_USERNAME }}
-        cr_password: ${{ secrets.GH_CR_PASSWORD }}
-        
+  #     frontend-unit-tests:
+  #       uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
+  #       with:
+  #         frontend_directory: src/frontend
+  #       secrets:
+  #         vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
 
+  docker-build:
+    uses: rropen/reusable-workflows/.github/workflows/docker_build.yml@main
+    with:
+      dockerfile_directory: src/backend
+      image: ghcr.io/rropen/sfm_backend:latest
+      registry: ghcr.io
+    secrets:
+      cr_username: ${{ secrets.GH_CR_USERNAME }}
+      cr_PAT: ${{ secrets.CONTAINER_PAT }}
+
+  integration-tests:
+    needs: [docker-build]
+    uses: rropen/reusable-workflows/.github/workflows/cypress_E2E.yml@main
+    with:
+      backend_directory: src/backend
+      frontend_directory: src/frontend
+      backend_url: http://localhost:8181
+      image: ghcr.io/rropen/sfm_backend:latest
+    secrets:
+      vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+      cr_username: ${{ secrets.GH_CR_USERNAME }}
+      cr_PAT: ${{ secrets.CONTAINER_PAT }}
 #     codeQL:
 #       needs: integration-tests
 #       uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
@@ -64,7 +63,7 @@ jobs:
 #         dockerfile_directory: src/backend
 #       secrets:
 #         snyk_token: ${{secrets.SNYK_TOKEN}}
-      
+
 #     backend-deploy-azure:
 #       needs: docker-build-artifact
 #       uses: rropen/reusable-workflows/.github/workflows/docker_deploy_azure.yml@main
