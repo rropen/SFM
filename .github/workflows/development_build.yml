@@ -1,13 +1,13 @@
 # Test
 name: Development Build
-# on:
-#   pull_request:
-#     branches: [dev]
+on:
+  pull_request:
+    branches: [dev]
 
-#   push:
-#     branches: [dev]
+  push:
+    branches: [dev]
 
-on: workflow_dispatch
+# on: workflow_dispatch
 
 jobs:
   backend-unit-tests:
@@ -45,11 +45,11 @@ jobs:
       cr_username: ${{ secrets.GH_CR_USERNAME }}
       cr_PAT: ${{ secrets.CONTAINER_PAT }}
       
-  codeQL:
-    needs: integration-tests
-    uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
-    with:
-      language: python
+#   codeQL:
+#     needs: integration-tests
+#     uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
+#     with:
+#       language: python
 
   snyk-vulnerability-scanning:
     needs: integration-tests
@@ -61,23 +61,29 @@ jobs:
     needs: integration-tests
     uses: rropen/reusable-workflows/.github/workflows/snyk_docker_vulnerability_scanning.yml@main
     with:
+      image: ghcr.io/rropen/sfm_backend:latest
       dockerfile_directory: src/backend
     secrets:
       snyk_token: ${{secrets.SNYK_TOKEN}}
+      cr_username: ${{ secrets.GH_CR_USERNAME }}
+      cr_PAT: ${{ secrets.CONTAINER_PAT }}
 
   backend-build-deploy-azure:
-    needs: [codeQL, snyk-vulnerability-scanning, snyk-docker-vulnerability-scanning]
+    needs: [snyk-docker-vulnerability-scanning, snyk-vulnerability-scanning]
     uses: rropen/reusable-workflows/.github/workflows/docker_deploy_azure.yml@main
     with:
       dockerfile_directory: src/backend
+      GH_image: ghcr.io/rropen/sfm_backend:latest
     secrets:
-      image_name: ${{ secrets.IMAGE_BACKEND }}
+      AZ_image: ${{ secrets.IMAGE_BACKEND }}
       crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
       crsft_username: ${{ secrets.CRSFT_USERNAME }}
       crsft_password: ${{ secrets.CRSFT_PASSWORD }}
+      cr_username: ${{ secrets.GH_CR_USERNAME }}
+      cr_PAT: ${{ secrets.CONTAINER_PAT }}
 
   frontend-build-deploy-azure:
-    needs: [codeQL, snyk-vulnerability-scanning, snyk-docker-vulnerability-scanning]
+    needs: [snyk-docker-vulnerability-scanning, snyk-vulnerability-scanning]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
