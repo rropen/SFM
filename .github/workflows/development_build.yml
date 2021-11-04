@@ -10,55 +10,55 @@ name: Development Build
 on: workflow_dispatch
 
 jobs:
-  backend-unit-tests:
-    uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
-    with:
-      backend_directory: src/backend
+#   backend-unit-tests:
+#     uses: rropen/reusable-workflows/.github/workflows/pytest.yml@main
+#     with:
+#       backend_directory: src/backend
 
-  frontend-unit-tests:
-    uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
-    with:
-      frontend_directory: src/frontend
-    secrets:
-      vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+#   frontend-unit-tests:
+#     uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
+#     with:
+#       frontend_directory: src/frontend
+#     secrets:
+#       vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
 
-  docker-build:
-    uses: rropen/reusable-workflows/.github/workflows/docker_build.yml@main
-    with:
-      dockerfile_directory: src/backend
-      image: ghcr.io/rropen/sfm_backend:latest
-      registry: ghcr.io
-    secrets:
-      cr_username: ${{ secrets.GH_CR_USERNAME }}
-      cr_PAT: ${{ secrets.CONTAINER_PAT }}
+#   docker-build:
+#     uses: rropen/reusable-workflows/.github/workflows/docker_build.yml@main
+#     with:
+#       dockerfile_directory: src/backend
+#       image: ghcr.io/rropen/sfm_backend:latest
+#       registry: ghcr.io
+#     secrets:
+#       cr_username: ${{ secrets.GH_CR_USERNAME }}
+#       cr_PAT: ${{ secrets.CONTAINER_PAT }}
 
-  integration-tests:
-    needs: [docker-build, backend-unit-tests, frontend-unit-tests]
-    uses: rropen/reusable-workflows/.github/workflows/cypress_E2E.yml@main
-    with:
-      backend_directory: src/backend
-      frontend_directory: src/frontend
-      backend_url: http://localhost:8181
-      image: ghcr.io/rropen/sfm_backend:latest
-    secrets:
-      vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
-      cr_username: ${{ secrets.GH_CR_USERNAME }}
-      cr_PAT: ${{ secrets.CONTAINER_PAT }}
+#   integration-tests:
+#     needs: [docker-build, backend-unit-tests, frontend-unit-tests]
+#     uses: rropen/reusable-workflows/.github/workflows/cypress_E2E.yml@main
+#     with:
+#       backend_directory: src/backend
+#       frontend_directory: src/frontend
+#       backend_url: http://localhost:8181
+#       image: ghcr.io/rropen/sfm_backend:latest
+#     secrets:
+#       vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+#       cr_username: ${{ secrets.GH_CR_USERNAME }}
+#       cr_PAT: ${{ secrets.CONTAINER_PAT }}
       
-  codeQL:
-    needs: integration-tests
-    uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
-    with:
-      language: python
+#   codeQL:
+#     needs: integration-tests
+#     uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
+#     with:
+#       language: python
 
-  snyk-vulnerability-scanning:
-    needs: integration-tests
-    uses: rropen/reusable-workflows/.github/workflows/snyk_vulnerability_scanning.yml@main
-    secrets:
-      snyk_token: ${{secrets.SNYK_TOKEN}}
+#   snyk-vulnerability-scanning:
+#     needs: integration-tests
+#     uses: rropen/reusable-workflows/.github/workflows/snyk_vulnerability_scanning.yml@main
+#     secrets:
+#       snyk_token: ${{secrets.SNYK_TOKEN}}
 
   snyk-docker-vulnerability-scanning:
-    needs: integration-tests
+#     needs: integration-tests
     uses: rropen/reusable-workflows/.github/workflows/snyk_docker_vulnerability_scanning.yml@main
     with:
       dockerfile_directory: src/backend
@@ -66,7 +66,7 @@ jobs:
       snyk_token: ${{secrets.SNYK_TOKEN}}
 
   backend-build-deploy-azure:
-    needs: [codeQL, snyk-vulnerability-scanning, snyk-docker-vulnerability-scanning]
+    needs: [snyk-docker-vulnerability-scanning]
     uses: rropen/reusable-workflows/.github/workflows/docker_deploy_azure.yml@main
     with:
       dockerfile_directory: src/backend
@@ -77,7 +77,7 @@ jobs:
       crsft_password: ${{ secrets.CRSFT_PASSWORD }}
 
   frontend-build-deploy-azure:
-    needs: [codeQL, snyk-vulnerability-scanning, snyk-docker-vulnerability-scanning]
+    needs: [snyk-docker-vulnerability-scanning]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
