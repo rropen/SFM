@@ -17,13 +17,14 @@ class Settings(BaseSettings):
     SECRET_KEY: Long random string of characters to use in hashing and encryption.  Don't expose this value.
     ADMIN_KEY: Long string that will set the admin key used to generate new project keys.
     FRONTEND_URL: Location from which API requests will be made by the frontend.  This will need refactored if we start to have other tools using this API.
-    GITHUB_API_TOKEN: Token used for authentication with Github to increase rate limit of API calls
+    GITHUB_API_TOKEN: Token used for authentication with Github to increase rate limit of API calls. Personal access token used needs Repo level permissions only
+    API_AUTH_TOKEN: Token used as a base level of authentication for all API calls and to make calls directly through SwaggerUI
     DBHOST: Hostname for a database used in building a connection string
     DBNAME: Database name used in building a connection string
     DBUSER: Username used in building a connection string
     DBPASS: User's Password used in building a connection string
     AZURELOGGING_CONN_STR: Connection string to azure log handler
-    GITHUB_WEBHOOK_SECRET: ??
+    GITHUB_WEBHOOK_SECRET: GitHub Organization-level secret which allows the backend to verify which webhooks should be processed.
     """
 
     APP_NAME: str = "sfm"

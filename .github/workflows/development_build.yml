@@ -1,4 +1,4 @@
-# Test
+# Testt
 name: Development Build
 # on:
 #   pull_request:
@@ -26,11 +26,11 @@ jobs:
       uses: rropen/reusable-workflows/.github/workflows/docker_build.yml@main
       with:
         dockerfile_directory: src/backend
-        image_name: ghcr.io/rropen/sfm_backend:latest
-        container_registry: ghcr.io/rropen/sfm_backend:latest
+        image: ghcr.io/rropen/sfm_backend:latest
+        registry: ghcr.io
       secrets:
-        cr_username:  $ {{ secrets.GH_CR_USERNAME }}
-        cr_password: ${{ secrets.GH_CR_PASSWORD }}
+        cr_username: ${{ secrets.GH_CR_USERNAME }}
+        cr_PAT: ${{ secrets.CONTAINER_PAT }}
         
     integration-tests:
       needs: [docker-build]
@@ -39,10 +39,12 @@ jobs:
         backend_directory: src/backend
         frontend_directory: src/frontend
         backend_url: http://localhost:8181
+        image: ghcr.io/rropen/sfm_backend:latest
       secrets:
         vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
-        cr_username:  $ {{ secrets.GH_CR_USERNAME }}
-        cr_password: ${{ secrets.GH_CR_PASSWORD }}
+        cr_username: ${{ secrets.GH_CR_USERNAME }}
+        cr_PAT: ${{ secrets.CONTAINER_PAT }}
+        
         
 
 #     codeQL:
