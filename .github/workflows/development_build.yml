@@ -26,8 +26,7 @@ jobs:
       uses: rropen/reusable-workflows/.github/workflows/docker_build.yml@main
       with:
         dockerfile_directory: src/backend
-        image_name: ghcr.io/rropen/sfm_backend:latest
-        container_registry: ghcr.io/rropen/sfm_backend:latest
+        image: ghcr.io/rropen/sfm_backend:latest
       secrets:
         cr_username:  $ {{ secrets.GH_CR_USERNAME }}
         cr_password: ${{ secrets.GH_CR_PASSWORD }}
