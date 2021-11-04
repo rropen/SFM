@@ -358,6 +358,7 @@ const fetchProjects = () => {
       params: { skip: 0, limit: 100 },
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_API_AUTH_TOKEN}`,
       },
     })
     .then((response) => {

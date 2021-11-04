@@ -150,6 +150,7 @@ function fetchTimeToRestore() {
       params: {},
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_API_AUTH_TOKEN}`,
       },
     })
     .then((response) => {
