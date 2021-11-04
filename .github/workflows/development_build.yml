@@ -42,7 +42,7 @@ jobs:
       secrets:
         vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
         cr_username:  $ {{ secrets.GH_CR_USERNAME }}
-        cr_password: ${{ secrets.GH_CR_PASSWORD }}
+        cr_PAT: ${{ secrets.CONTAINER_PAT }}
         
 
 #     codeQL:
