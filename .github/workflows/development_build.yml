@@ -39,6 +39,7 @@ jobs:
         backend_directory: src/backend
         frontend_directory: src/frontend
         backend_url: http://localhost:8181
+        image: ghcr.io/rropen/sfm_backend:latest
       secrets:
         vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
         cr_username:  $ {{ secrets.GH_CR_USERNAME }}
