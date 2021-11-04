@@ -73,8 +73,9 @@ jobs:
     uses: rropen/reusable-workflows/.github/workflows/docker_deploy_azure.yml@main
     with:
       dockerfile_directory: src/backend
+      GH_image: ghcr.io/rropen/sfm_backend:latest
     secrets:
-      image: ${{ secrets.IMAGE_BACKEND }}
+      AZ_image: ${{ secrets.IMAGE_BACKEND }}
       crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
       crsft_username: ${{ secrets.CRSFT_USERNAME }}
       crsft_password: ${{ secrets.CRSFT_PASSWORD }}
