@@ -61,9 +61,12 @@ jobs:
 #     needs: integration-tests
     uses: rropen/reusable-workflows/.github/workflows/snyk_docker_vulnerability_scanning.yml@main
     with:
+      image: ghcr.io/rropen/sfm_backend:latest
       dockerfile_directory: src/backend
     secrets:
       snyk_token: ${{secrets.SNYK_TOKEN}}
+      cr_username: ${{ secrets.GH_CR_USERNAME }}
+      cr_PAT: ${{ secrets.CONTAINER_PAT }}
 
   backend-build-deploy-azure:
     needs: [snyk-docker-vulnerability-scanning]
