@@ -78,6 +78,8 @@ jobs:
       crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
       crsft_username: ${{ secrets.CRSFT_USERNAME }}
       crsft_password: ${{ secrets.CRSFT_PASSWORD }}
+      cr_username: ${{ secrets.GH_CR_USERNAME }}
+      cr_PAT: ${{ secrets.CONTAINER_PAT }}
 
   frontend-build-deploy-azure:
     needs: [snyk-docker-vulnerability-scanning]
