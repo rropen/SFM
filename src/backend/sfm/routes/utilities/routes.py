@@ -39,9 +39,11 @@ router = APIRouter()
 
 @router.post("/populate_mock_data")  # pragma: no cover
 def populate(db=Depends(get_db)):
-    utility_crud.populate_db(db)
+    response = utility_crud.populate_db(db)
+    return response
 
 
 @router.delete("/clear_local_db")  # pragma: no cover
 def clear(db=Depends(get_db)):
-    utility_crud.clear_db(db)
+    response = utility_crud.clear_db(db)
+    return response

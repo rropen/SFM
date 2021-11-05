@@ -195,6 +195,11 @@ def deployment_flagger(db, defect_id, proj_auth_token):
         .order_by(WorkItem.end_time.desc())
     ).first()
 
+    if deployment is None:
+        pass
+
+    # How to handle when there are defects but no pull request before
+
     update_dict = {"failed": True}
     work_item_update = WorkItemUpdate(**update_dict)
     work_item_crud.update_work_item(
@@ -311,12 +316,13 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
     work_item_data = WorkItemCreate(**create_defect_dict)
     defect_id = work_item_crud.create_work_item(db, work_item_data, proj_auth_token)
 
+    # exit()
     deployment_flagger(db, defect_id, proj_auth_token)
 
     logger.info(f'func="defect_processor" info="defect WorkItem Id = {defect_id}"')
 
 
-def populate_past_github(db, org, include_list):
+def populate_past_github(db, org, include_list):  # noqa: C901
     """
     PSEUDOCODE:
         - 1. Query github api for org string that was passed
@@ -362,6 +368,15 @@ def populate_past_github(db, org, include_list):
         repo_data = json.load(open("./test_converters/testing_files/testing_repo.json"))
 
     key_dict = {}
+    repo_list = [repo["name"] for repo in repo_data]
+    # proj_not_found_in_repo = [set(include_list) - set(repo_list)]
+    if include_list is not None:
+        for proj in include_list:
+            if proj not in repo_list:
+                raise HTTPException(
+                    status_code=404, detail=f"{proj} does not exist in {org}"
+                )
+
     for repo in repo_data:
         logger.info(
             f'func="populate_past_github" info="Entered repo loop with repo name = {repo["name"]}"'
@@ -389,10 +404,31 @@ def populate_past_github(db, org, include_list):
 
         if app_settings.ENV != "test":  # pragma: no cover
             event_request_str = str(repo["events_url"])
-            events = requests.get(event_request_str, headers=headers).json()
+            max_pages = 10
+            page_num = 0
+            end_of_results = False
+            events = []
+            logger.info(f"AHHHHHHHH {events}")
+
+            while end_of_results is False and page_num < max_pages:
+                params = {"state": "all", "per_page": 100, "page": page_num}
+                result = requests.get(
+                    event_request_str, headers=headers, params=params
+                ).json()
+                logger.info(f"AHHHHHHHHHHHHHHHHHHHHH {len(result)}")
+                for data in result:
+                    logger.info(f"AHHHHHHHH AHHHHHHHHH AHHHHHHHHHH {data}")
+                    events.append(data)
+                logger.info(
+                    f"AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH {events}"
+                )
+                end_of_results = len(result) < 100
+                page_num += 1
         else:
             events = json.load(open("./test_converters/testing_files/events.json"))
 
+        # event_types = [event["type"] for event in events]
+        # logger.info(f'HERES THE EVENTS {event_types}')
         for event in reversed(events):
             logger.info(
                 f'func="populate_past_github" info="Entered event loop with event name = {event["type"]}"'
@@ -440,10 +476,11 @@ def populate_past_github(db, org, include_list):
                     db, i_event["issue"], project, proj_auth_token, closed=True
                 )
 
-    not_included_projects = []
+    proj_intended_not_found = []
+    # If a project is in the database already with a matching name,
     if include_list is not None:
         in_database = db.exec(select(Project)).all()
         project_names_in_db = [proj.name for proj in in_database]
-        not_included_projects = list(set(project_names_in_db) - set(include_list))
+        proj_intended_not_found = list(set(include_list) - set(project_names_in_db))
 
-    return not_included_projects
+    return proj_intended_not_found

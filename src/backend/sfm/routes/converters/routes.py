@@ -173,15 +173,36 @@ def populate_past_data(
     db: Session = Depends(get_db),
     include_only_list: Optional[List[str]] = Query(None),
 ):
-    not_included_projects = populate_past_github(db, org, include_only_list)
-    if not_included_projects != []:  # pragma: no cover
+    """
+    ## Github Backpopulate
+
+    Queries the GitHub API to populate projects and work items that already exist in specified repos.
+    "include_only_list" is a list of repo names (as strings) that you wish use to populate the database.
+    If "include_only_list" is populated, only projects in this list will be populated
+    """
+    proj_intended_not_found = populate_past_github(db, org, include_only_list)
+
+    in_database = db.exec(select(Project)).all()
+    proj_name_in_db = [proj.name for proj in in_database]
+
+    logger.info(f"IN DATABASE {proj_name_in_db}")
+    logger.info(f"INCLUDE ONLY LIST {include_only_list}")
+
+    not_found_projects = []
+    if include_only_list is not None:
+        for repo in include_only_list:
+            if repo not in proj_name_in_db:
+                not_found_projects.append(repo)
+
+    if proj_intended_not_found != [] or not_found_projects != []:  # pragma: no cover
         included_projects = []
         for proj in include_only_list:
-            if proj not in not_included_projects:
+            if proj not in proj_intended_not_found and proj in proj_name_in_db:
                 included_projects.append(proj)
         return {
             "projects_included": included_projects,
-            "projects_not_found": not_included_projects,
+            "projects_not_included": proj_intended_not_found,
+            "project_not_found": not_found_projects,
         }
     else:
         return {"code": "success"}
