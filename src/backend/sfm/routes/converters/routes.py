@@ -1,5 +1,4 @@
 import json
-import logging
 
 from sfm.utils import validate_signature, calc_signature
 from sfm.dependencies import get_db
@@ -9,6 +8,7 @@ from sqlmodel import Session, select, and_
 from fastapi import APIRouter, HTTPException, Depends, Path, Header, Request, Query
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
+from sfm.logger import create_logger
 from .github_functions import (
     webhook_project_processor,
     deployment_processor,
@@ -23,18 +23,8 @@ from .github_functions import (
 
 app_settings = get_settings()
 
-logging.basicConfig(
-    filename="logs.log",
-    level=logging.DEBUG,
-    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
-)
 
-logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
-    )
-)
+logger = create_logger(__name__)
 
 
 router = APIRouter()

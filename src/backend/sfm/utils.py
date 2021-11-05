@@ -11,23 +11,12 @@ from sfm.config import get_settings
 from fastapi import HTTPException, Depends
 from sqlmodel import Session, select, and_
 from sfm.models import Project
+from sfm.logger import create_logger
+
+logger = create_logger(__name__)
 
 app_settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-logging.basicConfig(
-    filename="logs.log",
-    level=logging.DEBUG,
-    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
-)
-
-logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
-    )
-)
 
 
 def create_project_auth_token():

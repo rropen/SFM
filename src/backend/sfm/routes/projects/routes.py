@@ -7,26 +7,17 @@ from sfm.models import (
     ProjectUpdate,
 )
 from typing import List, Optional
-import logging
 
 from sqlmodel import Session
 from fastapi import APIRouter, HTTPException, Depends, Path, Query
 from sfm.config import get_settings
 from opencensus.ext.azure.log_exporter import AzureLogHandler
+from sfm.logger import create_logger
 
 app_settings = get_settings()
 
-logging.basicConfig(
-    filename="logs.log",
-    level=logging.DEBUG,
-    format="%(levelname)s %(name)s %(asctime)s %(message)s",
-)
-logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
-    )
-)
+
+logger = create_logger(__name__)
 
 
 router = APIRouter()

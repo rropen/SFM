@@ -20,22 +20,12 @@ from sqlmodel import select, and_
 from datetime import datetime
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
+from sfm.logger import create_logger
+
+logger = create_logger(__name__)
 
 app_settings = get_settings()
 headers = {"Authorization": f"token {app_settings.GITHUB_API_TOKEN}"}
-
-logging.basicConfig(
-    filename="logs.log",
-    level=logging.DEBUG,
-    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
-)
-
-logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
-    )
-)
 
 
 def webhook_project_processor(db, repo_data, action):
@@ -408,20 +398,13 @@ def populate_past_github(db, org, include_list):  # noqa: C901
             page_num = 0
             end_of_results = False
             events = []
-            logger.info(f"AHHHHHHHH {events}")
-
             while end_of_results is False and page_num < max_pages:
                 params = {"state": "all", "per_page": 100, "page": page_num}
                 result = requests.get(
                     event_request_str, headers=headers, params=params
                 ).json()
-                logger.info(f"AHHHHHHHHHHHHHHHHHHHHH {len(result)}")
                 for data in result:
-                    logger.info(f"AHHHHHHHH AHHHHHHHHH AHHHHHHHHHH {data}")
                     events.append(data)
-                logger.info(
-                    f"AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH {events}"
-                )
                 end_of_results = len(result) < 100
                 page_num += 1
         else:

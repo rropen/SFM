@@ -8,23 +8,12 @@ from sfm.config import get_settings
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import string
 import random
-
-import logging
+from sfm.logger import create_logger
 
 app_settings = get_settings()
 
-logging.basicConfig(
-    filename="logs.log",
-    level=logging.DEBUG,
-    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
-)
 
-logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
-    )
-)
+logger = create_logger(__name__)
 
 
 def random_sha(seed):  # pragma: no cover

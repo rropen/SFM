@@ -18,21 +18,12 @@ from sfm.routes.metrics import routes as metrics
 from sfm.routes.utilities import routes as utilities
 from sfm.routes.graphql.routes import query
 from sfm.routes import root
+from sfm.logger import create_logger
 from .config import get_settings
 
 app_settings = get_settings()
 
-logging.basicConfig(
-    filename="logs.log",
-    level=logging.DEBUG,
-    format="%(levelname)s %(name)s %(asctime)s %(message)s",
-)
-logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
-    )
-)
+logger = create_logger(__name__)
 
 # this file will always be called with __name__ == "sfm.main" (even in docker container)
 logger.info('file="main" info="before calling create_db_and_tables"')

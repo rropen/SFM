@@ -1,9 +1,9 @@
 from fastapi.exceptions import HTTPException
 from sfm.models import Project, WorkItem
 from sqlmodel import Session, select
-import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from sfm.config import get_settings
+from sfm.logger import create_logger
 from sfm.utils import (
     create_project_auth_token,
     hash_project_auth_token,
@@ -12,18 +12,8 @@ from sfm.utils import (
 
 app_settings = get_settings()
 
-logging.basicConfig(
-    filename="logs.log",
-    level=logging.DEBUG,
-    format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
-)
 
-logger = logging.getLogger(__name__)
-logger.addHandler(
-    AzureLogHandler(
-        connection_string="InstrumentationKey=" + app_settings.AZURE_LOGGING_CONN_STR
-    )
-)
+logger = create_logger(__name__)
 
 
 def get_all(db: Session, skip: int = None, limit: int = None):
@@ -145,7 +135,7 @@ def update_project(db: Session, project_id, project_data, admin_key):
     if verified_admin:
         project = db.get(Project, project_id)
         if not project:
-            logging.warning('func="update_project" warning="Project not found"')
+            logger.warning('func="update_project" warning="Project not found"')
             raise HTTPException(status_code=404, detail="Project not found")
 
         project_newdata = project_data.dict(exclude_unset=True, exclude_defaults=True)

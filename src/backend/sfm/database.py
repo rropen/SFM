@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Session, create_engine
 from opencensus.ext.azure.log_exporter import AzureLogHandler
-import logging
+from sfm.logger import create_logger
 from sfm.config import get_settings
 import psycopg2
 
@@ -28,6 +28,7 @@ def generate_db_string(ENV: str, DBHOST: str, DBNAME: str, DBUSER: str, DBPASS: 
         # return conn
         return conn
 
+
 app_settings = get_settings()
 CONN_STR = generate_db_string(
     app_settings.ENV,
@@ -45,13 +46,8 @@ if "sqlite" in CONN_STR:
 else:
     engine = create_engine(CONN_STR, echo=False)
 
-logging.basicConfig(
-    filename="logs.log",
-    level=logging.DEBUG,
-    format="%(levelname)s %(name)s %(asctime)s %(message)s",
-)
-logger = logging.getLogger(__name__)
-# logger.addHandler(AzureLogHandler(connection_string='InstrumentationKey='+app_settings.AZURE_LOGGING_CONN_STR))
+
+logger = create_logger(__name__)
 
 
 def create_db_and_tables():
