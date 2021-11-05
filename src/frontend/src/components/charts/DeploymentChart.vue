@@ -80,6 +80,7 @@ import axios from "axios";
 import { deploymentItem, infoForStatusItem } from "../../types";
 import infoModal from "../InfoModal.vue";
 import LoadingModal from "../LoadingModal.vue";
+// import.meta.env.MODE
 
 /* ----------------------------------------------
                   PROPS
@@ -143,6 +144,7 @@ const chartOptions = ref({
 function fetchDeployments() {
   //set url string
   let url = "";
+
   if (props.projectName == "All") {
     url = "/metrics/deployments";
   } else {
@@ -156,6 +158,7 @@ function fetchDeployments() {
       params: {},
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_API_AUTH_TOKEN}`,
       },
     })
     .then((response) => {

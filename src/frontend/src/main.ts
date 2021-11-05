@@ -8,6 +8,7 @@ import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
 import axios from "axios";
 
+//@ts-ignore
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 createApp(App)

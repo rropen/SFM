@@ -3,12 +3,12 @@
 This document outlines security procedures and general policies for the `SFM`
 project.
 
-* [Public Software Policy](#public-software-policy)
-* [Reporting a Bug](#reporting-a-bug)
+- [Public Software Policy](#public-software-policy)
+- [Reporting a Bug](#reporting-a-bug)
 
 ## Public Software Policy
 
-The `SFM` project is intended to be public facing. It is being used in a pathfinder capacity and will play a small part in the Rolls-Royce Digital Transformation efforts.  If you have any questions, please contact the lead maintainer at [Josh.Haines@Rolls-Royce.com](mailto:Josh.Haines@Rolls-Royce.com).
+The `SFM` project is intended to be public facing. It is being used in a pathfinder capacity and will play a small part in the Rolls-Royce Digital Transformation efforts. If you have any questions, please contact the lead maintainer at [Josh.Haines@Rolls-Royce.com](mailto:Josh.Haines@Rolls-Royce.com).
 
 ## Reporting a Bug
 
