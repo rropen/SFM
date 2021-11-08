@@ -1,17 +1,16 @@
 import pytest
-from typing import List
 from fastapi.testclient import TestClient
-from requests.sessions import HTTPAdapter
 from sqlmodel import Session, select
-from datetime import datetime, timedelta
-from fastapi import HTTPException, Request
+from datetime import datetime
 from sfm.models import WorkItem, Project
-import json
-import os
 
+from tests.test_converters.mock_converter_functions import (
+    mock_fetch_github_payload,
+    mock_get_commit_data,
+)
 
 # get at "/"
-def test_webhooks(client: TestClient, db: Session):
+def test_webhooks(client: TestClient, db: Session, mocker):
     client.delete(
         "utilities/clear_local_db"
     )  # clear database so there is a clean workspace
@@ -30,38 +29,51 @@ def test_webhooks(client: TestClient, db: Session):
         test_int = 10: repository deleted,
     """
 
-    # Testing respository created
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 0}
+    mocker.patch(
+        "sfm.routes.converters.github_functions.get_commit_data",
+        return_value=mock_get_commit_data(),
     )
+
+    # Testing respository created
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=0),
+    )
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     project = db.exec(select(Project).order_by(-Project.id)).first()
     assert project.name == "Webhook Testing Repo"
 
     # Testing pull_request to dev
-    pre_work_item_length = len(db.exec(select(WorkItem)).all())
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 1}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=1),
     )
+    pre_work_item_length = len(db.exec(select(WorkItem)).all())
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     assert len(db.exec(select(WorkItem)).all()) == pre_work_item_length
 
     # Testing pull_request to main not merged.
-    pre_work_item_length = len(db.exec(select(WorkItem)).all())
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 2}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=2),
     )
+    pre_work_item_length = len(db.exec(select(WorkItem)).all())
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     assert len(db.exec(select(WorkItem)).all()) == pre_work_item_length
 
     # Testing pull_request to main merged
-    pre_work_item_length = len(db.exec(select(WorkItem)).all())
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 3}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=3),
     )
+    pre_work_item_length = len(db.exec(select(WorkItem)).all())
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     assert len(db.exec(select(WorkItem)).all()) == pre_work_item_length + 1
@@ -71,16 +83,20 @@ def test_webhooks(client: TestClient, db: Session):
     assert pull_request.end_time == datetime(2021, 9, 5, 12, 0, 0, 0)
 
     # Testing issue opened
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 4}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=4),
     )
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
 
     # Testing issue labeled as production defect
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 5}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=5),
     )
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     issue = db.exec(select(WorkItem).order_by(-WorkItem.id)).first()
@@ -95,9 +111,11 @@ def test_webhooks(client: TestClient, db: Session):
     assert recent_pull_request.failed is True
 
     # Testing issue closed
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 6}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=6),
     )
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     issue = db.exec(select(WorkItem).order_by(-WorkItem.id)).first()
@@ -106,9 +124,11 @@ def test_webhooks(client: TestClient, db: Session):
     assert issue.end_time == datetime(2021, 10, 5, 12, 0, 0, 0)
 
     # Testing issue reopened
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 7}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=7),
     )
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     issue = db.exec(select(WorkItem).order_by(-WorkItem.id)).first()
@@ -117,9 +137,11 @@ def test_webhooks(client: TestClient, db: Session):
     assert issue.end_time is None
 
     # Testing issue unlabeled
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 8}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=8),
     )
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     issue_still_exists = db.get(WorkItem, issue.id)
@@ -142,9 +164,11 @@ def test_webhooks(client: TestClient, db: Session):
     # assert pull_request.end_time == datetime(2021, 10, 5, 12, 0, 0, 0).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # Testing repository renamed
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 9}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=9),
     )
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     project = db.exec(select(Project).order_by(-Project.id)).first()
@@ -152,9 +176,11 @@ def test_webhooks(client: TestClient, db: Session):
     assert project.repo_url == "https://github.com/WebhookTestingRepoURL"
 
     # Testing repository deleted
-    response = client.post(
-        "converters/github_webhooks/", json={"test": "test"}, params={"test_int": 10}
+    mocker.patch(
+        "sfm.routes.converters.routes.fetch_github_payload",
+        return_value=mock_fetch_github_payload(test_int=10),
     )
+    response = client.post("converters/github_webhooks/", json={"test": "test"})
     assert response.status_code == 200
     print("HERE'S THE RESPONSE: \n", response)
     project_still_exists = db.get(Project, project.id)

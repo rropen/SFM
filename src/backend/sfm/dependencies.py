@@ -19,7 +19,9 @@ def get_db():  # pragma: no cover
         db.close()
 
 
-def has_access(credentials: HTTPBasicCredentials = Depends(security)):
+def has_access(
+    credentials: HTTPBasicCredentials = Depends(security),
+):  # pragma: no cover
     token = credentials.credentials
     verified = verify_api_auth_token(token)
     if verified:

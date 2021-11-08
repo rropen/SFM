@@ -28,6 +28,11 @@ app_settings = get_settings()
 headers = {"Authorization": f"token {app_settings.GITHUB_API_TOKEN}"}
 
 
+def get_commit_data(pull_request):  # pragma: no cover
+    json_data = requests.get(pull_request["commits_url"], headers=headers).json()
+    return json_data
+
+
 def webhook_project_processor(db, repo_data, action):
     if action == "created":
         project_create_data = {
@@ -99,12 +104,7 @@ def pull_request_processor(
         db, work_item_data, project_auth_token
     )
 
-    # commits_url = "https://api.github.com/repos/Codertocat/Hello-World/commits"
-    if app_settings.ENV != "test":
-        json_data = requests.get(pull_request["commits_url"], headers=headers).json()
-    else:
-        json_data = json.load(open("./test_converters/testing_files/commits.json"))
-        logger.warning("using testing commit data file")
+    json_data = get_commit_data(pull_request)
 
     for i in range(0, len(json_data)):
         commit_data = json_data[i]
@@ -222,9 +222,9 @@ def reopened_processor(db, issue, proj_auth_token):
         raise HTTPException(  # pragma: no cover
             status_code=404, detail="No matching WorkItem in db for reopened issue"
         )
-    comment_string = f'Issue reopened at {issue["updated_at"]},'
+    comment_string = f'Issue reopened at {issue["updated_at"]}, '
     if reopened_item.comments is not None:
-        comment_string = comment_string + reopened_item.comments
+        comment_string += reopened_item.comments
     update_dict = {
         "end_time": None,
         "comments": comment_string,
@@ -292,6 +292,41 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
     deployment_flagger(db, defect_id, proj_auth_token)
 
 
+def parse_github_for_repo_data(org):  # pragma: no cover
+    org_data = requests.get(
+        f"https://api.github.com/orgs/{org}", headers=headers
+    ).json()
+    org_data_string = str(org_data["repos_url"])
+    repo_data = requests.get(org_data_string, headers=headers).json()
+
+    return repo_data
+
+
+def parse_github_for_issue_events(repo):  # pragma: no cover
+    issue_events_str = str(repo["issue_events_url"])
+    issue_events_str = issue_events_str.split("{")[0]
+    issue_events = requests.get(issue_events_str, headers=headers).json()
+
+    return issue_events
+
+
+def parse_github_for_events(repo):  # pragma: no cover
+    event_request_str = str(repo["events_url"])
+    max_pages = 10
+    page_num = 0
+    end_of_results = False
+    events = []
+    while end_of_results is False and page_num < max_pages:
+        params = {"state": "all", "per_page": 100, "page": page_num}
+        result = requests.get(event_request_str, headers=headers, params=params).json()
+        for data in result:
+            events.append(data)
+        end_of_results = len(result) < 100
+        page_num += 1
+
+    return events
+
+
 def populate_past_github(db, org, include_list):  # noqa: C901
     """
     PSEUDOCODE:
@@ -317,24 +352,9 @@ def populate_past_github(db, org, include_list):  # noqa: C901
 
     assert app_settings.ENV != ""
 
-    if app_settings.ENV != "test":  # pragma: no cover
-        # response = requests.get("https://api.github.com/rate_limit", headers=headers)
-        # logger.debug(f"{response}")
-        # print("GitHub API RATE LIMIT INFO:", response.json()["rate"])
-        # print(app_settings.ENV)
-        org_data = requests.get(
-            f"https://api.github.com/orgs/{org}", headers=headers
-        ).json()
-        org_data_string = str(org_data["repos_url"])
-        repo_data = requests.get(org_data_string, headers=headers).json()
+    repo_data = parse_github_for_repo_data(org)
 
-    else:
-        org_data = json.load(open("./test_converters/testing_files/org_data.json"))
-        repo_data = json.load(open("./test_converters/testing_files/testing_repo.json"))
-
-    key_dict = {}
     repo_list = [repo["name"] for repo in repo_data]
-    # proj_not_found_in_repo = [set(include_list) - set(repo_list)]
     if include_list is not None:
         for proj in include_list:
             if proj not in repo_list:
@@ -344,15 +364,7 @@ def populate_past_github(db, org, include_list):  # noqa: C901
 
     for repo in repo_data:
         logger.debug(f'Entered repo loop with repo name = {repo["name"]}')
-        project_exist = db.exec(
-            select(Project).where(Project.name == repo["name"])
-        ).first()
-
-        if project_exist and repo["name"] in key_dict.keys():
-            proj_auth_token = key_dict[repo["name"]]
-            project = project_exist
-        else:
-            project, proj_auth_token = project_processor(db, repo, include_list)
+        project, proj_auth_token = project_processor(db, repo, include_list)
 
         if project == "unset":
             continue
@@ -361,25 +373,7 @@ def populate_past_github(db, org, include_list):  # noqa: C901
             logger.error("Project was not properly created")
             continue
 
-        key_dict[repo["name"]] = proj_auth_token
-
-        if app_settings.ENV != "test":  # pragma: no cover
-            event_request_str = str(repo["events_url"])
-            max_pages = 10
-            page_num = 0
-            end_of_results = False
-            events = []
-            while end_of_results is False and page_num < max_pages:
-                params = {"state": "all", "per_page": 100, "page": page_num}
-                result = requests.get(
-                    event_request_str, headers=headers, params=params
-                ).json()
-                for data in result:
-                    events.append(data)
-                end_of_results = len(result) < 100
-                page_num += 1
-        else:
-            events = json.load(open("./test_converters/testing_files/events.json"))
+        events = parse_github_for_events(repo)
 
         # event_types = [event["type"] for event in events]
         # logger.info(f'HERES THE EVENTS {event_types}')
@@ -394,14 +388,7 @@ def populate_past_github(db, org, include_list):  # noqa: C901
                         db, event["payload"]["pull_request"], project, proj_auth_token
                     )
 
-        if app_settings.ENV != "test":  # pragma: no cover
-            issue_events_str = str(repo["issue_events_url"])
-            issue_events_str = issue_events_str.split("{")[0]
-            issue_events = requests.get(issue_events_str, headers=headers).json()
-        else:
-            issue_events = json.load(
-                open("./test_converters/testing_files/issue_events.json")
-            )
+        issue_events = parse_github_for_issue_events(repo)
 
         # Find the flagged events in the issue events and send them for processing and storage
         for i_event in reversed(issue_events):

@@ -13,8 +13,6 @@ from .github_functions import (
     webhook_project_processor,
     deployment_processor,
     pull_request_processor,
-    project_processor,
-    deployment_flagger,
     populate_past_github,
     defect_processor,
     reopened_processor,
@@ -30,10 +28,20 @@ logger = create_logger(__name__)
 router = APIRouter()
 
 
+def fetch_github_payload(request):
+    raw = request.body()
+    signature = request.headers.get("X-Hub-Signature-256")
+    proj_auth_token = validate_signature(signature, raw)
+
+    payload = request.json()
+
+    event_type = request.headers.get("X-Github-Event")
+
+    return payload, event_type, proj_auth_token
+
+
 @router.post("/github_webhooks/")  # pragma: no cover
-async def webhook_handler(
-    request: Request, db: Session = Depends(get_db), test_int: Optional[int] = None
-):
+async def webhook_handler(request: Request, db: Session = Depends(get_db)):
     """
     ## Github Webhook Handler
 
@@ -41,51 +49,15 @@ async def webhook_handler(
     Currently, endpoint processes two different event types: "Deployment" and "Pull Request".
     The payload data is parsed and data needed to calculate the DORA metrics is stored in the db tables.
     """
+
     if app_settings.GITHUB_WEBHOOK_SECRET in ["", "XXXXXXXXXXX"]:
         raise HTTPException(
             status_code=412,
             detail="Missing github webhook secret. Please specify GITHUB_WEBHOOK_SECRET and try again",
         )
 
-    if app_settings.ENV == "test":
-        file_list = [
-            ["./test_converters/testing_files/wh_repo_created.json", "repository"],
-            [
-                "./test_converters/testing_files/wh_pull_request_dev.json",
-                "pull_request",
-            ],
-            [
-                "./test_converters/testing_files/wh_pull_request_main_not_merged.json",
-                "pull_request",
-            ],
-            [
-                "./test_converters/testing_files/wh_pull_request_main_merged.json",
-                "pull_request",
-            ],
-            [
-                "./test_converters/testing_files/wh_issue_opened.json",
-                "issues",
-            ],  # not currently important until flow metrics
-            ["./test_converters/testing_files/wh_issue_labeled_prodDef.json", "issues"],
-            ["./test_converters/testing_files/wh_issue_closed.json", "issues"],
-            ["./test_converters/testing_files/wh_issue_reopened.json", "issues"],
-            ["./test_converters/testing_files/wh_issue_unlabeled.json", "issues"],
-            # ["./test_converters/testing_files/wh_deployment.json", "deployment"],
-            ["./test_converters/testing_files/wh_repo_renamed.json", "repository"],
-            ["./test_converters/testing_files/wh_repo_deleted.json", "repository"],
-        ]
-        payload = json.load(open(file_list[test_int][0]))
-        proj_auth_token = app_settings.GITHUB_WEBHOOK_SECRET
-        event_type = file_list[test_int][1]
-
-    if app_settings.ENV != "test":
-        raw = await request.body()
-        signature = request.headers.get("X-Hub-Signature-256")
-        proj_auth_token = validate_signature(signature, raw)
-
-        payload = await request.json()
-
-        event_type = request.headers.get("X-Github-Event")
+    # if app_settings.ENV != "test":
+    payload, event_type, proj_auth_token = fetch_github_payload(request)
 
     # gather common payload object properties
     if event_type != "push":  # push events are the exception to common properties
