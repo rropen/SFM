@@ -22,7 +22,7 @@ def get_all(db: Session, skip: int = None, limit: int = None):
         select(Project).order_by(Project.id).offset(skip).limit(limit)
     ).all()
     if not projects:
-        logger.warning('func="get_all" warning="Projects not found"')
+        logger.debug("Projects not found")
         raise HTTPException(status_code=404, detail="Projects not found")
     return projects
 
@@ -31,7 +31,7 @@ def get_by_id(db: Session, project_id: int):
     """Get the project with corresponding id and return it."""
     project = db.get(Project, project_id)
     if not project:
-        logger.warning('func="get_by_id" warning="Projects not found"')
+        logger.debug("Projects not found")
         raise HTTPException(status_code=404, detail="Project not found")
     return project
 
@@ -43,7 +43,7 @@ def create_project(db: Session, project_data, admin_key):
     ).first()
 
     if project_name_repeat is not None:
-        logger.warning('func="create_project" warning="Database entry already exists"')
+        logger.debug("Database entry already exists")
         raise HTTPException(status_code=409, detail="Database entry already exists")
 
     verified_admin = verify_admin_key(admin_key)
@@ -56,7 +56,7 @@ def create_project(db: Session, project_data, admin_key):
         db.add(project_db)
         db.commit()
     else:
-        logger.warning('func="create_project" warning="Credentials are incorrect"')
+        logger.warning("Attempted to verify as an admin with incorrect credentials")
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check the new record
@@ -65,7 +65,7 @@ def create_project(db: Session, project_data, admin_key):
     if new_project.name == project_data.name:
         return [new_project, token]  # successfully created record
     else:
-        logger.error('func="create_project" error="Project did not store correctly"')
+        logger.error("Project did not store correctly in database")
         return False  # didn't store correctly
 
 
@@ -75,7 +75,7 @@ def delete_project(db: Session, project_id, admin_key):
     if verified_admin:
         project = db.get(Project, project_id)
         if not project:
-            logger.warning('func="delete_project" warning="Project not found"')
+            logger.debug("Project not found")
             raise HTTPException(status_code=404, detail="Project not found")
 
         for item in project.work_items:
@@ -83,13 +83,13 @@ def delete_project(db: Session, project_id, admin_key):
         db.delete(project)
         db.commit()
     else:
-        logger.warning('func="delete_project" warning="Credentials are incorrect"')
+        logger.warning("Attempted to verify as admin with incorrect credentials")
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # Check our work
     row = db.get(Project, project_id)
     if row:
-        logger.error('func="delete_project" error="Project did not delete correctly"')
+        logger.error("Project did not delete correctly")
         return False  # Row didn't successfully delete or another one exists
     else:
         return True  # Successful deletion
@@ -101,9 +101,7 @@ def refresh_project_key(db: Session, project_id, admin_key):
     if verified_admin:
         project_db = db.get(Project, project_id)
         if not project_db:
-            logger.warning(
-                'func="refresh_project_key" warning="Project with matching id not found"'
-            )
+            logger.debug("Project with matching id not found")
             raise HTTPException(
                 status_code=404, detail="Project with matching id not found"
             )
@@ -113,7 +111,7 @@ def refresh_project_key(db: Session, project_id, admin_key):
         db.add(project_db)
         db.commit()
     else:
-        logger.warning('func="refresh_project_key" warning="Credentials are incorrect"')
+        logger.warning("Attempted to verify as admin with incorrect credentials")
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     check = db.exec(
@@ -122,9 +120,7 @@ def refresh_project_key(db: Session, project_id, admin_key):
     if check:
         return new_token
     else:
-        logger.error(
-            'func="refresh_project_key" error="Project auth token did not update correctly"'
-        )
+        logger.error("Project auth token did not update correctly")
         return False
 
 
@@ -135,7 +131,7 @@ def update_project(db: Session, project_id, project_data, admin_key):
     if verified_admin:
         project = db.get(Project, project_id)
         if not project:
-            logger.warning('func="update_project" warning="Project not found"')
+            logger.debug("Project not found")
             raise HTTPException(status_code=404, detail="Project not found")
 
         project_newdata = project_data.dict(exclude_unset=True, exclude_defaults=True)
@@ -146,7 +142,7 @@ def update_project(db: Session, project_id, project_data, admin_key):
         db.commit()
 
     else:
-        logger.warning('func="update_project" warning="Credentials are incorrect"')
+        logger.warning("Attempted to verify as admin with incorrect credentials")
         raise HTTPException(status_code=401, detail="Credentials are incorrect")
 
     # return updated item
@@ -154,7 +150,5 @@ def update_project(db: Session, project_id, project_data, admin_key):
     if project:
         return project  # updated record
     else:
-        logger.warning(
-            'func="update_project" warning="Project did not store correctly"'
-        )
+        logger.error("Project did not store correctly")
         return False  # didn't store correctly

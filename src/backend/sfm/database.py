@@ -40,7 +40,7 @@ CONN_STR = generate_db_string(
 
 # check_same_thread = false only works in sqlite, not postgres or others
 if "sqlite" in CONN_STR:
-    print("Using a sqlite database")
+    # print("Using a sqlite database")
     connect_args = {"check_same_thread": False}
     engine = create_engine(CONN_STR, connect_args=connect_args)
 else:
@@ -51,6 +51,5 @@ logger = create_logger(__name__)
 
 
 def create_db_and_tables():
-    logger.info('func="create_db_and_tables" info="before table create"')
     SQLModel.metadata.create_all(engine)
-    logger.info('func="create_db_and_tables" info="after table create"')
+    logger.debug("Empty database tables have been created")

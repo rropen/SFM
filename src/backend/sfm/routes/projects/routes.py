@@ -61,7 +61,6 @@ def get_projects(params: CustomGetParams = Depends(), db: Session = Depends(get_
     >When used together, *skip* and *limit* facilitate serverside pagination support.
 
     """
-    logger.info('method=GET path="projects/"')
     projects = crud.get_all(db, skip=params.skip, limit=params.limit)
     return projects
 
@@ -80,7 +79,6 @@ def get_project_by_id(project_id: int, db: Session = Depends(get_db)):
     - **project_id**: Unique identifier that links to the project in the database
 
     """
-    logger.info('method=GET path="projects/{project_id}"')
     project = crud.get_by_id(db, project_id=project_id)
     return project
 
@@ -113,7 +111,6 @@ def create_project(
     - **repo_url**: Github or Gitlab url to the corresponding project
     - **on_prem**: Boolean describing if the repo is located on a "on-premises" server
     """
-    logger.info('method=POST path="projects/"')
     # Creates the database row and stores it in the table
 
     new_project_arr = crud.create_project(db, project_data, admin_key)
@@ -127,7 +124,7 @@ def create_project(
             "token": token,
         }
     else:
-        logger.error('method=POST path="projects/" error="Row Not Created"')
+        logger.error("Project not stored correctly")
         return {"code": "error", "message": "Row Not Created"}  # pragma: no cover
 
 
@@ -149,7 +146,6 @@ def delete_project(
     - **project_id**: Unique identifier that links to the object in the database to be deleted
 
     """
-    logger.info('method=DELETE path="projects/{project_id}"')
     response = crud.delete_project(db, project_id, admin_key)
 
     if response:
@@ -158,12 +154,10 @@ def delete_project(
             "message": "Project {} and associated workItems deleted".format(project_id),
         }
     else:  # pragma: no cover
-        logger.error(
-            'method=POST path="projects/{project_id}" error="Project not deleted or multiple projects with same project_id existed."'
-        )
+        logger.error("Project not deleted")
         return {
             "code": "error",
-            "message": "Project not deleted or multiple projects with same project_id existed.",
+            "message": "Project not deleted",
         }
 
 
@@ -193,9 +187,7 @@ def refresh_project_key(
     """
     logger.info('method=POST path="projects/{project_id}"')
     if not project_id:
-        logger.error(
-            'method=POST path="projects/{project_id}" error="Project_id not provided"'
-        )
+        logger.debug("Project_id not provided")
         raise HTTPException(status_code=404, detail="project_id not provided")
 
     refreshed_token = crud.refresh_project_key(db, project_id, admin_key)
@@ -205,9 +197,7 @@ def refresh_project_key(
             "token": refreshed_token,
         }
     else:
-        logger.error(
-            'method=POST path="projects/{project_id}" error="Token  Not Refresh"'
-        )
+        logger.error("Token was not stored properly")
         return {"code": "error", "message": "Token Not Refreshed"}  # pragma: no cover
 
 
@@ -248,7 +238,6 @@ def update_project(
     - **on_prem**: Boolean describing if the repo is located on a "on-premises" server
 
     """
-    logger.info('method=PATCH path="projects/{project_id}"')
     update_project_success = crud.update_project(
         db, project_id, project_data, admin_key
     )
@@ -259,7 +248,5 @@ def update_project(
             "id": update_project_success.id,
         }
     else:
-        logger.error(
-            'method=PATCH path="projects/{project_id}" error="Row not updated"'
-        )
+        logger.error("Updated project not stored correctly")
         return {"code": "error", "message": "Row not updated"}  # pragma: no cover

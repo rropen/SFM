@@ -91,7 +91,7 @@ def calc_frequency(
 
 def combine_deploys(deployment_dates):  # deployment_dates: [date, date, date]
     if deployment_dates == []:
-        logger.debug('func="combine_deploys" debug="deployment_dates was empty"')
+        logger.debug("Deployment_dates passed to function is an empty list")
         return []
     initial_date = min(deployment_dates)
     total_days = (datetime.now().date() - initial_date).days
@@ -156,7 +156,7 @@ def group_failures(
     deployments,
 ):  # deployments: [{deploy}, {deploy}, ...] where {deploy} is a WorkItem object that meets criteria to be a deployment
     if deployments == []:
-        logger.debug('func="group_failures" debug="deployments is empty"')
+        logger.debug("Deployments passed to function is an empty list")
         return []
     deployment_dates = [deploy.end_time.date() for deploy in deployments]
     failed_deployment_dates = [
@@ -188,7 +188,7 @@ def group_restores(
     closed_prod_defects,
 ):  # closed_prod_defects: [{defect}, {defect}, ...] where {defect} is a WorkItem that meets the criteria of a Production Defect
     if closed_prod_defects == []:
-        logger.debug('func="group_restores" debug="closed_prod_defects is empty"')
+        logger.debug("Closed_prod_defects passed to function is an empty list")
         return []
     restore_dates = [restore.end_time.date() for restore in closed_prod_defects]
     initial_date = min(restore_dates)
@@ -273,9 +273,7 @@ def lead_time_to_change_crud(db, project_name, project_id):
             item for item in project.work_items if (item.category == "Pull Request")
         ]
         if not pull_requests:
-            logger.warning(
-                'method="GET" path="metrics/LeadTimeToChange" warning="No pull requests to main with specified project"'
-            )
+            logger.debug("No pull requests to main with specified project")
 
         project_name = project.name
 
@@ -285,9 +283,7 @@ def lead_time_to_change_crud(db, project_name, project_id):
             item for item in all_items if (item.category == "Pull Request")
         ]
         if not pull_requests:
-            logger.warning(
-                'method="GET" path="metrics/LeadTimeToChange" warning="No pull requests to main in record for any project"'
-            )
+            logger.debug("No pull requests to main in record for any project")
         project_name = "all"
 
     if not pull_requests:  # if no pull requests exist, return -1
@@ -378,9 +374,7 @@ def time_to_restore_crud(db, project_name, project_id):
     else:
         time_to_restore = -1
         performance = "No closed production defects exist in the last 3 months"
-        logger.warning(
-            'method="GET" path="metrics/TimeToRestore" warning="No closed production defects exist in the last 3 months"'
-        )
+        logger.warning("No closed production defects exist in the last 3 months")
 
     daily_time_to_restore = group_restores(closed_prod_defects)
 

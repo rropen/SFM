@@ -37,8 +37,6 @@ def populate_db(
     Calling this endpoint creates a database at SFM/src/backend/sfm/issues.db. This database is set in .env and created in database.py. Sample work items, projects, and commits are generated to be used in metrics testing. A date offset can be manually set on the mock data to allow the dates of the data to be shifted nearer the current date for a more realistic mock data set.
 
     """
-
-    logger.info('method=post path="utilities/populate_mock_data"')
     time_shift = timedelta(days=32)
 
     # fIRST PROJECT: Create project to file deployments under:
@@ -192,8 +190,7 @@ def populate_db(
     all_projects = proj_crud.get_all(db)
 
     if len(all_projects) != 2:
-        logger.warning(
-            'method=post path="utilities/populate_mock_data"',
+        logger.debug(
             "Incorrect number of project present. Clear database and rerun.",
         )
         return "Incorrect number of projects present. Clear database and rerun."
@@ -204,8 +201,7 @@ def populate_db(
     all_work_items = crud.get_all(db)
 
     if len(all_work_items) != (len(dates) + len(dates2) + len(pull_dates)):
-        logger.warning(
-            'method=post path="utilities/populate_mock_data"',
+        logger.debug(
             "Incorrect number of work items present. Clear database and rerun.",
         )
         return "Incorrect number of work items present. Clear database and rerun."
@@ -219,6 +215,7 @@ def populate_db(
     )
 
 
+# TODO: Turn off this endpoint before deploying to production
 def clear_db(db=Depends(get_db)):  # pragma: no cover
 
     """
@@ -227,12 +224,7 @@ def clear_db(db=Depends(get_db)):  # pragma: no cover
     Calling this endpoint drops all entries from all tables present in the local issues.db database.
 
     """
-
-    logger.info('method=delete path="utilities/clear_local_db"')
-    # meta = SQLModel.metadata
-    # for table in reversed(meta.sorted_tables):
-    #     db.execute(table.delete())
-    # db.commit()
+    logger.warning("Database cleared")
     SQLModel.metadata.drop_all(engine)
     create_db_and_tables()
     return "Database cleared"

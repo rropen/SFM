@@ -26,9 +26,7 @@ app_settings = get_settings()
 logger = create_logger(__name__)
 
 # this file will always be called with __name__ == "sfm.main" (even in docker container)
-logger.info('file="main" info="before calling create_db_and_tables"')
 create_db_and_tables()
-logger.info('file="main" info="after calling create_db_and_tables"')
 
 description = "<h2>Software Factory Metrics</h2><br><blockquote>A custom app built by the Software Factory to generate DORA metrics which are a key concept in the move towards DevSecOps.</blockquote>"
 app = FastAPI(
@@ -57,7 +55,7 @@ if app_settings.ENV in ["development", "production"]:
 
 # CORS Stuff
 origins = [app_settings.FRONTEND_URL]
-print("Configured Origins: {}".format(origins))
+# print("Configured Origins: {}".format(origins))
 
 app.add_middleware(
     CORSMiddleware,

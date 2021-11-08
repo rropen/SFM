@@ -51,7 +51,6 @@ def get_deployments(
     - **project_name**: sets project the WorkItem belongs to
 
     """
-    logger.info('method="GET" path="metrics/deployments"')
     return metrics_crud.get_deployments_crud(db, project_name, project_id)
 
 
@@ -74,7 +73,6 @@ def get_lead_time_to_change(
     - **project_name**: sets project data to be used for lead time calculation
 
     """
-    logger.info('method="GET" path="metrics/LeadTimeToChange"')
     return metrics_crud.lead_time_to_change_crud(db, project_name, project_id)
 
 
@@ -96,8 +94,6 @@ def get_time_to_restore(
     - **project_name**: sets project data to be used for calculation
 
     """
-    logger.info('method="GET" path="metrics/TimeToRestore"')
-
     return metrics_crud.time_to_restore_crud(db, project_name, project_id)
 
 

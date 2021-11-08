@@ -46,8 +46,8 @@ def webhook_project_processor(db, repo_data, action):
             select(Project).where(Project.name == repo_data["name"])
         ).first()
         if not project:
-            logger.warning(
-                'func="project_processor" warning="project to be deleted does not have matching entry in database"'
+            logger.debug(
+                "Project to be deleted does not have matching entry in database"
             )
         else:
             project_crud.delete_project(db, project.id, app_settings.ADMIN_KEY)
@@ -68,7 +68,6 @@ def webhook_project_processor(db, repo_data, action):
 def deployment_processor(
     db, deployment, project_db, project_auth_token
 ):  # pragma: no cover
-    logger.info('func="deployment_processor" info="entered"')
     deployment_dict = {
         "category": "Deployment",
         "end_time": deployment.get("updated_at"),
@@ -82,12 +81,9 @@ def deployment_processor(
 def pull_request_processor(
     db, pull_request, project_db, project_auth_token
 ):  # pragma: no cover
-    logger.info('func="pull_request_processor" info="entered"')
 
     if pull_request["merged"] is False:
-        logger.info(
-            'func="pull_request_processor" info="exited, not a merged pull request"'
-        )
+        logger.debug("pull request is not merged, not stored")
         return  # do not store un-merged pull requests
     pull_request_dict = {
         "category": "Pull Request",
@@ -107,10 +103,8 @@ def pull_request_processor(
     if app_settings.ENV != "test":
         json_data = requests.get(pull_request["commits_url"], headers=headers).json()
     else:
-        json_data = json.load(
-            open("./test_converters/testing_files/commits.json")
-        )  # <~~~
-        logger.warning('func="pull_request_processor" info="using testing commit file"')
+        json_data = json.load(open("./test_converters/testing_files/commits.json"))
+        logger.warning("using testing commit data file")
 
     for i in range(0, len(json_data)):
         commit_data = json_data[i]
@@ -134,16 +128,14 @@ def pull_request_processor(
 def project_processor(db, project, include_list):
     logger.info('func="project_processor" info="entered"')
     if project["name"][0] == ".":
-        logger.info(
-            'func="project_processor" info="project starts with a . or is not in the include list and will not be tracked"'
+        logger.debug(
+            "Project starts with a . or is not in the include list and will not be tracked"
         )
         project_db = "unset"
         proj_auth_token = "unset"
         return project_db, proj_auth_token
     elif include_list is not None and project["name"] not in include_list:
-        logger.info(
-            'func="project_processor" info="project not in the include list and will not be tracked"'
-        )
+        logger.debug("Project not in the include list and will not be tracked")
         project_db = "unset"
         proj_auth_token = "unset"
         return project_db, proj_auth_token
@@ -154,9 +146,6 @@ def project_processor(db, project, include_list):
         "repo_url": project["html_url"],
         "github_id": project["id"],
     }
-    logger.info(
-        f'func="project_processor" info="project name = {project_dict["name"]}"'
-    )
     project_data = ProjectCreate(**project_dict)
     try:
         [project_db, proj_auth_token] = project_crud.create_project(
@@ -229,9 +218,7 @@ def reopened_processor(db, issue, proj_auth_token):
         select(WorkItem).where(WorkItem.issue_num == issue["number"])
     ).first()
     if not reopened_item:
-        logger.warning(
-            'method=POST path="converters/github_webhooks" warning="No matching WorkItem in db for reopened issue"'
-        )
+        logger.warning("No matching WorkItem in db for reopened issue")
         raise HTTPException(  # pragma: no cover
             status_code=404, detail="No matching WorkItem in db for reopened issue"
         )
@@ -250,7 +237,6 @@ def reopened_processor(db, issue, proj_auth_token):
 
 def defect_processor(db, issue, project, proj_auth_token, closed=False):
     # closed=True signifies this was a "closed" event and not a "labeled" event
-    logger.info('func="defect_processor" info="entered"')
 
     issue_number = issue["number"]
     # if closed is true, set the existing defect end_time to the closed_at time and exit the function
@@ -265,9 +251,7 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
         ).first()
 
         if existing_issue is None:
-            logger.warning(
-                'func="defect_processor" warning="Defect with matching issue number does not exist"'
-            )
+            logger.debug("Defect with matching issue number does not exist")
             raise HTTPException(  # pragma: no cover
                 status_code=404,
                 detail="Defect with matching issue number does not exist",
@@ -278,7 +262,7 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
         work_item_crud.update_work_item(
             db, existing_issue.id, work_item_update, proj_auth_token
         )
-        logger.info('func="defect_processor" info="Defect updated with new end_time"')
+        logger.debug("Defect updated with new end_time")
 
         return
 
@@ -288,7 +272,6 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
 
     # used for backpopulation purposes. Only happens if flagged event is already closed.
     if state == "closed":
-        logger.info('func="defect_processor" info="defect event"')
         closed_time = datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ")
     elif state == "open":
         closed_time = None
@@ -306,10 +289,7 @@ def defect_processor(db, issue, project, proj_auth_token, closed=False):
     work_item_data = WorkItemCreate(**create_defect_dict)
     defect_id = work_item_crud.create_work_item(db, work_item_data, proj_auth_token)
 
-    # exit()
     deployment_flagger(db, defect_id, proj_auth_token)
-
-    logger.info(f'func="defect_processor" info="defect WorkItem Id = {defect_id}"')
 
 
 def populate_past_github(db, org, include_list):  # noqa: C901
@@ -328,17 +308,12 @@ def populate_past_github(db, org, include_list):  # noqa: C901
                 -i. (not easy and possible improvement) timer stops when verified issue is fixed
             - b. This marks the MOST RECENT deploy as a failure
     """
-    logger.info(app_settings.ENV)
-    logger.info('func="populate_past_github" info="entered"')
 
     if app_settings.GITHUB_API_TOKEN in ["", "XXXXXXXXXXX"]:  # pragma: no cover
         raise HTTPException(
             status_code=412,
             detail="Missing github api token.  Please specify GITHUB_API_TOKEN and try again",
         )
-        # raise ValueError(
-        #     "Missing github api token.  Please specify GITHUB_API_TOKEN and try again"
-        # )
 
     assert app_settings.ENV != ""
 
@@ -368,9 +343,7 @@ def populate_past_github(db, org, include_list):  # noqa: C901
                 )
 
     for repo in repo_data:
-        logger.info(
-            f'func="populate_past_github" info="Entered repo loop with repo name = {repo["name"]}"'
-        )
+        logger.debug(f'Entered repo loop with repo name = {repo["name"]}')
         project_exist = db.exec(
             select(Project).where(Project.name == repo["name"])
         ).first()
@@ -385,9 +358,7 @@ def populate_past_github(db, org, include_list):  # noqa: C901
             continue
 
         if project is False:
-            logger.error(
-                'func="populate_past_github" error="project was not properly created"'
-            )
+            logger.error("Project was not properly created")
             continue
 
         key_dict[repo["name"]] = proj_auth_token
@@ -413,9 +384,7 @@ def populate_past_github(db, org, include_list):  # noqa: C901
         # event_types = [event["type"] for event in events]
         # logger.info(f'HERES THE EVENTS {event_types}')
         for event in reversed(events):
-            logger.info(
-                f'func="populate_past_github" info="Entered event loop with event name = {event["type"]}"'
-            )
+            logger.debug(f'"Entered event loop with event name = {event["type"]}"')
             if event["type"] == "PullRequestEvent":
                 if (
                     event["payload"]["pull_request"]["head"]["repo"]["default_branch"]
@@ -436,8 +405,8 @@ def populate_past_github(db, org, include_list):  # noqa: C901
 
         # Find the flagged events in the issue events and send them for processing and storage
         for i_event in reversed(issue_events):
-            logger.info(
-                f'func="populate_past_github" info="Entered labeled event loop with event name = {i_event["event"]}"'
+            logger.debug(
+                f'"Entered labeled event loop with event name = {i_event["event"]}"'
             )
             if (
                 i_event["event"] == "labeled"
@@ -450,8 +419,8 @@ def populate_past_github(db, org, include_list):  # noqa: C901
         # Second time through the issue events, this time looking for any closed events to set end times for
         # issues that were created with "labeled" events in the first loop through
         for i_event in reversed(issue_events):
-            logger.info(
-                f'func="populate_past_github" info="Entered closed event loop with event name = {i_event["event"]}"'
+            logger.debug(
+                f'"Entered closed event loop with event name = {i_event["event"]}"'
             )
             label_names = [label["name"] for label in i_event["issue"]["labels"]]
             if i_event["event"] == "closed" and "production defect" in label_names:

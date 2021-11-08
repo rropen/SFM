@@ -21,7 +21,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def create_project_auth_token():
     # creates 20 character string of random letters, numbers, symbols.
-    logger.info("Created new project auth token")
+    logger.debug("A new project auth token has been created")
     low_letters = string.ascii_lowercase
     up_letters = string.ascii_uppercase
     digits = string.digits
@@ -75,7 +75,10 @@ def calc_signature(payload):
 
 def validate_signature(signature, raw):
     if signature != calc_signature(raw):
-        raise HTTPException(status_code=401, detail="Github Signature Incorrect")
+        logger.warning(
+            "Incorrect GitHub credentials included with incoming payload, access was denied"
+        )
+        raise HTTPException(status_code=401, detail="Github Credentials Incorrect")
     project_auth_token = app_settings.GITHUB_WEBHOOK_SECRET
     return project_auth_token
 
@@ -111,9 +114,7 @@ def project_selector(db, project_name=None, project_id=None):
     if project_name and not project_id:
         project = db.exec(select(Project).where(Project.name == project_name)).first()
         if not project:
-            logger.warning(
-                'func=project_selector warning="No Project found with the specified name"'
-            )
+            logger.debug("No Project found with the specified name")
             raise HTTPException(
                 status_code=404,
                 detail=f"No project found with the specified name: {project_name}",
@@ -121,9 +122,7 @@ def project_selector(db, project_name=None, project_id=None):
     elif project_id and not project_name:
         project = db.get(Project, project_id)
         if not project:
-            logger.warning(
-                'func=project_selector warning="No Project found with the specified id"'
-            )
+            logger.debug("No project with the specified id")
             raise HTTPException(
                 status_code=404,
                 detail=f"No project found with the specified id: {project_id}",
@@ -135,8 +134,8 @@ def project_selector(db, project_name=None, project_id=None):
             )
         ).first()
         if not project:
-            logger.warning(
-                'func=project_selector warning="Either project_id and project_name do not match or no matching project"'
+            logger.debug(
+                "Either project_id and project_name do not match or no matching project"
             )
             raise HTTPException(
                 status_code=404,

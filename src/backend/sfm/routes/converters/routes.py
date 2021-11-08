@@ -47,9 +47,6 @@ async def webhook_handler(
             detail="Missing github webhook secret. Please specify GITHUB_WEBHOOK_SECRET and try again",
         )
 
-    logger.info('method="POST" path="converters/github_webhooks"')
-    # handle events
-
     if app_settings.ENV == "test":
         file_list = [
             ["./test_converters/testing_files/wh_repo_created.json", "repository"],
@@ -105,9 +102,7 @@ async def webhook_handler(
         ).first()
 
         if not project_db:
-            logger.warning(
-                'method=POST path="converters/github_webhooks" warning="Matching project not found in db"'
-            )
+            logger.debug("A matching project was not found in the database")
             raise HTTPException(
                 status_code=404, detail="Matching project not found in db"
             )
@@ -143,14 +138,10 @@ async def webhook_handler(
         ]:
             unlabeled_processor(db, issue, proj_auth_token)
         else:
-            logger.info(
-                'method=POST path="converters/github_webhooks" info="Issues event type that is unhandled is passed"'
-            )
+            logger.debug("Issues event type passed that is unhandled")
 
     else:
-        logger.warning(
-            'method=POST path="converters/github_webhooks" warning="Event type not handled."'
-        )
+        logger.warning("Event type not handled")
         return {"code": "event type not handled"}
         # raise HTTPException(status_code=404, detail="Event type not handled.")
 
@@ -174,9 +165,6 @@ def populate_past_data(
 
     in_database = db.exec(select(Project)).all()
     proj_name_in_db = [proj.name for proj in in_database]
-
-    logger.info(f"IN DATABASE {proj_name_in_db}")
-    logger.info(f"INCLUDE ONLY LIST {include_only_list}")
 
     not_found_projects = []
     if include_only_list is not None:

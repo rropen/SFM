@@ -8,9 +8,12 @@ app_settings = get_settings()
 def create_logger(logger_name):
     logging.basicConfig(
         filename="logs.log",
-        level=logging.DEBUG,
-        format="%(asctime)s %(pathname)s %(levelname)s %(message)s",
+        level=logging.INFO,
+        format="%(asctime)s | %(pathname)s | %(levelname)s | %(message)s",
     )
+
+    if app_settings.DEBUG:
+        logging.basicConfig(level=logging.DEBUG)
 
     logger = logging.getLogger(logger_name)
     logger.addHandler(

@@ -38,7 +38,6 @@ def get_work_items(
     - **project_id**: specifying **project_id** returns only work items in a given project
     - **project_name**: specifying **project_name** returns only work items in a given project
     """
-    logger.info('method=GET path="workItems/"')
     work_items = crud.get_all(
         db, skip=skip, limit=limit, project_id=project_id, project_name=project_name
     )
@@ -63,12 +62,9 @@ def get_work_item(work_item_id: int, db: Session = Depends(get_db)):
     -**work_item_id**: id of the work item to be requested
 
     """
-    logger.info('method=GET path="workItem/{work_item_id}"')
     work_item = crud.get_by_id(db, work_item_id)
     if not work_item:
-        logger.warning(
-            'method=GET path="workItem/{work_item_id}"', "WorkItem not found"
-        )
+        logger.debug("WorkItem not found")
         raise HTTPException(
             status_code=404, detail="WorkItem not found"
         )  # pragma: no cover
@@ -106,9 +102,8 @@ def create_work_item(
     - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
     - **duration_open**: sets duration of WorkItem being open
     - **project_id**: sets project the WorkItem belongs to
-
     """
-    logger.info('method=POST path="workItems/"')
+
     # Creates the database row and stores it in the table
 
     new_work_item_success = crud.create_work_item(
@@ -121,7 +116,7 @@ def create_work_item(
             "id": new_work_item_success,
         }
     else:
-        logger.error('method=POST path="workItems/" error="Row Not Created"')
+        logger.error("WorkItem not stored correctly")
         return {"code": "error", "message": "Row Not Created"}  # pragma: no cover
 
 
@@ -149,7 +144,6 @@ def delete_work_item(
 
     - **project_auth_token**: authentication key to allow for major changes to occur to project data (specific to the WorkItem's project)
     """
-    logger.info('method=DELETE path="workItems/{work_item_id}"')
     response = crud.delete_work_item(db, work_item_id, project_auth_token)
 
     if response:
@@ -158,9 +152,7 @@ def delete_work_item(
             "message": "WorkItem {} Deleted".format(work_item_id),
         }
     else:  # pragma: no cover
-        logger.error(
-            'method=POST path="workItems/{work_item_id}" error="WorkItem not deleted or multiple WorkItems with same work_item_id existed."'
-        )
+        logger.error("WorkItem not deleted")
         return {
             "code": "error",
             "message": "WorkItem not deleted or multiple WorkItems with same work_item_id existed.",
@@ -205,7 +197,6 @@ def update_work_item(
     - **end_time**: sets the end time of the WorkItem (could be merged date or closed date depending on metric needs for the specified WorkItem category)
     - **project_id**: sets project the WorkItem belongs to
     """
-    logger.info('method=PATCH path="workItems/{work_item_id}"')
     updated_work_item = crud.update_work_item(
         db, work_item_id, work_item_data, project_auth_token
     )
@@ -216,7 +207,5 @@ def update_work_item(
             "id": updated_work_item.id,
         }
     else:
-        logger.error(
-            'method=PATCH path="workItems/{work_item_id}" error="Row not updated"'
-        )
+        logger.error("Updated workitem not stored")
         return {"code": "error", "message": "Row not updated"}  # pragma: no cover
