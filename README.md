@@ -15,6 +15,7 @@
 ---
 
 <p>
+    <a href="https://pdm.fming.dev"><img src="https://img.shields.io/badge/pdm-managed-blueviolet" /></a>
     <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen?style=flat"></a>
     <a href="https://www.cypress.io/"><img src="https://img.shields.io/badge/tested%20with-Cypress-04C38E?style=flat">
     <a href="https://v3.vuejs.org/"><img src="https://img.shields.io/badge/vuejs-%2335495e.svg?style=flat&logo=vuedotjs&logoColor=%234FC08D"></a>
