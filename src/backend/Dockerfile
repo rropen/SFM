@@ -14,14 +14,19 @@ RUN apt-get update \
     && apt-get -y install unixodbc unixodbc-dev apt-utils netcat gunicorn libpq-dev python3-dev gcc libpq-dev build-essential vim \
     && apt-get autoremove -y \
     && apt-get clean all
-RUN pip install --upgrade pip setuptools wheel
+RUN pip install --upgrade pip setuptools wheel pdm
 
 
 COPY requirements.txt .
+# COPY pyproject.toml .
+# COPY pdm.lock .
 RUN pip install -r requirements.txt
+# RUN pdm install
+# RUN pdm run pip install sqlmodel
 COPY . .
 # COPY ./main.py __pypackages__/3.9/lib/sqlmodel
 
+# CMD ["pdm", "run", "uvicorn","sfm.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181"]
 CMD ["uvicorn","sfm.main:app", "--workers", "4", "--host", "0.0.0.0", "--port","8181"]
 
 EXPOSE 8181

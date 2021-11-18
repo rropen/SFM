@@ -1,4 +1,4 @@
-from sfm.database import create_db_and_tables
+# from sfm.database import create_db_and_tables
 from sfm.routes.utilities import crud as utility_crud
 from sfm.dependencies import get_db
 from sqlmodel import SQLModel

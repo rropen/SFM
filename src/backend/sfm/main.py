@@ -1,15 +1,14 @@
-# CD to backend > source env/Scripts/activate > pip install -r requirements.txt  > uvicron main:app --reload
-# UI http://127.0.0.1:8000/docs http://127.0.0.1:8000/openapi.json
 from fastapi import FastAPI, Depends
 from fastapi.security import HTTPBearer
-from sqlmodel import Session
+
+# from sqlmodel import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette_graphene3 import GraphQLApp, make_graphiql_handler
-from sfm.database import create_db_and_tables, engine
-from sfm.dependencies import has_access
 import os
 import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
+
+from sfm.dependencies import has_access
 from sfm.models import *
 from sfm.routes.work_items import routes as work_items
 from sfm.routes.projects import routes as projects
@@ -21,25 +20,24 @@ from sfm.routes import root
 from sfm.logger import create_logger
 from .config import get_settings
 
+# This is how you can get access to environment configuration values throughout the application
+# Then app_settings.ENV or app_settings.CONN_STR.  See config.py for possible values.
 app_settings = get_settings()
 
 logger = create_logger(__name__)
 
 # this file will always be called with __name__ == "sfm.main" (even in docker container)
-create_db_and_tables()
+# create_db_and_tables()
 
 description = "<h2>Software Factory Metrics</h2><br><blockquote>A custom app built by the Software Factory to generate DORA metrics which are a key concept in the move towards DevSecOps.</blockquote>"
 app = FastAPI(
     debug=os.environ.get("DEBUG"),
     title="SFM API",
     description=description,
-    version="0.0.1",
+    version="0.1.0",
     dependencies=[Depends(has_access)],
 )
 
-# This is how you can get access to environment configuration values throughout the application
-# Then app_settings.ENV or app_settings.CONN_STR.  See config.py for possible values.
-app_settings = get_settings()
 
 # assert app_settings.ENV != "unset"  # mandate ENV value
 assert app_settings.ENV in ("test", "local", "development", "production")
@@ -48,10 +46,7 @@ assert app_settings.ADMIN_KEY != "unset"  # mandate ADMIN_KEY value
 assert app_settings.FRONTEND_URL != "unset"  # mandate FRONTEND_URL value
 assert app_settings.GITHUB_API_TOKEN != "unset"  # mandate GITHUB_API_TOKEN value
 if app_settings.ENV in ["development", "production"]:
-    # assert app_settings.DBHOST != "unset"  # mandate DBHOST value
-    assert app_settings.DBNAME != "unset"  # mandate DBNAME value
-    # assert app_settings.DBUSER != "unset"  # mandate DBUSER value
-    assert app_settings.DBPASS != "unset"  # mandate DBPASS value
+    assert app_settings.DATABASE_URL != "unset"  # mandate DBNAME value
 
 # CORS Stuff
 origins = [app_settings.FRONTEND_URL]

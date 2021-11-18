@@ -169,7 +169,12 @@ docker-compose -f docker-compose.yml -f local-docker-compose.yml build
 
 # Run the container in detached mode to return your command prompt
 docker-compose -f docker-compose.yml -f local-docker-compose.yml up -d backend
+
+# Migrate the database to the initial schema using alembic
+docker-compose -f docker-compose.yml -f local-docker-compose.yml -p sfm exec backend alembic upgrade head
 ```
+
+You can visit the backend by opening a browser to the address <http://localhost:8181>. You can open a gui to see data in your running postgres database by visiting <http://localhost:8182>. Login with the username `admin@admin.com` and the password `root`.
 
 <!--
 ```

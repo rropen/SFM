@@ -174,3 +174,5 @@ src/backend/*.db
 screenshots/
 PAT.txt
 dist
+db-data/
+pgadmin-data/
