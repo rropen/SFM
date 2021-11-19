@@ -1,17 +1,12 @@
-from enum import auto
 import pytest
-import os
 import datetime
 from passlib.context import CryptContext
-from sqlalchemy.sql.roles import StatementOptionRole
 from sqlmodel import SQLModel, create_engine, Session
 from sqlmodel.pool import StaticPool
-from sqlalchemy.orm import sessionmaker
 from starlette.testclient import TestClient
 from sfm.main import app
 from sfm.dependencies import get_db, has_access
-from sfm.config import get_settings
-from sfm.models import WorkItem, Project, Commit, ProjectCreate, WorkItemCreate
+from sfm.models import WorkItem, Project, Commit
 
 
 @pytest.fixture(name="session")
@@ -28,13 +23,13 @@ def session_fixture():
 
 @pytest.fixture(name="client")
 def client_fixture(session: Session):
-    def get_session_override():
+    def get_db_override():
         return session
 
     def test_auth_override():
         return True
 
-    app.dependency_overrides[get_db] = get_session_override
+    app.dependency_overrides[get_db] = get_db_override
     app.dependency_overrides[has_access] = test_auth_override
 
     client = TestClient(app)
