@@ -176,3 +176,4 @@ PAT.txt
 dist
 db-data/
 pgadmin-data/
+pulumi/Pulumi.sfm.yaml
