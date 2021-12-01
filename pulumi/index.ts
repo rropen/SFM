@@ -3,6 +3,7 @@ import * as azuread from "@pulumi/azuread";
 import * as pulumi from "@pulumi/pulumi";
 import * as random from "@pulumi/random";
 import * as tls from "@pulumi/tls";
+import * as k8s from "@pulumi/kubernetes";
 
 import * as containerservice from "@pulumi/azure-native/containerservice";
 import * as resources from "@pulumi/azure-native/resources";
@@ -83,3 +84,31 @@ const encoded = creds.kubeconfigs[0].value;
 export const kubeconfig = encoded.apply((enc) =>
   Buffer.from(enc, "base64").toString()
 );
+
+// export const provider = new k8s.Provider("askK8s",
+//   {
+//     kubeconfig: kubeconfig,
+//   });
+
+/* =======
+Argo CD
+======= */
+
+// // Create a new namespace for ArgoCD
+// const name = "argocd"
+// const ns = new k8s.core.v1.Namespace("argocd", {
+//     metadata: { name: name },
+// }, { provider });
+
+// const argocd = new k8s.yaml.ConfigFile(
+//   "argocd",
+//   {
+//     file: "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
+//   }
+// )
+
+// //Export the private cluster IP address of ArgoCD
+// const argocdIp = argocd.getResource("v1/Service", "argocd");
+// export const privateIp = argocdIp.spec.clusterIP
+
+// // export const url = argocd.getResourceProperty("v1/Service", `${name}/argocd-server`, "status").apply(status => status.loadBalancer.ingress[0].hostname)
