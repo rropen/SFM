@@ -30,4 +30,4 @@ jobs:
       - name: Build/Push Frontend Container
         run: |
           docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t ${{ secrets.IMAGE_FRONTEND_PROD }} src/frontend
-          docker push ${{ secrets.IMAGE_FRONTEND_DEV }}
+          docker push ${{ secrets.IMAGE_FRONTEND_PROD }}
