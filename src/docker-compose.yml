@@ -3,14 +3,12 @@ version: "3.7"
 services:
   backend:
     build: ./backend
-    container_name: test_sfm_backend
     restart: always
     env_file:
       - ./backend/.env
 
   frontend:
     build: ./frontend
-    container_name: test_sfm_frontend
     restart: always
     depends_on:
       - backend
