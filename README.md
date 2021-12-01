@@ -7,14 +7,12 @@
 <p>
     <a href="https://github.com/rropen/SFM"><img src="https://img.shields.io/badge/Rolls--Royce-Software%20Factory-10069f"></a>
     <a href="https://github.com/rropen/SFM/actions/workflows/development_build.yml"><img src="https://github.com/rropen/SFM/actions/workflows/development_build.yml/badge.svg"></a>
-    <a href="https://github.com/rropen/SFM/actions/workflows/frontend_unit_tests.yml"><img src="https://github.com/rropen/SFM/actions/workflows/frontend_unit_tests.yml/badge.svg"></a>
-    <a href="https://github.com/rropen/SFM/actions/workflows/backend_unit_tests.yml"><img src="https://github.com/rropen/SFM/actions/workflows/backend_unit_tests.yml/badge.svg"></a>
-    <a href="https://github.com/rropen/SFM/actions/workflows/integration_tests.yml"><img src="https://github.com/rropen/SFM/actions/workflows/integration_tests.yml/badge.svg"></a>
 </p>
 
 ---
 
 <p>
+    <a href="https://pdm.fming.dev"><img src="https://img.shields.io/badge/pdm-managed-blueviolet" /></a>
     <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen?style=flat"></a>
     <a href="https://www.cypress.io/"><img src="https://img.shields.io/badge/tested%20with-Cypress-04C38E?style=flat">
     <a href="https://v3.vuejs.org/"><img src="https://img.shields.io/badge/vuejs-%2335495e.svg?style=flat&logo=vuedotjs&logoColor=%234FC08D"></a>

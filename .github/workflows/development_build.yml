@@ -44,12 +44,12 @@ jobs:
       vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
       cr_username: ${{ secrets.GH_CR_USERNAME }}
       cr_PAT: ${{ secrets.CONTAINER_PAT }}
-      
-#   codeQL:
-#     needs: integration-tests
-#     uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
-#     with:
-#       language: python
+
+  #   codeQL:
+  #     needs: integration-tests
+  #     uses: rropen/reusable-workflows/.github/workflows/codeQL.yml@main
+  #     with:
+  #       language: python
 
   snyk-vulnerability-scanning:
     needs: integration-tests
@@ -75,7 +75,7 @@ jobs:
       dockerfile_directory: src/backend
       GH_image: ghcr.io/rropen/sfm_backend:latest
     secrets:
-      AZ_image: ${{ secrets.IMAGE_BACKEND }}
+      AZ_image: ${{ secrets.IMAGE_BACKEND_DEV }}
       crsft_login_server: ${{ secrets.CRSFT_LOGIN_SERVER }}
       crsft_username: ${{ secrets.CRSFT_USERNAME }}
       crsft_password: ${{ secrets.CRSFT_PASSWORD }}
@@ -96,5 +96,5 @@ jobs:
           password: ${{ secrets.CRSFT_PASSWORD }}
       - name: Build/Push Frontend Container
         run: |
-          docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t ${{ secrets.IMAGE_FRONTEND }} src/frontend
-          docker push ${{ secrets.IMAGE_FRONTEND }}
+          docker build --build-arg NODE_AUTH_TOKEN=${{ secrets.VUE_COBALT_PAT }} -t ${{ secrets.IMAGE_FRONTEND_DEV }} src/frontend
+          docker push ${{ secrets.IMAGE_FRONTEND_DEV }}

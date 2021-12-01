@@ -1,7 +1,30 @@
 version: "3.7"
 
 services:
+  db:
+    image: postgres:alpine
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sfm
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "8183:80"
+    volumes:
+      - ./pgadmin-data:/var/lib/pgadmin
   backend:
+    depends_on:
+      - pgadmin
     command: uvicorn sfm.main:app --workers 4 --host 0.0.0.0 --port 8181 --reload
     ports:
       - 8181:8181
