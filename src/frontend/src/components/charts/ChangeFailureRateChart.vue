@@ -129,8 +129,10 @@ const chartOptions = ref({
 
 /* GET request to /metrics/deployments to retrieve array of deployments. */
 function fetchChangeFailureRate() {
+  let bearer = import.meta.env.VITE_API_AUTH_TOKEN;
   //set url string
-  let url = import.meta.env.VITE_API_URL;
+  // let url = import.meta.env.VITE_API_URL;
+  let url = "";
   if (props.projectName == "All") {
     url = "/metrics/ChangeFailureRate";
   } else {
@@ -144,7 +146,8 @@ function fetchChangeFailureRate() {
       params: {},
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_API_AUTH_TOKEN}`,
+        // Authorization: `Bearer ${import.meta.env.VITE_API_AUTH_TOKEN}`,
+        Authorization: "Bearer " + bearer,
       },
     })
     .then((response) => {

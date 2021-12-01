@@ -10,8 +10,10 @@ RUN yarn
 COPY . .
 ENV PATH ./node_modules/.bin:$PATH
 ARG NODE_ENV
-RUN yarn build
+ARG VITE_API_URL
 ARG ENV
+ARG VITE_API_AUTH_TOKEN
+RUN yarn build
 
 FROM nginx:alpine as deploy
 COPY --from=build /frontend/dist /usr/share/nginx/html
