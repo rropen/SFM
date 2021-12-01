@@ -134,7 +134,7 @@ const chartOptions = ref({
 /* GET request to /metrics/deployments to retrieve array of deployments. */
 function fetchLeadTime() {
   //set url string
-  let url = "";
+  let url = import.meta.env.VITE_API_URL;
   if (props.projectName == "All") {
     url = "/metrics/LeadTimeToChange";
   } else {
