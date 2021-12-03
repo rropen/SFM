@@ -130,6 +130,8 @@ const chartOptions = ref({
 /* GET request to /metrics/deployments to retrieve array of deployments. */
 function fetchChangeFailureRate() {
   let bearer = import.meta.env.VITE_API_AUTH_TOKEN;
+  let base = import.meta.env.VITE_API_URL;
+  console.log("Base Url: ", base);
   //set url string
   // let url = import.meta.env.VITE_API_URL;
   let url = "";
