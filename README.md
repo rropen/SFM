@@ -44,7 +44,7 @@ TBD
 
 ## Visibility
 
-This project is meant to be in the open source - public facing region of the Rolls-Royce GitHub Enterprise instance. Any secrets or secure configuration information will be handled through the use of secure secrets and other cloud native ways. If any features or updates need to be added to this project that would push it out of the public facing organization, then it will be moved. Contact [Josh Haines](mailto:Josh.Haines@Rolls-Royce.com) if you have any questions.
+This project is meant to be in the open source - public facing region of the Rolls-Royce GitHub Enterprise instance. Any secrets or secure configuration information will be handled through the use of secure secrets and other cloud native ways. If any features or updates need to be added to this project that would push it out of the public facing organization, then it will be moved. Contact [Josh Haines](mailto:Josh.Haines@Rolls-Royce.com) if you have any questions..
 
 ## DORA Metric Calculations
 
