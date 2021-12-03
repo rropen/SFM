@@ -40,7 +40,7 @@ jobs:
           password: ${{ secrets.CRSFT_PASSWORD }}
       - name: Build/Push Frontend Container
         run: |
-          docker build --build-arg -t ${{ secrets.IMAGE_BACKEND_DEV }} src/backend
+          docker build -t ${{ secrets.IMAGE_BACKEND_DEV }} src/backend
           docker push ${{ secrets.IMAGE_BACKEND_DEV }}
         env:
           NODE_ENV: production
