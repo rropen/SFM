@@ -42,8 +42,3 @@ jobs:
         run: |
           docker build -t ${{ secrets.IMAGE_BACKEND_DEV }} src/backend
           docker push ${{ secrets.IMAGE_BACKEND_DEV }}
-        env:
-          NODE_ENV: production
-          VITE_MODE: production
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          VITE_API_AUTH_TOKEN: ${{ secrets.VITE_API_AUTH_TOKEN }}
