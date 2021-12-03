@@ -99,7 +99,8 @@ const props = defineProps({
 /* ----------------------------------------------
                   VARIABLES
 ---------------------------------------------- */
-
+let base = import.meta.env.VITE_API_URL;
+console.log("Base Url: ", base);
 const changeFailureRate = ref<changeFailureRateItem>(); // holds currently fetched deployment data
 
 const perfStatus = ref("0-15%");
@@ -130,8 +131,6 @@ const chartOptions = ref({
 /* GET request to /metrics/deployments to retrieve array of deployments. */
 function fetchChangeFailureRate() {
   let bearer = import.meta.env.VITE_API_AUTH_TOKEN;
-  let base = import.meta.env.VITE_API_URL;
-  console.log("Base Url: ", base);
   //set url string
   // let url = import.meta.env.VITE_API_URL;
   let url = "";
