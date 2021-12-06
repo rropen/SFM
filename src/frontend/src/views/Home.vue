@@ -352,15 +352,15 @@ const projectDropdownChoices = computed(() => {
 ---------------------------------------------- */
 
 /* GET request to /projects to retrieve array of projects. */
-let bearer = import.meta.env.VITE_API_AUTH_TOKEN;
+// let bearer = import.meta.env.VITE_API_AUTH_TOKEN;
 const fetchProjects = () => {
   axios
     .get("/projects", {
       params: { skip: 0, limit: 100 },
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${import.meta.env.VITE_API_AUTH_TOKEN}`,
-        Authorization: "Bearer " + bearer,
+        Authorization: `Bearer ${import.meta.env.VITE_API_AUTH_TOKEN}`,
+        // Authorization: 'Bearer ' + bearer,
       },
     })
     .then((response) => {
