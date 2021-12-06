@@ -355,7 +355,7 @@ const projectDropdownChoices = computed(() => {
 let bearer = import.meta.env.VITE_API_AUTH_TOKEN;
 const fetchProjects = () => {
   axios
-    .get("projects", {
+    .get("/projects", {
       params: { skip: 0, limit: 100 },
       headers: {
         "Content-Type": "application/json",
