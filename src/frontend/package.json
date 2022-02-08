@@ -29,6 +29,7 @@
     "pinia": "^2.0.0-rc.8",
     "primeicons": "^4.1.0",
     "primevue": "^3.6.4",
+    "tailwindcss-truncate-multiline": "^1.0.3",
     "vee-validate": "^4.4.9",
     "vue": "^3.2.16",
     "vue-apexcharts": "^1.6.0",

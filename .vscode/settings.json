@@ -1,5 +1,12 @@
 {
   "editor.codeActionsOnSave": {
     "source.fixAll": true
-  }
+  },
+  "azureFunctions.deploySubpath": "src/serverlessBackend",
+  "azureFunctions.postDeployTask": "npm install (functions)",
+  "azureFunctions.projectLanguage": "TypeScript",
+  "azureFunctions.projectRuntime": "~4",
+  "debug.internalConsoleOptions": "neverOpen",
+  "azureFunctions.projectSubpath": "src/serverlessBackend",
+  "azureFunctions.preDeployTask": "npm prune (functions)"
 }

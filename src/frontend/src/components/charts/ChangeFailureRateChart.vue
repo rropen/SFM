@@ -100,7 +100,6 @@ const props = defineProps({
                   VARIABLES
 ---------------------------------------------- */
 let base = import.meta.env.VITE_API_URL;
-console.log("Base Url: ", base);
 const changeFailureRate = ref<changeFailureRateItem>(); // holds currently fetched deployment data
 
 const perfStatus = ref("0-15%");

@@ -30,6 +30,8 @@ services:
       - 8181:8181
     volumes:
       - ./backend/:/app
+    env_file:
+      - ./backend/.env
 
   frontend:
     depends_on:
