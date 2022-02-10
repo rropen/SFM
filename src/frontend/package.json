@@ -25,7 +25,7 @@
     "graphql": "^16.3.0",
     "moment": "^2.29.1",
     "nanoid": "^3.1.25",
-    "node-sass": "^6.0.1",
+    "node-sass": "^7.0.0",
     "package.json": "^2.0.1",
     "pinia": "^2.0.0-rc.8",
     "primeicons": "^4.1.0",
