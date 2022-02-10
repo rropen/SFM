@@ -8,18 +8,23 @@ const routes = [
   },
   {
     path: "/dora",
-    name: "Dora",
-    component: () => import("../views/Home.vue"),
+    name: "DORA",
+    component: () => import("../views/DORA.vue"),
   },
   {
     path: "/flow",
     name: "Flow",
-    component: () => import("../views/Home.vue"),
+    component: () => import("../views/Flow.vue"),
   },
   {
     path: "/about",
     name: "About",
     component: () => import("../views/About.vue"),
+  },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: () => import("../views/Admin.vue"),
   },
   {
     path: "/422",

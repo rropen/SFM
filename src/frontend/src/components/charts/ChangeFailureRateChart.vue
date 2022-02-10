@@ -1,39 +1,12 @@
 <template>
   <div class="chartAreaWrapper flex flex-col">
-    <div v-if="loaded" class="chartWrapper shadow-lg">
-      <apexchart
-        type="line"
-        :height="chartOptions.chart.height"
-        :options="chartOptions"
-        :series="changeFailureRateData"
-      ></apexchart>
-    </div>
-    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
-    <div
-      class="
-        mt-4
-        w-1/2
-        mx-auto
-        font-semibold
-        text-center
-        rounded-md
-        py-3
-        flex flex-row
-        justify-apart
-      "
-      :class="{
-        'bg-green-600 text-white': perfStatus == 'High',
-        'bg-yellow-400 text-rrgrey-800': perfStatus == 'Medium',
-        'bg-red-600 text-white': perfStatus == 'Low',
-      }"
-    >
-      <div class="spacer"></div>
-      <h1 class="mx-auto text-xl px-2 w-3/4">
-        {{ Math.round(changeFailureRate?.change_failure_rate * 100) }}%
-      </h1>
+    <h1 class="text-xl font-semibold text-rrgrey-700 mb-2">
+      Change Failure Rate
+    </h1>
+    <div class="flex">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="mr-4 h-8 w-8 text-white inline-block hover:text-rrgrey-400"
+        class="mr-2 h-6 w-6 text-rrgrey-700 hover:text-rrgrey-600"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -46,7 +19,51 @@
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
+      <h1
+        :class="{
+          'text-green-600': perfStatus == 'High',
+          'text-yellow-400': perfStatus == 'Medium',
+          'text-red-600': perfStatus == 'Low',
+        }"
+      >
+        {{ perfStatus }} ({{
+          Math.round(changeFailureRate?.change_failure_rate * 100)
+        }}%)
+      </h1>
+      <h1 class="ml-4 mr-1 text-rrgrey-700">
+        Last 30 Days: {{ last30DaysValue }}
+      </h1>
+      <h1
+        :class="{
+          'text-green-600': last30DaysPercentage >= 0,
+          'text-red-600': last30DaysPercentage < 0,
+        }"
+      >
+        ({{ last30DaysPercentage }}%)
+      </h1>
+
+      <h1 class="ml-4 mr-1 text-rrgrey-700">
+        Last 90 Days: {{ last90DaysValue }}
+      </h1>
+      <h1
+        :class="{
+          'text-green-600': last90DaysPercentage >= 0,
+          'text-red-600': last90DaysPercentage < 0,
+        }"
+      >
+        ({{ last90DaysPercentage }}%)
+      </h1>
     </div>
+    <div v-if="loaded" class="chartWrapper">
+      <apexchart
+        type="line"
+        :height="chartOptions.chart.height"
+        :options="chartOptions"
+        :series="changeFailureRateData"
+      ></apexchart>
+    </div>
+    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
+
     <teleport to="#modals">
       <infoModal
         v-if="showInfoModal"
@@ -100,13 +117,16 @@ const props = defineProps({
                   VARIABLES
 ---------------------------------------------- */
 let base = import.meta.env.VITE_API_URL;
-console.log("Base Url: ", base);
 const changeFailureRate = ref<changeFailureRateItem>(); // holds currently fetched deployment data
 
 const perfStatus = ref("0-15%");
 const showInfoModal = ref(false);
 const modalType = ref("changeFailureRate");
 const loaded = ref(false);
+const last30DaysPercentage = ref(2.2);
+const last30DaysValue = ref(5.5);
+const last90DaysPercentage = ref(-8.5);
+const last90DaysValue = ref(8.7);
 
 const chartOptions = ref({
   chart: {

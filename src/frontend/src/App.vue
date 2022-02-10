@@ -31,9 +31,9 @@ const route = useRoute();
 
 const appTitleShort = "SFM";
 const appTitleLong = "Software Factory Metrics";
-const tabsText = ["About"];
+const tabsText = ["About", "DORA", "Flow", "Admin"];
 
-const tabLinks = ["About"];
+const tabLinks = ["About", "DORA", "Flow", "Admin"];
 
 const pathName = computed(() => route.name);
 </script>

@@ -1,39 +1,10 @@
 <template>
   <div class="chartAreaWrapper flex flex-col">
-    <div v-if="loaded" class="chartWrapper shadow-lg">
-      <apexchart
-        type="bar"
-        :height="chartOptions.chart.height"
-        :options="chartOptions"
-        :series="deploymentsData"
-      ></apexchart>
-    </div>
-    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
-    <div
-      class="
-        mt-4
-        w-1/2
-        mx-auto
-        font-semibold
-        text-center
-        rounded-md
-        py-3
-        flex flex-row
-        justify-apart
-      "
-      :class="{
-        'bg-green-600 text-white': deploymentMetricStatus == 'Daily',
-        'bg-yellow-400 text-rrgrey-800': deploymentMetricStatus == 'Weekly',
-        'bg-orange-500 text-white': deploymentMetricStatus == 'Monthly',
-        'bg-red-600 text-white': deploymentMetricStatus == 'Yearly',
-        'bg-rrgrey-700 text-white': deploymentMetricStatus == 'No Deployments',
-      }"
-    >
-      <div class="spacer"></div>
-      <h1 class="mx-auto text-xl px-2 w-3/4">{{ deploymentMetricStatus }}</h1>
+    <h1 class="text-xl font-semibold text-rrgrey-700 mb-2">Deployments</h1>
+    <div class="flex">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="mr-4 h-8 w-8 text-white inline-block hover:text-rrgrey-400"
+        class="mr-2 h-6 w-6 text-rrgrey-700 hover:text-rrgrey-600"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -46,7 +17,52 @@
           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
+      <h1
+        :class="{
+          'text-green-600': deploymentMetricStatus == 'Daily',
+          'text-yellow-400': deploymentMetricStatus == 'Weekly',
+          'text-orange-500': deploymentMetricStatus == 'Monthly',
+          'text-red-600': deploymentMetricStatus == 'Yearly',
+          'text-rrgrey-700': deploymentMetricStatus == 'No Deployments',
+        }"
+      >
+        {{ deploymentMetricStatus }}
+      </h1>
+      <h1 class="ml-4 mr-1 text-rrgrey-700">
+        Last 30 Days: {{ last30DaysValue }}
+      </h1>
+      <h1
+        :class="{
+          'text-green-600': last30DaysPercentage >= 0,
+          'text-red-600': last30DaysPercentage < 0,
+        }"
+      >
+        ({{ last30DaysPercentage }}%)
+      </h1>
+
+      <h1 class="ml-4 mr-1 text-rrgrey-700">
+        Last 90 Days: {{ last90DaysValue }}
+      </h1>
+      <h1
+        :class="{
+          'text-green-600': last90DaysPercentage >= 0,
+          'text-red-600': last90DaysPercentage < 0,
+        }"
+      >
+        ({{ last90DaysPercentage }}%)
+      </h1>
     </div>
+
+    <div v-if="loaded" class="chartWrapper">
+      <apexchart
+        type="bar"
+        :height="chartOptions.chart.height"
+        :options="chartOptions"
+        :series="deploymentsData"
+      ></apexchart>
+    </div>
+    <LoadingModal :modal-height="chartOptions.chart.height + 15" v-else />
+
     <teleport to="#modals">
       <infoModal
         v-if="showInfoModal"
@@ -106,6 +122,10 @@ const modalType = ref("deployments");
 const deploymentMetricStatus = ref("");
 const showInfoModal = ref(false);
 const loaded = ref(false);
+const last30DaysPercentage = ref(7.2);
+const last30DaysValue = ref(26);
+const last90DaysPercentage = ref(-2.5);
+const last90DaysValue = ref(86);
 
 const chartOptions = ref({
   chart: {
