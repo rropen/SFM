@@ -11,7 +11,12 @@ module.exports = {
   // mode: "jit",
   important: false,
   separator: ":",
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/line-clamp"),
+    require("tailwindcss-truncate-multiline"),
+  ],
   theme: {
     screens: {
       sm: "640px",

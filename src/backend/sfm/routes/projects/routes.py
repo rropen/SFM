@@ -62,6 +62,7 @@ def get_projects(params: CustomGetParams = Depends(), db: Session = Depends(get_
 
     """
     projects = crud.get_all(db, skip=params.skip, limit=params.limit)
+    print("Projects: {}".format(projects))
     return projects
 
 
@@ -110,6 +111,8 @@ def create_project(
     - **location**: Location of the owner's group. (E.g. Indianapolis, UK, Germany, etc.)
     - **repo_url**: Github or Gitlab url to the corresponding project
     - **on_prem**: Boolean describing if the repo is located on a "on-premises" server
+    - **location**: ??
+    - **github_id**: ??
     """
     # Creates the database row and stores it in the table
 

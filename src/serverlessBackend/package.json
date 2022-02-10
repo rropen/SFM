@@ -1,0 +1,18 @@
+{
+  "name": "sfm-serverlessbackend",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build",
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@azure/functions": "^1.2.3",
+    "typescript": "^4.0.0"
+  }
+}

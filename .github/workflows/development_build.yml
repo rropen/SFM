@@ -19,8 +19,9 @@ jobs:
     uses: rropen/reusable-workflows/.github/workflows/cypress_component_tests.yml@main
     with:
       frontend_directory: src/frontend
+      package_scope: "@rrglobal"
     secrets:
-      vue_cobalt_token: ${{ secrets.VUE_COBALT_PAT }}
+      node_auth_token: ${{ secrets.VUE_COBALT_PAT }}
 
   docker-build:
     uses: rropen/reusable-workflows/.github/workflows/docker_build.yml@main
